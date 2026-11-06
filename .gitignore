@@ -1,0 +1,27 @@
+# Rahasia dan lingkungan lokal
+.env
+.env.*
+!.env.example
+
+# Dependensi PHP
+/vendor/
+/node_modules/
+
+# Artefak build Flutter/Dart
+/build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+*.iml
+
+# Log Laravel
+/storage/logs/*.log
+/storage/persist/
+
+# IDE dan berkas sistem
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
