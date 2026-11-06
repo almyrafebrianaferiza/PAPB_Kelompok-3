@@ -6,3 +6,4 @@
 | Tanggal | Alat | Berkas / fungsi | Jenis bantuan | Direview oleh |
 |---------|------|-----------------|---------------|---------------|
 | 2026-11-07 | opencode | backend/ (scaffold `composer create-project`), mobile/ (scaffold `flutter create`), .gitignore, README.md, docs/log-ai.md | dibuat awal | (diisi anggota) |
+| 2026-11-07 | opencode | conventions.md :: 7.3, agent.md :: 5, todo.md :: catatan eksekusi | dokumen (aturan push) | (diisi anggota) |
