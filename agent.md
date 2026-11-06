@@ -59,7 +59,7 @@ Setiap pelanggaran menurunkan nilai kelompok.
 ## 5. Ukuran Perubahan dan Git
 
 - Satu perubahan logis per kelompok; sarankan pesan commit sesuai `conventions.md` Bagian 7.2 (`feat(checkout): ...`).
-- **Jangan melakukan `git commit`, `git push`, `--force`, atau mengubah `git config` atas nama pengguna** kecuali diminta eksplisit. Pengguna yang melakukan commit agar riwayat mencerminkan pemahamannya (minimal 5 commit bermakna per anggota).
+- **AI boleh `git commit` lalu `git push` ke `origin/main` secara otomatis** setelah satu langkah `todo.md` selesai dan seluruh perintah verifikasi lolos, tanpa perlu minta izin tiap kali (aturan: `conventions.md` 7.3). Yang tetap dilarang: `push --force`, mengubah `git config`, menghapus/menimpa cabang atau commit anggota lain, dan commit bila verifikasi masih gagal.
 - Jangan menghapus atau menimpa berkas pengguna di luar lingkup tugas. Jangan memakai perintah destruktif (`migrate:fresh` di basis data selain `zenvora` lokal, `rm -rf`) tanpa konfirmasi.
 - Pustaka baru (pub.dev/Packagist): minta persetujuan lebih dulu; bila disetujui, catat di README beserta alasannya.
 

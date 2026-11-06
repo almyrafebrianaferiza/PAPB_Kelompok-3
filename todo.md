@@ -3,7 +3,7 @@
 > Dibaca dan dijalankan oleh Claude Code / Antigravity / opencode, **satu langkah per giliran**, berurutan mengikuti jalur kritis. Tidak memuat pembagian anggota: siapa pun yang menjalankan langkah wajib memahami hasilnya (lihat `agent.md` Bagian 6).
 > Sebelum mulai: baca `agent.md`, lalu rujukan tiap langkah. Setiap langkah selesai hanya bila **kriteria selesai** terbukti oleh perintah verifikasi (jangan menyatakan selesai dari perkiraan).
 > Tandai kotak `[x]` setelah terbukti. Tenggat internal: **Senin 9 Nov 2026**. Tanda ★ = jalur kritis (tidak boleh dilewati); ◇ = nilai tambah (kerjakan hanya bila semua ★ selesai).
-> Setelah setiap langkah: tambah baris di `docs/log-ai.md`, dan sarankan pesan commit (jangan commit sendiri).
+> Setelah setiap langkah: tambah baris di `docs/log-ai.md`, commit dengan pesan Conventional Commits, lalu **langsung push ke `origin/main`** (aturan di `conventions.md` Bagian 7.3).
 
 ---
 

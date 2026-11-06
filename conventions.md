@@ -176,6 +176,7 @@ Contoh buruk (jangan): `final`, `update`, `fix bug`, `tambah semua fitur`, `comm
 ### 7.3 Aturan commit
 - Setiap anggota **minimal 5 commit bermakna atas namanya** (Kriteria 8). Target realistis: 8–12 per anggota.
 - Commit kecil dan sering: satu perubahan logis per commit. Dilarang satu commit besar di hari terakhir.
+- **Setiap commit wajib langsung di-push ke `origin/main` begitu dibuat** — jangan menumpuk commit lokal; progres harus selalu terlihat di repositori. AI boleh commit lalu push otomatis setelah satu langkah `todo.md` selesai dan seluruh perintah verifikasi lolos; anggota yang mengubah kode juga push segera setelah commit.
 - Pastikan `git config user.name` dan `user.email` tiap anggota benar di laptop masing-masing; commit hasil AI tetap di-commit atas nama anggota yang mereviewnya dan memahaminya.
 - Jangan membuat commit atas nama orang lain, dan jangan menulis ulang riwayat (`push --force`) setelah anggota lain menarik cabang.
 - Jangan menggabungkan perubahan yang belum dipahami penggabungnya.
