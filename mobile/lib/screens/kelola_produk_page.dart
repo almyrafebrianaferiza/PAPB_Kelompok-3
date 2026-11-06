@@ -1,0 +1,275 @@
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../enums/keadaan_muat.dart';
+import '../exceptions/galat_api.dart';
+import '../models/produk.dart';
+import '../services/layanan_api.dart';
+import '../widgets/tampilan_galat.dart';
+import '../widgets/tampilan_kosong.dart';
+import 'form_produk_page.dart';
+
+class KelolaProdukPage extends StatefulWidget {
+  final LayananApi layananApi;
+
+  const KelolaProdukPage({super.key, required this.layananApi});
+
+  @override
+  State<KelolaProdukPage> createState() => _KelolaProdukPageState();
+}
+
+class _KelolaProdukPageState extends State<KelolaProdukPage> {
+  KeadaanMuat _keadaan = KeadaanMuat.memuat;
+  GalatApi? _galat;
+  List<Produk> _daftar = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _muatDaftar();
+  }
+
+  Future<void> _muatDaftar() async {
+    setState(() {
+      _keadaan = KeadaanMuat.memuat;
+      _galat = null;
+    });
+
+    try {
+      final respon = await widget.layananApi.daftarProduk(halaman: 1, perHalaman: 50);
+      if (mounted) {
+        setState(() {
+          _daftar = respon;
+          _keadaan = KeadaanMuat.berhasil;
+        });
+      }
+    } on GalatApi catch (e) {
+      if (mounted) {
+        setState(() {
+          _galat = e;
+          _keadaan = KeadaanMuat.galat;
+        });
+      }
+    }
+  }
+
+  Future<void> _konfirmasiHapus(Produk p) async {
+    final setuju = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Hapus Produk?'),
+        content: Text('Apakah Anda yakin ingin menghapus produk "${p.nama}" (Merek: ${p.merek})? Tindakan ini tidak dapat dibatalkan.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFDC2626)),
+            child: const Text('Ya, Hapus', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (setuju == true) {
+      try {
+        await widget.layananApi.hapusProduk(p.id);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Produk "${p.nama}" berhasil dihapus.'),
+              backgroundColor: const Color(0xFF059669),
+            ),
+          );
+          _muatDaftar();
+        }
+      } on GalatApi catch (e) {
+        if (mounted) {
+          if (e is BentrokException) {
+            showDialog(
+              context: context,
+              builder: (c) => AlertDialog(
+                title: const Text('Gagal Menghapus (409)'),
+                content: Text(e.pesan),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(c),
+                    child: const Text('Tutup'),
+                  ),
+                ],
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(e.pesan), backgroundColor: const Color(0xFFDC2626)),
+            );
+          }
+        }
+      }
+    }
+  }
+
+  String _formatRupiah(num nominal) {
+    final format = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
+    return format.format(nominal);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
+      appBar: AppBar(
+        title: const Text('Kelola Produk (CRUD)'),
+        backgroundColor: Colors.white,
+        foregroundColor: const Color(0xFF0F172A),
+        elevation: 0.5,
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () async {
+          final berhasil = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (ctx) => FormProdukPage(layananApi: widget.layananApi),
+            ),
+          );
+          if (berhasil == true) _muatDaftar();
+        },
+        backgroundColor: const Color(0xFF0284C7),
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text('Tambah Produk', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+      ),
+      body: _bangunBadan(),
+    );
+  }
+
+  Widget _bangunBadan() {
+    if (_keadaan == KeadaanMuat.memuat) {
+      return const Center(child: CircularProgressIndicator(color: Color(0xFF0284C7)));
+    }
+
+    if (_keadaan == KeadaanMuat.galat) {
+      return TampilanGalat(
+        galat: _galat ?? ServerException('Gagal memuat katalog produk'),
+        saatCobaLagi: _muatDaftar,
+      );
+    }
+
+    if (_daftar.isEmpty) {
+      return TampilanKosong(
+        ikon: Icons.inventory_2_outlined,
+        judul: 'Katalog Kosong',
+        pesan: 'Belum ada produk dalam basis data Zenvorā.',
+        teksTombolAksi: 'Tambah Produk Sekarang',
+        saatTombolDitekan: () async {
+          final res = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (c) => FormProdukPage(layananApi: widget.layananApi)),
+          );
+          if (res == true) _muatDaftar();
+        },
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _muatDaftar,
+      color: const Color(0xFF0284C7),
+      child: ListView.separated(
+        padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 80),
+        itemCount: _daftar.length,
+        separatorBuilder: (c, i) => const SizedBox(height: 10),
+        itemBuilder: (ctx, i) {
+          final p = _daftar[i];
+          final bool habis = p.isHabis;
+
+          return Card(
+            elevation: 1,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.devices_other, color: Color(0xFF94A3B8)),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          p.nama,
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          '${p.merek} • ${p.kategori}',
+                          style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Text(
+                              _formatRupiah(p.harga),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF0284C7),
+                                fontSize: 13,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: habis ? const Color(0xFFFEE2E2) : const Color(0xFFDCFCE7),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                habis ? 'Habis' : 'Stok: ${p.stok}',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: habis ? const Color(0xFFDC2626) : const Color(0xFF15803D),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.edit_outlined, size: 20, color: Color(0xFF0284C7)),
+                    onPressed: () async {
+                      final berhasil = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (c) => FormProdukPage(
+                            produk: p,
+                            layananApi: widget.layananApi,
+                          ),
+                        ),
+                      );
+                      if (berhasil == true) _muatDaftar();
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline, size: 20, color: Color(0xFFEF4444)),
+                    onPressed: () => _konfirmasiHapus(p),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
