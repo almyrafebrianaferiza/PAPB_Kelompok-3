@@ -6,6 +6,7 @@ use App\Support\Respons;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 
 class SimpanProdukRequest extends FormRequest
 {
@@ -20,7 +21,7 @@ class SimpanProdukRequest extends FormRequest
             'nama' => 'required|string|max:150',
             'merek' => 'required|string|max:60',
             'harga' => 'required|integer|min:0',
-            'kategori' => 'required|string|in:gadget,laptop,tv,monitor,tablet',
+            'kategori' => ['required', 'string', Rule::in(config('zenvora.kategori'))],
             'stok' => 'required|integer|min:0',
             'tersedia' => 'sometimes|boolean',
             'deskripsi' => 'nullable|string',

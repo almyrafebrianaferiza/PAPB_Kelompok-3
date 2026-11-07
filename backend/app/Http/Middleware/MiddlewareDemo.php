@@ -15,7 +15,7 @@ class MiddlewareDemo
     public function handle(Request $request, Closure $next): Response
     {
         // 1. Simulasi Galat Server 500
-        $paksaGalatEnv = filter_var(env('ZENVORA_PAKSA_GALAT', false), FILTER_VALIDATE_BOOLEAN);
+        $paksaGalatEnv = (bool) config('zenvora.paksa_galat');
         $headerGalat = $request->header('X-Demo-Error') === 'true';
 
         if ($paksaGalatEnv || $headerGalat) {
@@ -23,7 +23,7 @@ class MiddlewareDemo
         }
 
         // 2. Simulasi Batas Waktu Terlampaui (Timeout > 10 detik)
-        $lambatDetikEnv = (int) env('ZENVORA_LAMBAT_DETIK', 0);
+        $lambatDetikEnv = (int) config('zenvora.lambat_detik');
         $headerDelay = (int) $request->header('X-Demo-Delay', 0);
         $delaySec = max($lambatDetikEnv, $headerDelay);
 

@@ -13,7 +13,7 @@ class PelangganSeeder extends Seeder
             ['id' => 1],
             [
                 'nama' => 'Pembeli Zenvora',
-                'token_statis' => 'zenvora-dev-token-2026',
+                'token_statis' => config('zenvora.token_pembeli'),
             ]
         );
     }
