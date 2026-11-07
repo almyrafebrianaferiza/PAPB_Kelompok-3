@@ -27,24 +27,24 @@
 
 ## Fase B — Basis data dan data awal
 
-### [ ] B1 ★ Migrasi 8 tabel (urutan benar)
+### [x] B1 ★ Migrasi 8 tabel (urutan benar)
 - **Berkas**: `database/migrations/` untuk `pelanggan`, `produk` (+ `softDeletes`), `kurir`, `metode_pembayaran`, `keranjang`, `pesanan`, `detail_pesanan`, `unit_produk` (urutan persis `database-schema.md` Bagian 3).
 - **Rujukan**: `database-schema.md` Bagian 2–3 (tipe kolom, unique `(pelanggan_id, produk_id)` dan `(pelanggan_id, kunci_idempoten)`, indeks `(produk_id, status)`).
 - **Verifikasi**: `php artisan migrate:fresh` sukses; `SHOW CREATE TABLE` pada `pesanan` dan `unit_produk` memuat unique/indeks yang diminta.
 - **Selesai bila**: semua tabel dan kunci unik ada; tidak ada referensi melingkar.
 
-### [ ] B2 ★ Model Eloquent
+### [x] B2 ★ Model Eloquent
 - **Berkas**: `app/Models/*` (8 model), tiap model `protected $table = '...'`, `$fillable`/`$guarded`, relasi (`Produk`↔`UnitProduk`, `Pesanan`↔`DetailPesanan`, `DetailPesanan`↔`UnitProduk`, dst.), `Produk` memakai `SoftDeletes`.
 - **Verifikasi**: `php artisan tinker` → `\App\Models\Produk::count()` tidak galat meski kosong.
 - **Selesai bila**: tidak ada galat nama tabel (`produks`).
 
-### [ ] B3 ★ Enum dan layanan inti tanpa HTTP
+### [x] B3 ★ Enum dan layanan inti tanpa HTTP
 - **Berkas**: `app/Enums/StatusPesanan.php` (7 nilai, `bolehPindahKe()`, `berikutnya()`), `app/Services/ServisOngkir.php`, `app/Services/ServisStok.php` (buat/tambah/hapus unit, sinkron `produk.stok`, penomoran seri `ZNV-P{kodeProduk 2 digit}-{urut4}`).
 - **Rujukan**: `database-schema.md` Bagian 4–6, `api-contract.md` 5.1 dan 5.4.
 - **Verifikasi**: uji di `tinker`: 1.000 g → 1 kg; 1.001 g → 2 kg; 1.910 g × 7.500 = 15.000; `StatusPesanan::from('selesai')->bolehPindahKe(...)` → false untuk semua.
 - **Selesai bila**: rumus dan tabel status cocok persis dengan kontrak.
 
-### [ ] B4 ★ Seeder
+### [x] B4 ★ Seeder
 - **Berkas**: `database/seeders/` (`PelangganSeeder`, `KurirSeeder`, `MetodePembayaranSeeder`, `ProdukSeeder` + unit, `PesananContohSeeder`, `DatabaseSeeder` berurutan). Pesanan contoh dibuat **lewat logika checkout** (panggil `ServisCheckout` setelah C-fase, atau tunda langkah ini sampai C6 selesai lalu kembali).
 - **Rujukan**: `database-schema.md` Bagian 7 (15 produk, dua stok nol, satu `tersedia=false`, dua `deskripsi` NULL; 3 kurir; 2 metode; 3 pesanan A/B/C).
 - **Verifikasi**: `php artisan migrate:fresh --seed` sekali jalan tanpa galat; SQL invarian → 0 baris; `SELECT COUNT(*) FROM produk` = 15; stok akhir Redmi 7, Tab A9+ 5, Vivobook 3, LG 24" 5.
@@ -61,31 +61,31 @@
 - **Verifikasi**: `curl` rute tak ada → JSON 404 berpembungkus; tanpa token → 401 JSON; `GET` pada rute POST → 405 JSON; `code` bertipe string.
 - **Selesai bila**: tidak ada respons HTML pada kondisi apa pun, termasuk 404/405.
 
-### [ ] C2 ★ Endpoint produk (#1–#5)
+### [x] C2 ★ Endpoint produk (#1–#5)
 - **Berkas**: `ProdukController`, `SimpanProdukRequest`, `ProdukResource`, `routes/api.php`.
 - **Rujukan**: `api-contract.md` 4.1–4.5, `database-schema.md` Bagian 4 (`POST/PUT` lewat `ServisStok`, `DELETE` soft delete + 409 untuk pesanan aktif).
 - **Verifikasi (curl/Postman)**: daftar kosong via `?cari=zzz` → 200 `data: []`; `?kategori=tablet` → 3 item; `?halaman=2&per_halaman=10` → 5 item; produk 9999 → 404; POST tanpa nama → 422 per kolom; PUT stok naik/turun menjaga invarian; DELETE produk pada pesanan A → 409.
 - **Selesai bila**: semua kode status pada tabel kontrak teramati; invarian 0 baris.
 
-### [ ] C3 ★ Kurir, metode pembayaran, keranjang (#6–#10, #15)
+### [x] C3 ★ Kurir, metode pembayaran, keranjang (#6–#10, #15)
 - **Berkas**: `KurirController` (estimasi dari `ServisOngkir`), `MetodePembayaranController`, `KeranjangController`, `TambahKeranjangRequest`, `UbahKeranjangRequest`, resource terkait.
 - **Rujukan**: `api-contract.md` 4.6–4.10, 4.15.
 - **Verifikasi**: tambah produk sama dua kali → 1 baris (201 lalu 200); jumlah melebihi stok → 409 berpesan server; produk stok nol → 409; `jumlah=0` → 422; `GET /api/kurir` dengan keranjang Vivobook+Tab A9+ → ongkir 8.000/15.000/30.000; keranjang kosong → ketiga nilai 0.
 - **Selesai bila**: subtotal, `total_jumlah`, estimasi ongkir semuanya dari server dan cocok kontrak.
 
-### [ ] C4 ★ ServisCheckout + endpoint checkout (#11)
+### [x] C4 ★ ServisCheckout + endpoint checkout (#11)
 - **Berkas**: `ServisCheckout`, `CheckoutController`, `CheckoutRequest`, `RincianPesananResource`.
 - **Rujukan**: `api-contract.md` 4.11 (9 langkah, **replay dicek sebelum validasi keranjang** dan diulang di dalam transaksi), `architecture.md` 3.1–3.2.
 - **Verifikasi**: (1) checkout sukses → 201, stok berkurang di DB, unit `terjual`, keranjang kosong, `nomor_seri` terisi; (2) ulangi dengan kunci **sama** → 201 pesanan yang sama, jumlah pesanan tidak bertambah; (3) tanpa header kunci → 422; (4) stok kurang → 409 + `data.item_kurang`, stok tidak berubah; (5) paksa kegagalan di tengah (lempar exception setelah pengurangan unit, sementara) → rollback penuh, lalu hapus kode uji; (6) invarian 0 baris.
 - **Selesai bila**: semua enam butir terbukti.
 
-### [ ] C5 ★ Pesanan: daftar, rincian, ubah status (#12–#14)
+### [x] C5 ★ Pesanan: daftar, rincian, ubah status (#12–#14)
 - **Berkas**: `PesananController`, `ServisPesanan`, `UbahStatusRequest`, `RingkasanPesananResource`.
 - **Rujukan**: `api-contract.md` 4.12–4.14, 5.4.
 - **Verifikasi**: riwayat urut terbaru dulu; PATCH `menunggu_pembayaran → menunggu_konfirmasi` 200; `selesai → diproses` 409; status ngawur → 422; `dibatalkan` mengembalikan unit dan stok (invarian 0 baris); rincian pesanan lama tetap menampilkan harga saat beli setelah harga produk diubah.
 - **Selesai bila**: 15 endpoint ada (`php artisan route:list --path=api` = 15 rute).
 
-### [ ] C6 ★ Pesanan contoh di seeder (B4b) dan middleware demo
+### [x] C6 ★ Pesanan contoh di seeder (B4b) dan middleware demo
 - **Berkas**: `PesananContohSeeder` (pesanan A `menunggu_pembayaran`, B `dibayar`, C `selesai` lewat `ServisCheckout` + `ServisPesanan`), `MiddlewareDemo` (`ZENVORA_LAMBAT_DETIK`, `ZENVORA_PAKSA_GALAT`).
 - **Rujukan**: `database-schema.md` 7.4, `architecture.md` Bagian 8.
 - **Verifikasi**: `migrate:fresh --seed` → 3 pesanan berstatus berbeda, invarian 0 baris; dengan flag demo `true`/`15` perilaku berubah, dengan nilai bawaan (`false`/`0`) tidak ada efek.

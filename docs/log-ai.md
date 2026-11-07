@@ -10,3 +10,4 @@
 | 2026-11-07 | opencode | backend/ (ekspor AI Studio → merge: Controllers/Api, Models, Migrations, Seeders, routes/api.php, Services, Requests) | dipindahkan lalu direkonsiliasi | (diisi anggota) |
 | 2026-11-07 | opencode | mobile/lib/ (24 file) + pubspec.yaml — rekonsiliasi kontrak (method, model, H1, kategori, idempoten) | direkonsiliasi, `flutter analyze` 0 issue | (diisi anggota) |
 | 2026-11-07 | opencode | backend/bootstrap/app.php (withExceptions), config/zenvora.php, config/app.php, MiddlewareDemo, SimpanProdukRequest, PelangganSeeder | ditulis (handler galat global 404/405/422/409/401/500 wrapper, config terpusat, timezone, MySQL) | (diisi anggota) |
+| 2026-11-07 | opencode | todo.md B1–B6, C1–C6; testing.md (perbaiki I4); verifikasi mysql/curl/tinker (invarian I1–I7, idempoten, rollback, flag demo) | dijalankan & dicentang (bukti verifikasi) | (diisi anggota) |

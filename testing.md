@@ -39,9 +39,13 @@ WHERE (status = 'terjual'  AND detail_pesanan_id IS NULL)
    OR (status = 'tersedia' AND detail_pesanan_id IS NOT NULL);
 
 -- I4: jumlah unit tertaut pada tiap detail pesanan sama dengan jumlahnya
+-- (Pesanan dibatalkan dikecualikan: unit memang dilepas kembali ke 'tersedia'
+--  sesuai api-contract 4.14 dan database-schema Bagian 4, tetapi baris detail tetap ada)
 SELECT d.id, d.jumlah, COUNT(u.id) AS unit_tertaut
 FROM detail_pesanan d
+JOIN pesanan p ON p.id = d.pesanan_id
 LEFT JOIN unit_produk u ON u.detail_pesanan_id = d.id
+WHERE p.status <> 'dibatalkan'
 GROUP BY d.id, d.jumlah
 HAVING d.jumlah <> COUNT(u.id);
 
