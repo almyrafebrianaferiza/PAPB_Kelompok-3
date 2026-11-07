@@ -16,7 +16,7 @@
 - **Verifikasi**: `cd backend && php artisan --version`; `cd mobile && flutter --version`; `git ls-files | grep -E "(^|/)\.env$"` → kosong.
 - **Selesai bila**: kedua proyek terbuat, `.env` terabaikan git.
 
-### [ ] A2 ★ Konfigurasi Laravel dasar
+### [x] A2 ★ Konfigurasi Laravel dasar
 - **Tujuan**: koneksi MySQL `zenvora`, zona waktu, rute api.
 - **Berkas**: `.env` & `.env.example` (`DB_DATABASE=zenvora`, `APP_TIMEZONE=Asia/Jakarta`, `APP_DEBUG=false` pada contoh, `ZENVORA_TOKEN_PEMBELI`, `ZENVORA_LAMBAT_DETIK=0`, `ZENVORA_PAKSA_GALAT=false`), `config/zenvora.php` (kategori, token, flag demo), `php artisan install:api` (atau buat `routes/api.php` dan daftarkan di `bootstrap/app.php`), `config/app.php` timezone.
 - **Rujukan**: `architecture.md` 2.1, `conventions.md` Bagian 8.
@@ -55,7 +55,7 @@
 
 ## Fase C — Backend inti
 
-### [ ] C1 ★ Pembungkus, penangan galat global, middleware token
+### [x] C1 ★ Pembungkus, penangan galat global, middleware token
 - **Berkas**: `app/Support/Respons.php`, `bootstrap/app.php` (`withExceptions`, `shouldRenderJsonWhen` untuk `api/*`), `app/Exceptions/BentrokException.php`, `TokenTidakValidException.php`, `app/Http/Middleware/AutentikasiTokenStatis.php` (token → `pelanggan` melalui kolom `token_statis`), `JsonResource::withoutWrapping()`.
 - **Rujukan**: `api-contract.md` 1.1–1.3, `architecture.md` Bagian 4.
 - **Verifikasi**: `curl` rute tak ada → JSON 404 berpembungkus; tanpa token → 401 JSON; `GET` pada rute POST → 405 JSON; `code` bertipe string.

@@ -56,6 +56,22 @@ clone kosong `PAPB_Kelompok-3/`, README ekspor, `docs/` ekspor (kosong).
 - [x] Mobile: `flutter analyze` awal 151 issue (109 error) → **No issues found (0)**.
 - [x] Commit + push (3 commit: `feat(backend)`, `feat(mobile)`, `docs(merge)`).
 
+## Lanjutan 7 Nov 2026 — A2, B6, C1 (B4 internal)
+
+- [x] `config/zenvora.php` (kategori 5 nilai, token pembeli, flag demo) + timezone
+      `Asia/Jakarta` di `config/app.php`; `MiddlewareDemo` & `SimpanProdukRequest` &
+      `PelangganSeeder` kini membaca config, `env()` tinggal di file config saja.
+- [x] `withExceptions` global: 404, 405, 422 (jaring pengaman), 409 `BentrokException`
+      (bawa `data`), 401 `TokenTidakValidException`, 500 `Throwable` (pesan umum).
+- [x] `.env` lokal = Laragon MySQL (`zenvora`, utf8mb4, root/kosong), `APP_DEBUG=true`
+      untuk pengembangan (contoh `.env.example` tetap `false`); DB `zenvora` dibuat,
+      `key:generate`, `migrate:fresh --seed` sukses; `database.sqlite` lama dihapus.
+- [x] Smoke test (server :8000) — semua balasan **wrapper JSON**:
+      200 daftar produk, 401 tanpa token, 404 endpoint tak ada, 405 GET di rute POST,
+      422 POST kosong (errors per kolom), 409 `selesai→diproses`, 422 status ngawur,
+      500 header `X-Demo-Error`, 500 Throwable saat DB mati (APP_DEBUG=true, tanpa jejak
+      SQL) — lolos uji C13; setelah pulih `.env` → 200 lagi.
+
 ## Temuan saat eksekusi
 
 - B5 selesai tanpa `install:api`: cukup `api: __DIR__.'/../routes/api.php'` di
