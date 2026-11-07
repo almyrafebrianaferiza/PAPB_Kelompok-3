@@ -95,7 +95,7 @@
 
 ## Fase D — Kerangka Flutter
 
-### [ ] D1 ★ Konfigurasi, galat, model, `LayananApi`
+### [x] D1 ★ Konfigurasi, galat, model, `LayananApi`
 - **Berkas**: `lib/config/konfigurasi.dart`, `lib/enums/keadaan_muat.dart`, `lib/exceptions/galat_api.dart`, `lib/models/*` (`fromJson` saja), `lib/services/layanan_api.dart` (15 metode lewat satu `_kirim`, timeout 10 dtk, token hanya di `_header()`), `pubspec.yaml` (`http`).
 - **Rujukan**: `architecture.md` 5.2, `api-contract.md` 1.4 dan Bagian 2.
 - **Verifikasi**: `flutter analyze` bersih; skrip uji sementara memanggil `daftarProduk()` ke server lokal dan mencetak jumlah item (hapus skrip setelahnya, tidak ada `print` tersisa).
