@@ -1,5 +1,5 @@
-// E4 — Checkout: validator Indonesia, ganti kurir (ongkir server), tombol mati
-// saat proses, kunci idempoten dipakai ulang, 409, 201 -> Rincian,
+// E4 — Checkout: validasi server 422 per kolom, ganti kurir (ongkir server),
+// tombol mati saat proses, kunci idempoten dipakai ulang, 409, 201 -> Rincian,
 // ketuk dua kali -> satu pesanan.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -34,16 +34,17 @@ void main() {
     await tungguMuncul(tester, find.text('Total Tagihan'));
     catat(tester, 'halaman checkout');
 
-    // 1. Validator Indonesia per kolom.
+    // 1. Validasi 422 per kolom dari server (CheckoutRequest).
     await tester.enterText(kolom('Nama Lengkap Penerima *'), '');
     await tester.tap(find.widgetWithText(ElevatedButton, 'Bayar Sekarang'));
-    await tungguMuncul(tester, find.text('Nama wajib diisi'));
-    catat(tester, 'validator nama');
+    await tungguMuncul(tester, find.text('Nama penerima wajib diisi'));
+    catat(tester, '422 nama');
     await tester.enterText(kolom('Nama Lengkap Penerima *'), 'Ahmad Fauzi');
     await tester.enterText(kolom('Alamat Lengkap Pengiriman *'), 'pendek');
     await tester.tap(find.widgetWithText(ElevatedButton, 'Bayar Sekarang'));
-    await tungguMuncul(tester, find.text('Alamat minimal 10 karakter'));
-    catat(tester, 'validator alamat');
+    await tungguMuncul(tester, find.text('Alamat penerima minimal 10 karakter'));
+    expect(find.text('Pengiriman & Checkout'), findsOneWidget);
+    catat(tester, '422 alamat');
     await tester.enterText(
         kolom('Alamat Lengkap Pengiriman *'), 'Jl. Ijen No. 45, Klojen, Kota Malang');
     await tester.pump(const Duration(milliseconds: 200));

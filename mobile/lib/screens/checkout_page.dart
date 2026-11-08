@@ -43,6 +43,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
   String? _kunciIdempoten;
   bool _sedangCheckout = false;
 
+  // Pesan validasi 422 per kolom dari server (ars 5.4): kolom -> pesan.
+  Map<String, String> _galatServer = {};
+
   @override
   void initState() {
     super.initState();
@@ -64,8 +67,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   void _kunciDiubahIsi() {
-    if (_kunciIdempoten != null) {
-      setState(() => _kunciIdempoten = null);
+    if (_kunciIdempoten != null || _galatServer.isNotEmpty) {
+      setState(() {
+        _kunciIdempoten = null;
+        _galatServer = {};
+      });
     }
   }
 
@@ -107,6 +113,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
       _kurirTerpilih?.totalEstimasi ?? (_keranjang?.subtotal ?? 0);
 
   Future<void> _lakukanCheckout() async {
+    if (_galatServer.isNotEmpty) {
+      setState(() => _galatServer = {});
+    }
     if (!_kunciForm.currentState!.validate()) return;
     if (_kurirTerpilih == null || _metodeTerpilih == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -151,6 +160,23 @@ class _CheckoutPageState extends State<CheckoutPage> {
             ),
           ),
         );
+      }
+    } on ValidasiException catch (e) {
+      // 422: pesan per kolom dari server tampil di bawah TextFormField (ars 5.4).
+      if (mounted) {
+        setState(() {
+          _galatServer = e.errors.map((k, v) => MapEntry(k, v.join(', ')));
+        });
+        final kolomLain = e.errors.keys
+            .where((k) => k != 'nama_penerima' && k != 'alamat_penerima');
+        if (kolomLain.isNotEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(e.pesan),
+              backgroundColor: const Color(0xFFDC2626),
+            ),
+          );
+        }
       }
     } on GalatApi catch (e) {
       if (mounted) {
@@ -237,33 +263,24 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   TextFormField(
                     controller: _pengontrolNama,
                     onChanged: (_) => _kunciDiubahIsi(),
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Nama Lengkap Penerima *',
-                      prefixIcon: Icon(Icons.person_outline, size: 20),
+                      prefixIcon: const Icon(Icons.person_outline, size: 20),
+                      // Otoritas validasi ada di server (CheckoutRequest 422).
+                      errorText: _galatServer['nama_penerima'],
                     ),
-                    validator: (val) {
-                      if (val == null || val.trim().isEmpty) return 'Nama wajib diisi';
-                      if (val.trim().length < 3) return 'Nama minimal 3 karakter';
-                      if (val.trim().length > 100) return 'Nama maksimal 100 karakter';
-                      return null;
-                    },
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: _pengontrolAlamat,
                     onChanged: (_) => _kunciDiubahIsi(),
                     maxLines: 2,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Alamat Lengkap Pengiriman *',
-                      prefixIcon: Icon(Icons.location_on_outlined, size: 20),
+                      prefixIcon: const Icon(Icons.location_on_outlined, size: 20),
                       hintText: 'Jalan, nomor rumah, RT/RW, kecamatan, kota',
+                      errorText: _galatServer['alamat_penerima'],
                     ),
-                    validator: (val) {
-                      if (val == null || val.trim().isEmpty) return 'Alamat wajib diisi';
-                      if (val.trim().length < 10) return 'Alamat minimal 10 karakter';
-                      if (val.trim().length > 500) return 'Alamat maksimal 500 karakter';
-                      return null;
-                    },
                   ),
                 ],
               ),
