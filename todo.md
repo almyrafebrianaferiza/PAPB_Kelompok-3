@@ -156,8 +156,9 @@
 - **Rujukan**: `architecture.md` 5.7, `api-contract.md` 4.1.
 - **Verifikasi**: `per_halaman=10` memuat 10 lalu 5 item saat digulir; berhenti tanpa menampilkan "kosong" setelah halaman terakhir; ganti kategori/cari mereset ke halaman 1 (tiket usang diabaikan); galat halaman lanjutan tidak menghapus daftar.
 
-### [ ] F3 ★ Perapian kode
+### [x] F3 ★ Perapian kode
 - **Verifikasi**: semua perintah di `conventions.md` Bagian 6 lolos; tidak ada `print`, kode mati, atau berkas tak terpakai; `flutter analyze` bersih; rute API = 15.
+- **Bukti (jalankan ulang)**: `e.toString`→`Text` 0; `catch` kosong 0 (lib+backend); `print`/`debugPrint` 0 di `mobile/lib`; `dd`/`dump` 0; hitungan Dart 0; `package:http` & `http.*` hanya `layanan_api.dart`; provider 0; rute API **15**; `.env` tak ter-track 0; `flutter analyze` **No issues found**; 24 file `lib` semuanya dirujuk, `TODO/FIXME` 0; `migrate:fresh --seed` sukses; SQL invarian stok **0 baris** (produk=15, pesanan=3). File sampah lokal tak ter-track (`flutter_01.log`, `hs_err_pid25172.log`) dihapus; nol perubahan kode.
 
 ---
 
