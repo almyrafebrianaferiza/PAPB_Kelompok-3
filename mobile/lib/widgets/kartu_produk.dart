@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/produk.dart';
+import '../theme/zenvora_warna.dart';
 import 'penanda_habis.dart';
 
-/// Kartu tampilan produk dalam grid katalog
 class KartuProduk extends StatelessWidget {
   final Produk produk;
   final VoidCallback saatDiketuk;
@@ -23,26 +23,23 @@ class KartuProduk extends StatelessWidget {
     final bool apakahHabis = produk.isHabis;
 
     return Card(
-      elevation: 1.5,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.grey.shade200, width: 1),
-      ),
-      clipBehavior: Clip.antiAlias,
       child: InkWell(
+        borderRadius: BorderRadius.circular(ZRadius.besar),
         onTap: saatDiketuk,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Area visual produk & badge (kontrak tanpa field gambar)
             Stack(
               children: [
                 Container(
                   height: 130,
                   width: double.infinity,
-                  color: const Color(0xFFF8FAFC),
+                  decoration: const BoxDecoration(
+                    color: ZWarna.permukaanTinggi,
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(ZRadius.besar)),
+                  ),
                   child: const Center(
-                    child: Icon(Icons.devices_other, size: 48, color: Color(0xFFCBD5E1)),
+                    child: Icon(Icons.devices_other, size: 48, color: ZWarna.teksSamar),
                   ),
                 ),
                 if (apakahHabis)
@@ -58,13 +55,13 @@ class KartuProduk extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.65),
+                        color: ZWarna.hitam.withValues(alpha: 0.75),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
                         'Sisa ${produk.stok}',
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: ZWarna.putih,
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
                         ),
@@ -77,13 +74,13 @@ class KartuProduk extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE0F2FE),
+                      color: ZWarna.oranye.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
                       '${produk.garansiBulan} bln',
                       style: const TextStyle(
-                        color: Color(0xFF0369A1),
+                        color: ZWarna.oranyeTerang,
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
                       ),
@@ -92,8 +89,6 @@ class KartuProduk extends StatelessWidget {
                 ),
               ],
             ),
-
-            // Informasi Produk
             Padding(
               padding: const EdgeInsets.all(10),
               child: Column(
@@ -104,7 +99,7 @@ class KartuProduk extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF0284C7),
+                      color: ZWarna.oranye,
                       letterSpacing: 0.2,
                     ),
                     maxLines: 1,
@@ -116,7 +111,7 @@ class KartuProduk extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1E293B),
+                      color: ZWarna.putih,
                       height: 1.25,
                     ),
                     maxLines: 2,
@@ -128,19 +123,19 @@ class KartuProduk extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF0F172A),
+                      color: ZWarna.putih,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(Icons.scale_outlined, size: 12, color: Color(0xFF64748B)),
+                      const Icon(Icons.scale_outlined, size: 12, color: ZWarna.teksSekunder),
                       const SizedBox(width: 3),
                       Text(
                         '${produk.beratGram}g',
                         style: const TextStyle(
                           fontSize: 11,
-                          color: Color(0xFF64748B),
+                          color: ZWarna.teksSekunder,
                         ),
                       ),
                     ],

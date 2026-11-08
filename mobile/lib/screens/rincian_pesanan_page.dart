@@ -5,6 +5,7 @@ import '../exceptions/galat_api.dart';
 import '../models/rincian_pesanan.dart';
 import '../services/layanan_api.dart';
 import '../widgets/tampilan_galat.dart';
+import '../theme/zenvora_warna.dart';
 
 class RincianPesananPage extends StatefulWidget {
   final int idPesanan;
@@ -73,7 +74,7 @@ class _RincianPesananPageState extends State<RincianPesananPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Status pesanan berhasil diubah menjadi: $statusBaru'),
-            backgroundColor: const Color(0xFF059669),
+            backgroundColor: ZWarna.sukses,
           ),
         );
       }
@@ -82,7 +83,7 @@ class _RincianPesananPageState extends State<RincianPesananPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(e.pesan),
-            backgroundColor: const Color(0xFFDC2626),
+            backgroundColor: ZWarna.galat,
           ),
         );
       }
@@ -124,33 +125,30 @@ class _RincianPesananPageState extends State<RincianPesananPage> {
   Color _warnaStatus(String status) {
     switch (status) {
       case 'menunggu_pembayaran':
-        return Colors.amber.shade800;
+        return ZWarna.peringatan;
       case 'menunggu_konfirmasi':
-        return Colors.amber.shade700;
+        return ZWarna.peringatan;
       case 'dibayar':
-        return Colors.blue.shade700;
+        return ZWarna.info;
       case 'diproses':
-        return Colors.indigo.shade700;
+        return ZWarna.info;
       case 'dikirim':
-        return Colors.cyan.shade800;
+        return ZWarna.info;
       case 'selesai':
-        return Colors.green.shade700;
+        return ZWarna.sukses;
       case 'dibatalkan':
-        return Colors.red.shade700;
+        return ZWarna.galat;
       default:
-        return Colors.grey.shade700;
+        return ZWarna.teksSekunder;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ZWarna.hitam,
       appBar: AppBar(
         title: const Text('Rincian Pesanan'),
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF0F172A),
-        elevation: 0.5,
         actions: [
           IconButton(
             icon: const Icon(Icons.home_outlined),
@@ -168,7 +166,7 @@ class _RincianPesananPageState extends State<RincianPesananPage> {
 
   Widget _bangunBadan() {
     if (_keadaan == KeadaanMuat.memuat) {
-      return const Center(child: CircularProgressIndicator(color: Color(0xFF0284C7)));
+      return const Center(child: CircularProgressIndicator(color: ZWarna.oranye));
     }
 
     if (_keadaan == KeadaanMuat.galat) {
@@ -182,19 +180,18 @@ class _RincianPesananPageState extends State<RincianPesananPage> {
 
     return RefreshIndicator(
       onRefresh: _muatRincian,
-      color: const Color(0xFF0284C7),
+      color: ZWarna.oranye,
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header Status Pesanan
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: ZWarna.permukaan,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
+                border: Border.all(color: ZWarna.batas),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -207,13 +204,13 @@ class _RincianPesananPageState extends State<RincianPesananPage> {
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF0F172A),
+                          color: ZWarna.putih,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         p.dibuatPada,
-                        style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                        style: const TextStyle(fontSize: 12, color: ZWarna.teksSekunder),
                       ),
                     ],
                   ),
@@ -237,13 +234,12 @@ class _RincianPesananPageState extends State<RincianPesananPage> {
             ),
             const SizedBox(height: 14),
 
-            // Informasi Penerima & Pengiriman
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: ZWarna.permukaan,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
+                border: Border.all(color: ZWarna.batas),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -257,11 +253,11 @@ class _RincianPesananPageState extends State<RincianPesananPage> {
                       style: const TextStyle(fontWeight: FontWeight.w600)),
                   const SizedBox(height: 4),
                   Text(p.alamatPenerima,
-                      style: const TextStyle(fontSize: 13, color: Color(0xFF475569))),
+                      style: const TextStyle(fontSize: 13, color: ZWarna.teksSamar)),
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(Icons.local_shipping_outlined, size: 16, color: Color(0xFF0284C7)),
+                      const Icon(Icons.local_shipping_outlined, size: 16, color: ZWarna.oranye),
                       const SizedBox(width: 6),
                       Text(
                         'Kurir: ${p.kurir?['nama'] ?? '-'} (${p.totalBeratGram} gram)',
@@ -274,13 +270,12 @@ class _RincianPesananPageState extends State<RincianPesananPage> {
             ),
             const SizedBox(height: 14),
 
-            // Daftar Item Produk & Nomor Seri Fisik
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: ZWarna.permukaan,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
+                border: Border.all(color: ZWarna.batas),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -295,9 +290,9 @@ class _RincianPesananPageState extends State<RincianPesananPage> {
                       margin: const EdgeInsets.only(bottom: 12),
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF8FAFC),
+                        color: ZWarna.permukaanTinggi,
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                        border: Border.all(color: ZWarna.batas),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -315,7 +310,7 @@ class _RincianPesananPageState extends State<RincianPesananPage> {
                                 _formatRupiah(item.subtotalItem),
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF0284C7),
+                                  color: ZWarna.oranye,
                                 ),
                               ),
                             ],
@@ -323,17 +318,16 @@ class _RincianPesananPageState extends State<RincianPesananPage> {
                           const SizedBox(height: 4),
                           Text(
                             '${item.jumlah}x @ ${_formatRupiah(item.hargaSatuan)} • Garansi ${item.garansiBulan} bln • ${item.beratGramSatuan}g',
-                            style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                            style: const TextStyle(fontSize: 11, color: ZWarna.teksSekunder),
                           ),
                           const SizedBox(height: 8),
 
-                          // Fitur Unggulan Elektronik: Serial Numbers Per Unit
                           const Text(
                             'Nomor Seri Fisik (IMEI / S/N Unit):',
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
-                              color: Color(0xFF0369A1),
+                              color: ZWarna.info,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -345,9 +339,9 @@ class _RincianPesananPageState extends State<RincianPesananPage> {
                                     return Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                       decoration: BoxDecoration(
-                                        color: Colors.white,
+                                        color: ZWarna.permukaan,
                                         borderRadius: BorderRadius.circular(4),
-                                        border: Border.all(color: const Color(0xFFBAE6FD)),
+                                        border: Border.all(color: ZWarna.batas),
                                       ),
                                       child: Text(
                                         seri,
@@ -355,7 +349,7 @@ class _RincianPesananPageState extends State<RincianPesananPage> {
                                           fontFamily: 'monospace',
                                           fontSize: 11,
                                           fontWeight: FontWeight.w600,
-                                          color: Color(0xFF0284C7),
+                                          color: ZWarna.oranye,
                                         ),
                                       ),
                                     );
@@ -363,7 +357,7 @@ class _RincianPesananPageState extends State<RincianPesananPage> {
                                 : [
                                     const Text(
                                       'Unit dialokasikan otomatis saat pesanan dibuat.',
-                                      style: TextStyle(fontSize: 11, color: Colors.grey),
+                                      style: TextStyle(fontSize: 11, color: ZWarna.teksSamar),
                                     ),
                                   ],
                           ),
@@ -376,13 +370,12 @@ class _RincianPesananPageState extends State<RincianPesananPage> {
             ),
             const SizedBox(height: 14),
 
-            // Rincian Pembayaran
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: ZWarna.permukaan,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
+                border: Border.all(color: ZWarna.batas),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -392,8 +385,8 @@ class _RincianPesananPageState extends State<RincianPesananPage> {
                   _baris('Subtotal Produk', _formatRupiah(p.subtotal)),
                   const SizedBox(height: 4),
                   _baris('Ongkos Kirim', _formatRupiah(p.ongkir)),
-                  const Divider(height: 16, color: Color(0xFFE2E8F0)),
-                  _baris('Total Akhir', _formatRupiah(p.total), tebal: true, warna: const Color(0xFF0284C7)),
+                  const Divider(height: 16, color: ZWarna.batas),
+                  _baris('Total Akhir', _formatRupiah(p.total), tebal: true, warna: ZWarna.oranye),
                 ],
               ),
             ),
@@ -408,8 +401,8 @@ class _RincianPesananPageState extends State<RincianPesananPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: TextStyle(fontSize: 13, color: const Color(0xFF64748B), fontWeight: tebal ? FontWeight.bold : FontWeight.normal)),
-        Text(nilai, style: TextStyle(fontSize: 13, fontWeight: tebal ? FontWeight.bold : FontWeight.w600, color: warna ?? const Color(0xFF0F172A))),
+        Text(label, style: TextStyle(fontSize: 13, color: ZWarna.teksSekunder, fontWeight: tebal ? FontWeight.bold : FontWeight.normal)),
+        Text(nilai, style: TextStyle(fontSize: 13, fontWeight: tebal ? FontWeight.bold : FontWeight.w600, color: warna ?? ZWarna.putih)),
       ],
     );
   }
@@ -425,7 +418,7 @@ class _RincianPesananPageState extends State<RincianPesananPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: ZWarna.permukaan,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.06),
@@ -444,8 +437,8 @@ class _RincianPesananPageState extends State<RincianPesananPage> {
                 child: ElevatedButton(
                   onPressed: _sedangUbahStatus ? null : () => _ubahStatus(target),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isBatal ? const Color(0xFFEF4444) : const Color(0xFF0284C7),
-                    foregroundColor: Colors.white,
+                    backgroundColor: isBatal ? ZWarna.galat : ZWarna.oranye,
+                    foregroundColor: ZWarna.putih,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),

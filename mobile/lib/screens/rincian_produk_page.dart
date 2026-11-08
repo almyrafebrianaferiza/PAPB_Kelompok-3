@@ -4,6 +4,7 @@ import '../enums/keadaan_muat.dart';
 import '../exceptions/galat_api.dart';
 import '../models/produk.dart';
 import '../services/layanan_api.dart';
+import '../theme/zenvora_warna.dart';
 import '../widgets/penanda_habis.dart';
 import '../widgets/tampilan_galat.dart';
 
@@ -70,7 +71,7 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('${_kuantitas}x ${_produk!.nama} berhasil ditambahkan ke keranjang.'),
-            backgroundColor: const Color(0xFF059669),
+            backgroundColor: ZWarna.sukses,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -81,7 +82,7 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(e.pesan),
-            backgroundColor: const Color(0xFFDC2626),
+            backgroundColor: ZWarna.galat,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -103,13 +104,7 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      appBar: AppBar(
-        title: const Text('Detail Produk'),
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF0F172A),
-        elevation: 0.5,
-      ),
+      appBar: AppBar(title: const Text('Detail Produk')),
       body: _bangunBadan(),
       bottomNavigationBar: _bangunNavigasiBawah(),
     );
@@ -117,7 +112,7 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
 
   Widget _bangunBadan() {
     if (_keadaan == KeadaanMuat.memuat) {
-      return const Center(child: CircularProgressIndicator(color: Color(0xFF0284C7)));
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (_keadaan == KeadaanMuat.galat) {
@@ -134,19 +129,14 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Area visual produk (kontrak tanpa field gambar)
           Container(
             height: 260,
             width: double.infinity,
-            color: Colors.white,
+            color: ZWarna.permukaanTinggi,
             child: Stack(
               children: [
                 const Center(
-                  child: Icon(
-                    Icons.devices_other,
-                    size: 80,
-                    color: Color(0xFFCBD5E1),
-                  ),
+                  child: Icon(Icons.devices_other, size: 80, color: ZWarna.teksSamar),
                 ),
                 if (apakahHabis)
                   const Positioned(
@@ -158,10 +148,8 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
             ),
           ),
           const SizedBox(height: 12),
-
-          // Kartu Informasi Utama
           Container(
-            color: Colors.white,
+            color: ZWarna.permukaan,
             padding: const EdgeInsets.all(18),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -171,13 +159,13 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE0F2FE),
+                        color: ZWarna.oranye.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
                         p.kategori,
                         style: const TextStyle(
-                          color: Color(0xFF0369A1),
+                          color: ZWarna.oranyeTerang,
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
                         ),
@@ -187,7 +175,7 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
                     Text(
                       p.merek,
                       style: const TextStyle(
-                        color: Color(0xFF64748B),
+                        color: ZWarna.teksSekunder,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),
@@ -200,7 +188,7 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF0F172A),
+                    color: ZWarna.putih,
                     height: 1.3,
                   ),
                 ),
@@ -210,33 +198,31 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF0284C7),
+                    color: ZWarna.oranye,
                   ),
                 ),
                 const SizedBox(height: 14),
-                const Divider(height: 1, color: Color(0xFFE2E8F0)),
+                const Divider(height: 1, color: ZWarna.batas),
                 const SizedBox(height: 14),
-
-                // Grid Spesifikasi Teknis
                 Row(
                   children: [
                     _itemSpesifikasi(
                       Icons.inventory_2_outlined,
                       'Sisa Stok',
                       apakahHabis ? 'HABIS' : '${p.stok} unit',
-                      apakahHabis ? const Color(0xFFDC2626) : const Color(0xFF059669),
+                      apakahHabis ? ZWarna.galat : ZWarna.sukses,
                     ),
                     _itemSpesifikasi(
                       Icons.scale_outlined,
                       'Berat Fisik',
                       '${p.beratGram} gram',
-                      const Color(0xFF0F172A),
+                      ZWarna.putih,
                     ),
                     _itemSpesifikasi(
                       Icons.verified_user_outlined,
                       'Garansi Resmi',
                       '${p.garansiBulan} Bulan',
-                      const Color(0xFF0284C7),
+                      ZWarna.oranye,
                     ),
                   ],
                 ),
@@ -244,10 +230,8 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
             ),
           ),
           const SizedBox(height: 12),
-
-          // Kartu Deskripsi (Handling null aman)
           Container(
-            color: Colors.white,
+            color: ZWarna.permukaan,
             padding: const EdgeInsets.all(18),
             width: double.infinity,
             child: Column(
@@ -258,7 +242,7 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF0F172A),
+                    color: ZWarna.putih,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -269,8 +253,8 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
                   style: TextStyle(
                     fontSize: 14,
                     color: p.deskripsi != null && p.deskripsi!.trim().isNotEmpty
-                        ? const Color(0xFF334155)
-                        : const Color(0xFF94A3B8),
+                        ? ZWarna.teksSekunder
+                        : ZWarna.teksSamar,
                     height: 1.5,
                   ),
                 ),
@@ -290,11 +274,11 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
         children: [
           Row(
             children: [
-              Icon(ikon, size: 14, color: const Color(0xFF64748B)),
+              Icon(ikon, size: 14, color: ZWarna.teksSekunder),
               const SizedBox(width: 4),
               Text(
                 label,
-                style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                style: const TextStyle(fontSize: 11, color: ZWarna.teksSekunder),
               ),
             ],
           ),
@@ -321,10 +305,10 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: ZWarna.permukaan,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 8,
             offset: const Offset(0, -2),
           ),
@@ -333,11 +317,10 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
       child: SafeArea(
         child: Row(
           children: [
-            // Kontrol Kuantitas
             if (!apakahHabis) ...[
               Container(
                 decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xFFCBD5E1)),
+                  border: Border.all(color: ZWarna.batas),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
@@ -363,8 +346,6 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
               ),
               const SizedBox(width: 12),
             ],
-
-            // Tombol Tambah ke Keranjang
             Expanded(
               child: ElevatedButton.icon(
                 onPressed: apakahHabis || _sedangMenambahkan
@@ -374,7 +355,7 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
                     ? const SizedBox(
                         width: 18,
                         height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        child: CircularProgressIndicator(strokeWidth: 2, color: ZWarna.putih),
                       )
                     : const Icon(Icons.add_shopping_cart_rounded),
                 label: Text(
@@ -382,13 +363,13 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0284C7),
-                  foregroundColor: Colors.white,
-                  disabledBackgroundColor: const Color(0xFFCBD5E1),
-                  disabledForegroundColor: const Color(0xFF64748B),
+                  backgroundColor: ZWarna.oranye,
+                  foregroundColor: ZWarna.hitam,
+                  disabledBackgroundColor: ZWarna.permukaanTinggi,
+                  disabledForegroundColor: ZWarna.teksSamar,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(ZRadius.sedang),
                   ),
                 ),
               ),

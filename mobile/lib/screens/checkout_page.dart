@@ -7,6 +7,7 @@ import '../models/keranjang.dart';
 import '../models/kurir.dart';
 import '../models/metode_pembayaran.dart';
 import '../services/layanan_api.dart';
+import '../theme/zenvora_warna.dart';
 import '../widgets/tampilan_galat.dart';
 import 'rincian_pesanan_page.dart';
 
@@ -37,13 +38,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
   final TextEditingController _pengontrolAlamat =
       TextEditingController(text: 'Jl. Ijen No. 45, Klojen, Kota Malang');
 
-  // Kunci idempoten: null di awal, dibuat sekali per percobaan checkout,
-  // dipertahankan saat galat (Coba lagi memakai kunci sama),
-  // direset saat pengguna mengubah isi form/kurir/metode atau setelah sukses (ars 5.5).
   String? _kunciIdempoten;
   bool _sedangCheckout = false;
-
-  // Pesan validasi 422 per kolom dari server (ars 5.4): kolom -> pesan.
   Map<String, String> _galatServer = {};
 
   @override
@@ -60,7 +56,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   String _hasilkanKunciIdempoten() {
-    // 32 karakter heksadesimal dari Random.secure() tanpa pustaka tambahan (ars 5.5).
     final rand = Random.secure();
     final bytes = List<int>.generate(16, (_) => rand.nextInt(256));
     return bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
@@ -106,8 +101,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
     }
   }
 
-  // Angka checkout hanya menampilkan nilai yang dihitung server (H1):
-  // GET /api/kurir sudah membawa ongkir dan total_estimasi per kurir.
   int get _ongkirEstimasi => _kurirTerpilih?.ongkir ?? 0;
   int get _totalEstimasi =>
       _kurirTerpilih?.totalEstimasi ?? (_keranjang?.subtotal ?? 0);
@@ -121,7 +114,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Pilih kurir dan metode pembayaran terlebih dahulu.'),
-          backgroundColor: Color(0xFFDC2626),
+          backgroundColor: ZWarna.galat,
         ),
       );
       return;
@@ -146,11 +139,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Pesanan berhasil dibuat: ${respon.nomorPesanan}'),
-            backgroundColor: const Color(0xFF059669),
+            backgroundColor: ZWarna.sukses,
           ),
         );
 
-        // 201: pushReplacement agar tombol kembali tidak kembali ke form (ars 5.6).
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -162,7 +154,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
         );
       }
     } on ValidasiException catch (e) {
-      // 422: pesan per kolom dari server tampil di bawah TextFormField (ars 5.4).
       if (mounted) {
         setState(() {
           _galatServer = e.errors.map((k, v) => MapEntry(k, v.join(', ')));
@@ -173,7 +164,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(e.pesan),
-              backgroundColor: const Color(0xFFDC2626),
+              backgroundColor: ZWarna.galat,
             ),
           );
         }
@@ -181,13 +172,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
     } on GalatApi catch (e) {
       if (mounted) {
         if (e is BentrokException) {
-          // 409: pesan dari server, pengguna tetap berada di halaman checkout (ars 5.6).
           showDialog(
             context: context,
             builder: (ctx) => AlertDialog(
               title: const Row(
                 children: [
-                  Icon(Icons.inventory_2_outlined, color: Color(0xFFDC2626)),
+                  Icon(Icons.inventory_2_outlined, color: ZWarna.galat),
                   SizedBox(width: 8),
                   Text('Stok Tidak Mencukupi'),
                 ],
@@ -203,7 +193,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(e.pesan), backgroundColor: const Color(0xFFDC2626)),
+            SnackBar(content: Text(e.pesan), backgroundColor: ZWarna.galat),
           );
         }
       }
@@ -224,13 +214,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      appBar: AppBar(
-        title: const Text('Pengiriman & Checkout'),
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF0F172A),
-        elevation: 0.5,
-      ),
+      appBar: AppBar(title: const Text('Pengiriman & Checkout')),
       body: _bangunBadan(),
       bottomNavigationBar: _bangunBarBawah(),
     );
@@ -238,7 +222,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   Widget _bangunBadan() {
     if (_keadaan == KeadaanMuat.memuat) {
-      return const Center(child: CircularProgressIndicator(color: Color(0xFF0284C7)));
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (_keadaan == KeadaanMuat.galat) {
@@ -255,7 +239,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Bagian 1: Data Penerima (kolom sesuai kontrak 4.11)
             _kartuBagian(
               judul: '1. Informasi Penerima',
               anak: Column(
@@ -266,7 +249,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     decoration: InputDecoration(
                       labelText: 'Nama Lengkap Penerima *',
                       prefixIcon: const Icon(Icons.person_outline, size: 20),
-                      // Otoritas validasi ada di server (CheckoutRequest 422).
                       errorText: _galatServer['nama_penerima'],
                     ),
                   ),
@@ -286,8 +268,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // Bagian 2: Ekspedisi - ongkir tampil dari server, tanpa hitungan di Dart (H1)
             _kartuBagian(
               judul: '2. Ekspedisi & Jasa Kirim Elektronik',
               anak: RadioGroup<Kurir>(
@@ -303,13 +283,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       title: Text(k.nama, style: const TextStyle(fontWeight: FontWeight.bold)),
                       subtitle: Text(
                         '${k.wilayah} • ${_formatRupiah(k.tarifPerKg)}/kg (berat ${k.beratKgTertagih} kg)',
-                        style: const TextStyle(fontSize: 12),
+                        style: const TextStyle(fontSize: 12, color: ZWarna.teksSekunder),
                       ),
                       secondary: Text(
                         _formatRupiah(k.ongkir),
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF0284C7),
+                          color: ZWarna.oranye,
                         ),
                       ),
                     );
@@ -318,8 +298,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // Bagian 3: Metode Pembayaran
             _kartuBagian(
               judul: '3. Metode Pembayaran',
               anak: RadioGroup<MetodePembayaran>(
@@ -333,12 +311,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     return RadioListTile<MetodePembayaran>(
                       value: m,
                       title: Text(m.nama, style: const TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text(m.kode, style: const TextStyle(fontSize: 12)),
+                      subtitle: Text(m.kode, style: const TextStyle(fontSize: 12, color: ZWarna.teksSekunder)),
                       secondary: Icon(
                         m.kode.toLowerCase().contains('qris')
                             ? Icons.qr_code_2
                             : Icons.account_balance,
-                        color: const Color(0xFF0284C7),
+                        color: ZWarna.oranye,
                       ),
                     );
                   }).toList(),
@@ -346,8 +324,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // Bagian 4: Ringkasan Biaya - seluruh angka dari respons server
             _kartuBagian(
               judul: '4. Ringkasan Transaksi',
               anak: Column(
@@ -361,12 +337,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     'Ongkos Kirim (${_kurirTerpilih?.nama ?? "-"})',
                     _formatRupiah(_ongkirEstimasi),
                   ),
-                  const Divider(height: 16, color: Color(0xFFE2E8F0)),
+                  const Divider(height: 16, color: ZWarna.batas),
                   _barisRincian(
                     'Total Pembayaran',
                     _formatRupiah(_totalEstimasi),
                     tebal: true,
-                    warna: const Color(0xFF0284C7),
+                    warna: ZWarna.oranye,
                     ukuran: 16,
                   ),
                 ],
@@ -381,10 +357,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   Widget _kartuBagian({required String judul, required Widget anak}) {
     return Material(
-      color: Colors.white,
+      color: ZWarna.permukaan,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side: const BorderSide(color: Color(0xFFE2E8F0)),
+        borderRadius: BorderRadius.circular(ZRadius.sedang),
+        side: const BorderSide(color: ZWarna.batas),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -396,7 +372,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF0F172A),
+                color: ZWarna.putih,
               ),
             ),
             const SizedBox(height: 12),
@@ -421,7 +397,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
           label,
           style: TextStyle(
             fontSize: ukuran,
-            color: const Color(0xFF64748B),
+            color: ZWarna.teksSekunder,
             fontWeight: tebal ? FontWeight.bold : FontWeight.normal,
           ),
         ),
@@ -430,7 +406,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
           style: TextStyle(
             fontSize: ukuran,
             fontWeight: tebal ? FontWeight.w900 : FontWeight.w600,
-            color: warna ?? const Color(0xFF0F172A),
+            color: warna ?? ZWarna.putih,
           ),
         ),
       ],
@@ -443,10 +419,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: ZWarna.permukaan,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 10,
             offset: const Offset(0, -3),
           ),
@@ -460,30 +436,24 @@ class _CheckoutPageState extends State<CheckoutPage> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Total Tagihan', style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+                const Text('Total Tagihan', style: TextStyle(fontSize: 11, color: ZWarna.teksSekunder)),
                 Text(
                   _formatRupiah(_totalEstimasi),
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF0F172A),
+                    color: ZWarna.putih,
                   ),
                 ),
               ],
             ),
             ElevatedButton(
               onPressed: _sedangCheckout ? null : _lakukanCheckout,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0284C7),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              ),
               child: _sedangCheckout
                   ? const SizedBox(
                       width: 20,
                       height: 20,
-                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                      child: CircularProgressIndicator(color: ZWarna.putih, strokeWidth: 2),
                     )
                   : const Text(
                       'Bayar Sekarang',

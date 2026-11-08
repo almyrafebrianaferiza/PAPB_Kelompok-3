@@ -4,6 +4,7 @@ import '../enums/keadaan_muat.dart';
 import '../exceptions/galat_api.dart';
 import '../models/keranjang.dart';
 import '../services/layanan_api.dart';
+import '../theme/zenvora_warna.dart';
 import '../widgets/tampilan_galat.dart';
 import '../widgets/tampilan_kosong.dart';
 import 'checkout_page.dart';
@@ -64,7 +65,6 @@ class _KeranjangPageState extends State<KeranjangPage> {
     });
 
     try {
-      // Respons PUT adalah item yang diubah; isi keranjang dimuat ulang agar subtotal ikut segar.
       await widget.layananApi.ubahJumlahKeranjang(idItem, kuantitasBaru);
       final k = await widget.layananApi.ambilKeranjang();
       if (mounted) {
@@ -75,7 +75,7 @@ class _KeranjangPageState extends State<KeranjangPage> {
     } on GalatApi catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.pesan), backgroundColor: const Color(0xFFDC2626)),
+          SnackBar(content: Text(e.pesan), backgroundColor: ZWarna.galat),
         );
       }
     } finally {
@@ -93,7 +93,6 @@ class _KeranjangPageState extends State<KeranjangPage> {
     });
 
     try {
-      // DELETE mengembalikan data: null, jadi isi keranjang dimuat ulang setelah hapus.
       await widget.layananApi.hapusItemKeranjang(idItem);
       final k = await widget.layananApi.ambilKeranjang();
       if (mounted) {
@@ -103,7 +102,6 @@ class _KeranjangPageState extends State<KeranjangPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Item berhasil dihapus dari keranjang.'),
-            backgroundColor: Color(0xFF475569),
             duration: Duration(seconds: 2),
           ),
         );
@@ -111,7 +109,7 @@ class _KeranjangPageState extends State<KeranjangPage> {
     } on GalatApi catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.pesan), backgroundColor: const Color(0xFFDC2626)),
+          SnackBar(content: Text(e.pesan), backgroundColor: ZWarna.galat),
         );
       }
     } finally {
@@ -131,13 +129,7 @@ class _KeranjangPageState extends State<KeranjangPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      appBar: AppBar(
-        title: const Text('Keranjang Belanja'),
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF0F172A),
-        elevation: 0.5,
-      ),
+      appBar: AppBar(title: const Text('Keranjang Belanja')),
       body: _bangunBadan(),
       bottomNavigationBar: _bangunBarCheckout(),
     );
@@ -145,7 +137,7 @@ class _KeranjangPageState extends State<KeranjangPage> {
 
   Widget _bangunBadan() {
     if (_keadaan == KeadaanMuat.memuat) {
-      return const Center(child: CircularProgressIndicator(color: Color(0xFF0284C7)));
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (_keadaan == KeadaanMuat.galat) {
@@ -167,7 +159,7 @@ class _KeranjangPageState extends State<KeranjangPage> {
 
     return RefreshIndicator(
       onRefresh: _muatKeranjang,
-      color: const Color(0xFF0284C7),
+      color: ZWarna.oranye,
       child: ListView.separated(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         itemCount: _keranjang!.item.length,
@@ -175,26 +167,21 @@ class _KeranjangPageState extends State<KeranjangPage> {
         itemBuilder: (ctx, i) {
           final item = _keranjang!.item[i];
           return Card(
-            elevation: 1,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             child: Padding(
               padding: const EdgeInsets.all(12),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Ikon Produk (kontrak tanpa field gambar)
                   Container(
                     width: 70,
                     height: 70,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF1F5F9),
+                      color: ZWarna.permukaanTinggi,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.devices_other, color: Color(0xFF94A3B8)),
+                    child: const Icon(Icons.devices_other, color: ZWarna.teksSamar),
                   ),
                   const SizedBox(width: 12),
-
-                  // Info Produk
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,7 +191,7 @@ class _KeranjangPageState extends State<KeranjangPage> {
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF0F172A),
+                            color: ZWarna.putih,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -214,7 +201,7 @@ class _KeranjangPageState extends State<KeranjangPage> {
                           _formatRupiah(item.hargaSatuan),
                           style: const TextStyle(
                             fontSize: 13,
-                            color: Color(0xFF0284C7),
+                            color: ZWarna.oranye,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -223,18 +210,16 @@ class _KeranjangPageState extends State<KeranjangPage> {
                           'Subtotal: ${_formatRupiah(item.subtotalItem)} (${item.beratGramSatuan}g)',
                           style: const TextStyle(
                             fontSize: 11,
-                            color: Color(0xFF64748B),
+                            color: ZWarna.teksSekunder,
                           ),
                         ),
                         const SizedBox(height: 8),
-
-                        // Stepper Kuantitas & Tombol Hapus
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Container(
                               decoration: BoxDecoration(
-                                border: Border.all(color: const Color(0xFFE2E8F0)),
+                                border: Border.all(color: ZWarna.batas),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Row(
@@ -268,7 +253,7 @@ class _KeranjangPageState extends State<KeranjangPage> {
                               ),
                             ),
                             IconButton(
-                              icon: const Icon(Icons.delete_outline, size: 20, color: Color(0xFFEF4444)),
+                              icon: const Icon(Icons.delete_outline, size: 20, color: ZWarna.galat),
                               onPressed: _sedangMengubah ? null : () => _hapusItem(item.id),
                             ),
                           ],
@@ -293,10 +278,10 @@ class _KeranjangPageState extends State<KeranjangPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: ZWarna.permukaan,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 10,
             offset: const Offset(0, -3),
           ),
@@ -312,19 +297,19 @@ class _KeranjangPageState extends State<KeranjangPage> {
               children: [
                 const Text(
                   'Total Harga',
-                  style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                  style: TextStyle(fontSize: 11, color: ZWarna.teksSekunder),
                 ),
                 Text(
                   _formatRupiah(_keranjang!.subtotal),
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF0F172A),
+                    color: ZWarna.putih,
                   ),
                 ),
                 Text(
                   '${_keranjang!.totalJumlah} item',
-                  style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
+                  style: const TextStyle(fontSize: 11, color: ZWarna.teksSamar),
                 ),
               ],
             ),
@@ -342,12 +327,6 @@ class _KeranjangPageState extends State<KeranjangPage> {
               },
               icon: const Icon(Icons.shopping_bag_outlined, size: 18),
               label: const Text('Checkout', style: TextStyle(fontWeight: FontWeight.bold)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0284C7),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 13),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              ),
             ),
           ],
         ),

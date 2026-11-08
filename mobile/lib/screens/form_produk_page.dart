@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../exceptions/galat_api.dart';
 import '../models/produk.dart';
 import '../services/layanan_api.dart';
+import '../theme/zenvora_warna.dart';
 
 class FormProdukPage extends StatefulWidget {
   final Produk? produk;
@@ -30,7 +31,6 @@ class _FormProdukPageState extends State<FormProdukPage> {
   String _kategori = 'gadget';
   bool _sedangMenyimpan = false;
 
-  // Kategori persis kontrak api-contract 2.1
   final List<String> _kategoriOpsi = [
     'gadget',
     'laptop',
@@ -99,7 +99,7 @@ class _FormProdukPageState extends State<FormProdukPage> {
             content: Text(widget.produk == null
                 ? 'Produk berhasil ditambahkan.'
                 : 'Produk berhasil diperbarui.'),
-            backgroundColor: const Color(0xFF059669),
+            backgroundColor: ZWarna.sukses,
           ),
         );
         Navigator.pop(context, true);
@@ -107,7 +107,7 @@ class _FormProdukPageState extends State<FormProdukPage> {
     } on GalatApi catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.pesan), backgroundColor: const Color(0xFFDC2626)),
+          SnackBar(content: Text(e.pesan), backgroundColor: ZWarna.galat),
         );
       }
     } finally {
@@ -124,12 +124,9 @@ class _FormProdukPageState extends State<FormProdukPage> {
     final bool apakahUbah = widget.produk != null;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ZWarna.hitam,
       appBar: AppBar(
         title: Text(apakahUbah ? 'Ubah Produk' : 'Tambah Produk Baru'),
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF0F172A),
-        elevation: 0.5,
       ),
       body: Form(
         key: _kunciForm,
@@ -171,7 +168,7 @@ class _FormProdukPageState extends State<FormProdukPage> {
                       decoration: const InputDecoration(
                         labelText: 'Kategori *',
                         filled: true,
-                        fillColor: Colors.white,
+                        fillColor: ZWarna.permukaanTinggi,
                         border: OutlineInputBorder(),
                       ),
                       items: _kategoriOpsi.map((k) {
@@ -196,7 +193,7 @@ class _FormProdukPageState extends State<FormProdukPage> {
                 decoration: const InputDecoration(
                   labelText: 'Deskripsi Produk (Opsional)',
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: ZWarna.permukaanTinggi,
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -206,8 +203,8 @@ class _FormProdukPageState extends State<FormProdukPage> {
                 child: ElevatedButton(
                   onPressed: _sedangMenyimpan ? null : _simpan,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0284C7),
-                    foregroundColor: Colors.white,
+                    backgroundColor: ZWarna.oranye,
+                    foregroundColor: ZWarna.putih,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
@@ -215,7 +212,7 @@ class _FormProdukPageState extends State<FormProdukPage> {
                       ? const SizedBox(
                           width: 20,
                           height: 20,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                          child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : Text(
                           apakahUbah ? 'Simpan Perubahan' : 'Tambah Produk',
@@ -244,7 +241,7 @@ class _FormProdukPageState extends State<FormProdukPage> {
         labelText: label,
         hintText: hint,
         filled: true,
-        fillColor: Colors.white,
+        fillColor: ZWarna.permukaanTinggi,
         border: const OutlineInputBorder(),
       ),
       validator: wajib

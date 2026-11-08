@@ -6,6 +6,7 @@ import '../models/produk.dart';
 import '../services/layanan_api.dart';
 import '../widgets/tampilan_galat.dart';
 import '../widgets/tampilan_kosong.dart';
+import '../theme/zenvora_warna.dart';
 import 'form_produk_page.dart';
 
 class KelolaProdukPage extends StatefulWidget {
@@ -65,8 +66,8 @@ class _KelolaProdukPageState extends State<KelolaProdukPage> {
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFDC2626)),
-            child: const Text('Ya, Hapus', style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(backgroundColor: ZWarna.galat),
+            child: const Text('Ya, Hapus', style: TextStyle(color: ZWarna.putih)),
           ),
         ],
       ),
@@ -79,7 +80,7 @@ class _KelolaProdukPageState extends State<KelolaProdukPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Produk "${p.nama}" berhasil dihapus.'),
-              backgroundColor: const Color(0xFF059669),
+              backgroundColor: ZWarna.sukses,
             ),
           );
           _muatDaftar();
@@ -102,7 +103,7 @@ class _KelolaProdukPageState extends State<KelolaProdukPage> {
             );
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(e.pesan), backgroundColor: const Color(0xFFDC2626)),
+              SnackBar(content: Text(e.pesan), backgroundColor: ZWarna.galat),
             );
           }
         }
@@ -118,12 +119,9 @@ class _KelolaProdukPageState extends State<KelolaProdukPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ZWarna.hitam,
       appBar: AppBar(
         title: const Text('Kelola Produk (CRUD)'),
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF0F172A),
-        elevation: 0.5,
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
@@ -135,9 +133,9 @@ class _KelolaProdukPageState extends State<KelolaProdukPage> {
           );
           if (berhasil == true) _muatDaftar();
         },
-        backgroundColor: const Color(0xFF0284C7),
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text('Tambah Produk', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        backgroundColor: ZWarna.oranye,
+        icon: const Icon(Icons.add, color: ZWarna.putih),
+        label: const Text('Tambah Produk', style: TextStyle(color: ZWarna.putih, fontWeight: FontWeight.bold)),
       ),
       body: _bangunBadan(),
     );
@@ -145,7 +143,7 @@ class _KelolaProdukPageState extends State<KelolaProdukPage> {
 
   Widget _bangunBadan() {
     if (_keadaan == KeadaanMuat.memuat) {
-      return const Center(child: CircularProgressIndicator(color: Color(0xFF0284C7)));
+      return const Center(child: CircularProgressIndicator(color: ZWarna.oranye));
     }
 
     if (_keadaan == KeadaanMuat.galat) {
@@ -173,7 +171,7 @@ class _KelolaProdukPageState extends State<KelolaProdukPage> {
 
     return RefreshIndicator(
       onRefresh: _muatDaftar,
-      color: const Color(0xFF0284C7),
+      color: ZWarna.oranye,
       child: ListView.separated(
         padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 80),
         itemCount: _daftar.length,
@@ -193,10 +191,10 @@ class _KelolaProdukPageState extends State<KelolaProdukPage> {
                     width: 50,
                     height: 50,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF1F5F9),
+                      color: ZWarna.permukaanTinggi,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.devices_other, color: Color(0xFF94A3B8)),
+                    child: const Icon(Icons.devices_other, color: ZWarna.teksSamar),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -211,7 +209,7 @@ class _KelolaProdukPageState extends State<KelolaProdukPage> {
                         ),
                         Text(
                           '${p.merek} • ${p.kategori}',
-                          style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                          style: const TextStyle(fontSize: 11, color: ZWarna.teksSekunder),
                         ),
                         const SizedBox(height: 4),
                         Row(
@@ -220,7 +218,7 @@ class _KelolaProdukPageState extends State<KelolaProdukPage> {
                               _formatRupiah(p.harga),
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF0284C7),
+                                color: ZWarna.oranye,
                                 fontSize: 13,
                               ),
                             ),
@@ -228,7 +226,7 @@ class _KelolaProdukPageState extends State<KelolaProdukPage> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: habis ? const Color(0xFFFEE2E2) : const Color(0xFFDCFCE7),
+                                color: habis ? ZWarna.galat.withValues(alpha: 0.12) : ZWarna.sukses.withValues(alpha: 0.12),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
@@ -236,7 +234,7 @@ class _KelolaProdukPageState extends State<KelolaProdukPage> {
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
-                                  color: habis ? const Color(0xFFDC2626) : const Color(0xFF15803D),
+                                  color: habis ? ZWarna.galat : ZWarna.sukses,
                                 ),
                               ),
                             ),
@@ -246,7 +244,7 @@ class _KelolaProdukPageState extends State<KelolaProdukPage> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.edit_outlined, size: 20, color: Color(0xFF0284C7)),
+                    icon: const Icon(Icons.edit_outlined, size: 20, color: ZWarna.oranye),
                     onPressed: () async {
                       final berhasil = await Navigator.push(
                         context,
@@ -261,7 +259,7 @@ class _KelolaProdukPageState extends State<KelolaProdukPage> {
                     },
                   ),
                   IconButton(
-                    icon: const Icon(Icons.delete_outline, size: 20, color: Color(0xFFEF4444)),
+                    icon: const Icon(Icons.delete_outline, size: 20, color: ZWarna.galat),
                     onPressed: () => _konfirmasiHapus(p),
                   ),
                 ],

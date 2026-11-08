@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import '../theme/zenvora_warna.dart';
 
-/// Widget tampilan kosong yang ramah bagi pengguna
 class TampilanKosong extends StatelessWidget {
   final IconData ikon;
   final String judul;
@@ -27,10 +27,10 @@ class TampilanKosong extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(22),
               decoration: const BoxDecoration(
-                color: Color(0xFFF1F5F9),
+                color: ZWarna.permukaanTinggi,
                 shape: BoxShape.circle,
               ),
-              child: Icon(ikon, size: 54, color: const Color(0xFF94A3B8)),
+              child: Icon(ikon, size: 54, color: ZWarna.teksSamar),
             ),
             const SizedBox(height: 18),
             Text(
@@ -38,7 +38,7 @@ class TampilanKosong extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF1E293B),
+                color: ZWarna.putih,
               ),
               textAlign: TextAlign.center,
             ),
@@ -47,7 +47,7 @@ class TampilanKosong extends StatelessWidget {
               pesan,
               style: const TextStyle(
                 fontSize: 14,
-                color: Color(0xFF64748B),
+                color: ZWarna.teksSekunder,
                 height: 1.4,
               ),
               textAlign: TextAlign.center,
@@ -56,14 +56,6 @@ class TampilanKosong extends StatelessWidget {
               const SizedBox(height: 22),
               ElevatedButton(
                 onPressed: saatTombolDitekan,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0284C7),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
                 child: Text(teksTombolAksi!),
               ),
             ],

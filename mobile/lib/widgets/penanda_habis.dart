@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import '../theme/zenvora_warna.dart';
 
-/// Badge visual penanda stok habis pada katalog produk
 class PenandaHabis extends StatelessWidget {
   const PenandaHabis({super.key});
 
@@ -9,11 +9,11 @@ class PenandaHabis extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: const Color(0xFFDC2626),
-        borderRadius: BorderRadius.circular(6),
+        color: ZWarna.galat,
+        borderRadius: BorderRadius.circular(ZRadius.kecil),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.15),
+            color: ZWarna.galat.withValues(alpha: 0.3),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -22,12 +22,12 @@ class PenandaHabis extends StatelessWidget {
       child: const Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.remove_circle_outline, size: 12, color: Colors.white),
+          Icon(Icons.remove_circle_outline, size: 12, color: ZWarna.putih),
           SizedBox(width: 4),
           Text(
             'STOK HABIS',
             style: TextStyle(
-              color: Colors.white,
+              color: ZWarna.putih,
               fontSize: 10,
               fontWeight: FontWeight.w800,
               letterSpacing: 0.5,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../exceptions/galat_api.dart';
+import '../theme/zenvora_warna.dart';
 
-/// Widget penanganan 5 ragam galat sesuai spesifikasi PAPB UTS
 class TampilanGalat extends StatelessWidget {
   final GalatApi galat;
   final VoidCallback saatCobaLagi;
@@ -13,40 +13,39 @@ class TampilanGalat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Variabel lokal agar type promotion bekerja pada cek `is` di bawah ini.
     final GalatApi g = galat;
 
     IconData ikon = Icons.error_outline;
-    Color warna = Colors.red;
+    Color warna = ZWarna.galat;
     String judul = 'Terjadi Kesalahan';
 
     if (g is SambunganGagalException) {
       ikon = Icons.wifi_off_rounded;
-      warna = Colors.orange.shade800;
+      warna = ZWarna.oranye;
       judul = 'Koneksi Terputus';
     } else if (g is BatasWaktuException) {
       ikon = Icons.timer_off_outlined;
-      warna = Colors.amber.shade800;
+      warna = ZWarna.peringatan;
       judul = 'Waktu Permintaan Habis';
     } else if (g is ValidasiException) {
       ikon = Icons.rule_folder_outlined;
-      warna = Colors.red.shade700;
+      warna = ZWarna.galat;
       judul = 'Data Tidak Valid (422)';
     } else if (g is BentrokException) {
       ikon = Icons.inventory_2_outlined;
-      warna = Colors.deepOrange;
+      warna = ZWarna.oranyeGelap;
       judul = 'Stok Tidak Mencukupi (409)';
     } else if (g is TidakDitemukanException) {
       ikon = Icons.search_off_rounded;
-      warna = Colors.grey.shade700;
+      warna = ZWarna.teksSekunder;
       judul = 'Data Tidak Ditemukan (404)';
     } else if (g is ServerException) {
       ikon = Icons.cloud_off_rounded;
-      warna = Colors.red.shade900;
+      warna = ZWarna.galat;
       judul = 'Gangguan Server (500)';
     } else {
       ikon = Icons.warning_amber_rounded;
-      warna = Colors.grey.shade800;
+      warna = ZWarna.teksSekunder;
       judul = 'Kesalahan Tak Terduga';
     }
 
@@ -70,16 +69,16 @@ class TampilanGalat extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF0F172A),
+                color: ZWarna.putih,
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               galat.pesan,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 14,
-                color: Colors.grey.shade700,
+                color: ZWarna.teksSekunder,
                 height: 1.4,
               ),
               textAlign: TextAlign.center,
@@ -89,7 +88,7 @@ class TampilanGalat extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
+                  color: ZWarna.permukaanTinggi,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Column(
@@ -97,7 +96,7 @@ class TampilanGalat extends StatelessWidget {
                   children: g.errors.entries.map((entry) {
                     return Text(
                       '• ${entry.key}: ${entry.value.join(", ")}',
-                      style: const TextStyle(fontSize: 12, color: Colors.black87),
+                      style: const TextStyle(fontSize: 12, color: ZWarna.teksSekunder),
                     );
                   }).toList(),
                 ),
@@ -108,14 +107,6 @@ class TampilanGalat extends StatelessWidget {
               onPressed: saatCobaLagi,
               icon: const Icon(Icons.refresh_rounded, size: 20),
               label: const Text('Coba Lagi'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0284C7),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
             ),
           ],
         ),

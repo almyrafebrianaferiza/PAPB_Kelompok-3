@@ -4,6 +4,7 @@ import '../enums/keadaan_muat.dart';
 import '../exceptions/galat_api.dart';
 import '../models/produk.dart';
 import '../services/layanan_api.dart';
+import '../theme/zenvora_warna.dart';
 import '../widgets/kartu_produk.dart';
 import '../widgets/tampilan_galat.dart';
 import '../widgets/tampilan_kosong.dart';
@@ -79,9 +80,7 @@ class _KatalogPageState extends State<KatalogPage> {
           _jumlahItemKeranjang = keranjang.totalJumlah;
         });
       }
-    } on GalatApi catch (_) {
-      // Galat memuat lencana tidak menggagalkan katalog; nilai terakhir dipakai.
-    }
+    } on GalatApi catch (_) {}
   }
 
   Future<void> _muatData({bool ulang = false}) async {
@@ -144,7 +143,6 @@ class _KatalogPageState extends State<KatalogPage> {
         });
       }
     } on GalatApi catch (_) {
-      // Galat saat lazy load: hentikan pemuatan lanjutan tanpa menghapus data yang sudah tampil.
       if (mounted) {
         setState(() {
           _apakahMemuatLagi = false;
@@ -166,34 +164,24 @@ class _KatalogPageState extends State<KatalogPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.5,
         title: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: const Color(0xFF0284C7),
+                gradient: ZWarna.gradienUtama,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.bolt, color: Colors.white, size: 20),
+              child: const Icon(Icons.bolt, color: ZWarna.hitam, size: 20),
             ),
             const SizedBox(width: 8),
-            const Text(
-              'Zenvorā',
-              style: TextStyle(
-                color: Color(0xFF0F172A),
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-            ),
+            const Text('Zenvorā'),
           ],
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.history_rounded, color: Color(0xFF475569)),
+            icon: const Icon(Icons.history_rounded),
             tooltip: 'Riwayat Pesanan',
             onPressed: () {
               Navigator.push(
@@ -205,7 +193,7 @@ class _KatalogPageState extends State<KatalogPage> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.admin_panel_settings_outlined, color: Color(0xFF475569)),
+            icon: const Icon(Icons.admin_panel_settings_outlined),
             tooltip: 'Kelola Produk',
             onPressed: () async {
               await Navigator.push(
@@ -221,7 +209,7 @@ class _KatalogPageState extends State<KatalogPage> {
             alignment: Alignment.center,
             children: [
               IconButton(
-                icon: const Icon(Icons.shopping_cart_outlined, color: Color(0xFF0F172A)),
+                icon: const Icon(Icons.shopping_cart_outlined),
                 tooltip: 'Keranjang Belanja',
                 onPressed: () async {
                   await Navigator.push(
@@ -240,14 +228,14 @@ class _KatalogPageState extends State<KatalogPage> {
                   child: Container(
                     padding: const EdgeInsets.all(4),
                     decoration: const BoxDecoration(
-                      color: Color(0xFFDC2626),
+                      color: ZWarna.galat,
                       shape: BoxShape.circle,
                     ),
                     constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
                     child: Text(
                       '$_jumlahItemKeranjang',
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: ZWarna.putih,
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
                       ),
@@ -261,19 +249,19 @@ class _KatalogPageState extends State<KatalogPage> {
       ),
       body: Column(
         children: [
-          // Bar Pencarian
           Container(
-            color: Colors.white,
+            color: ZWarna.permukaan,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: TextField(
               controller: _pengontrolCari,
               onChanged: _padaPencarianDiubah,
+              style: const TextStyle(color: ZWarna.putih, fontSize: 14),
               decoration: InputDecoration(
                 hintText: 'Cari gadget, spesifikasi, merk...',
-                prefixIcon: const Icon(Icons.search, color: Color(0xFF94A3B8)),
+                prefixIcon: const Icon(Icons.search, color: ZWarna.teksSamar),
                 suffixIcon: _pencarian.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear, size: 18),
+                        icon: const Icon(Icons.clear, size: 18, color: ZWarna.teksSekunder),
                         onPressed: () {
                           _pengontrolCari.clear();
                           _padaPencarianDiubah('');
@@ -281,19 +269,18 @@ class _KatalogPageState extends State<KatalogPage> {
                       )
                     : null,
                 filled: true,
-                fillColor: const Color(0xFFF1F5F9),
+                fillColor: ZWarna.permukaanTinggi,
+                hintStyle: const TextStyle(color: ZWarna.teksSamar, fontSize: 14),
                 contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(ZRadius.sedang),
                   borderSide: BorderSide.none,
                 ),
               ),
             ),
           ),
-
-          // Bar Kategori Chips
           Container(
-            color: Colors.white,
+            color: ZWarna.permukaan,
             height: 46,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
@@ -310,12 +297,15 @@ class _KatalogPageState extends State<KatalogPage> {
                     kat == 'Semua' ? kat : '${kat[0].toUpperCase()}${kat.substring(1)}',
                   ),
                   selected: terpilih,
-                  selectedColor: const Color(0xFF0284C7),
-                  backgroundColor: const Color(0xFFF1F5F9),
+                  selectedColor: ZWarna.oranye,
+                  backgroundColor: ZWarna.permukaanTinggi,
                   labelStyle: TextStyle(
-                    color: terpilih ? Colors.white : const Color(0xFF475569),
+                    color: terpilih ? ZWarna.hitam : ZWarna.teksSekunder,
                     fontSize: 12,
                     fontWeight: terpilih ? FontWeight.bold : FontWeight.w500,
+                  ),
+                  side: BorderSide(
+                    color: terpilih ? ZWarna.oranye : ZWarna.batas,
                   ),
                   onSelected: (val) {
                     setState(() {
@@ -327,9 +317,7 @@ class _KatalogPageState extends State<KatalogPage> {
               },
             ),
           ),
-          const Divider(height: 1, thickness: 1, color: Color(0xFFE2E8F0)),
-
-          // Area Konten
+          const Divider(height: 1, thickness: 0.5, color: ZWarna.batas),
           Expanded(
             child: _bangunKonten(),
           ),
@@ -341,7 +329,7 @@ class _KatalogPageState extends State<KatalogPage> {
   Widget _bangunKonten() {
     if (_keadaan == KeadaanMuat.memuat && _daftarProduk.isEmpty) {
       return const Center(
-        child: CircularProgressIndicator(color: Color(0xFF0284C7)),
+        child: CircularProgressIndicator(),
       );
     }
 
@@ -374,7 +362,7 @@ class _KatalogPageState extends State<KatalogPage> {
         await _muatData(ulang: true);
         await _muatJumlahKeranjang();
       },
-      color: const Color(0xFF0284C7),
+      color: ZWarna.oranye,
       child: GridView.builder(
         controller: _pengontrolGulir,
         padding: const EdgeInsets.all(12),

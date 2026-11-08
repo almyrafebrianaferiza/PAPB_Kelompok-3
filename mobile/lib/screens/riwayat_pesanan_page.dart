@@ -6,6 +6,7 @@ import '../models/ringkasan_pesanan.dart';
 import '../services/layanan_api.dart';
 import '../widgets/tampilan_galat.dart';
 import '../widgets/tampilan_kosong.dart';
+import '../theme/zenvora_warna.dart';
 import 'rincian_pesanan_page.dart';
 
 class RiwayatPesananPage extends StatefulWidget {
@@ -81,33 +82,30 @@ class _RiwayatPesananPageState extends State<RiwayatPesananPage> {
   Color _warnaStatus(String status) {
     switch (status) {
       case 'menunggu_pembayaran':
-        return Colors.amber.shade800;
+        return ZWarna.peringatan;
       case 'menunggu_konfirmasi':
-        return Colors.amber.shade700;
+        return ZWarna.peringatan;
       case 'dibayar':
-        return Colors.blue.shade700;
+        return ZWarna.info;
       case 'diproses':
-        return Colors.indigo.shade700;
+        return ZWarna.info;
       case 'dikirim':
-        return Colors.cyan.shade800;
+        return ZWarna.info;
       case 'selesai':
-        return Colors.green.shade700;
+        return ZWarna.sukses;
       case 'dibatalkan':
-        return Colors.red.shade700;
+        return ZWarna.galat;
       default:
-        return Colors.grey.shade700;
+        return ZWarna.teksSekunder;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: ZWarna.hitam,
       appBar: AppBar(
         title: const Text('Riwayat Pesanan'),
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF0F172A),
-        elevation: 0.5,
       ),
       body: _bangunBadan(),
     );
@@ -115,7 +113,7 @@ class _RiwayatPesananPageState extends State<RiwayatPesananPage> {
 
   Widget _bangunBadan() {
     if (_keadaan == KeadaanMuat.memuat) {
-      return const Center(child: CircularProgressIndicator(color: Color(0xFF0284C7)));
+      return const Center(child: CircularProgressIndicator(color: ZWarna.oranye));
     }
 
     if (_keadaan == KeadaanMuat.galat) {
@@ -137,7 +135,7 @@ class _RiwayatPesananPageState extends State<RiwayatPesananPage> {
 
     return RefreshIndicator(
       onRefresh: _muatRiwayat,
-      color: const Color(0xFF0284C7),
+      color: ZWarna.oranye,
       child: ListView.separated(
         padding: const EdgeInsets.all(16),
         itemCount: _daftarPesanan.length,
@@ -195,22 +193,22 @@ class _RiwayatPesananPageState extends State<RiwayatPesananPage> {
                     const SizedBox(height: 6),
                     Text(
                       p.dibuatPada,
-                      style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                      style: const TextStyle(fontSize: 11, color: ZWarna.teksSekunder),
                     ),
-                    const Divider(height: 16, color: Color(0xFFE2E8F0)),
+                    const Divider(height: 16, color: ZWarna.batas),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           '${p.jumlahBarang} item',
-                          style: const TextStyle(fontSize: 12, color: Color(0xFF475569)),
+                          style: const TextStyle(fontSize: 12, color: ZWarna.teksSamar),
                         ),
                         Text(
                           _formatRupiah(p.total),
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w900,
-                            color: Color(0xFF0F172A),
+                            color: ZWarna.putih,
                           ),
                         ),
                       ],
