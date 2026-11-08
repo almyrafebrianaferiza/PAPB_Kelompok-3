@@ -147,9 +147,10 @@
 
 ## Fase F — Ketahanan dan nilai tambah
 
-### [ ] F1 ★ Lima galat terbukti di aplikasi
+### [x] F1 ★ Lima galat terbukti di aplikasi
 - **Rujukan**: `architecture.md` 5.4 dan Bagian 8.
 - **Verifikasi**: picu satu per satu dan catat tampilan: (1) hentikan `php artisan serve`; (2) `ZENVORA_LAMBAT_DETIK=15`; (3) alamat kosong → 422 per kolom; (4) produk stok nol → 409; (5) `ZENVORA_PAKSA_GALAT=true` → 500 pesan umum tanpa jejak. Kelimanya tampil **berbeda**; semua halaman daftar punya Coba lagi. Kembalikan flag `.env` ke nilai bawaan.
+- **Bukti (tes)**: `uji_f1a..f1d_*.dart` hijau di Chrome — (1) `Koneksi Terputus` + `Tidak dapat terhubung ke server` + Coba Lagi di katalog/riwayat/kelola/keranjang (alamat ke port mati, serve :8000 tidak diganggu); (2) `ZENVORA_LAMBAT_DETIK=15` → `Waktu Permintaan Habis` + `Server tidak membalas` setelah timeout 10 dtk; (3) nama & alamat kosong → **422 server** → `Nama penerima wajib diisi`/`Alamat penerima wajib diisi` per kolom, tetap di halaman checkout; (4) stok 0 → dialog `Stok Tidak Mencukupi` + pesan server; (5) `ZENVORA_PAKSA_GALAT=true` → `Gangguan Server (500)` + `Terjadi kesalahan pada server`, tanpa jejak (`.php`/`Trace`/`Exception` tidak ada). Flag `.env` dikembalikan `0`/`false`; lima tampilan berbeda; `Coba Lagi` terpasang di semua halaman daftar.
 
 ### [ ] F2 ◇ Lazy load Katalog
 - **Rujukan**: `architecture.md` 5.7, `api-contract.md` 4.1.

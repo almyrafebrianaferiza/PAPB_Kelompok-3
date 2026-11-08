@@ -363,11 +363,11 @@ class _KatalogPageState extends State<KatalogPage> {
 
 | Jenis | Pengecualian | Di halaman daftar/detail | Di form/aksi |
 |-------|--------------|--------------------------|--------------|
-| Tanpa sambungan | `SambunganGagalException` | `TampilanGalat`: ikon awan putus + "Tidak dapat terhubung ke server" + **Coba lagi** | sama, di tempat aksi |
-| Batas waktu | `BatasWaktuException` | `TampilanGalat`: ikon jam + "Server tidak membalas" + **Coba lagi** | sama |
+| Tanpa sambungan | `SambunganGagalException` | `TampilanGalat`: ikon wifi putus + "Koneksi Terputus" + "Tidak dapat terhubung ke server" + **Coba Lagi** | sama, di tempat aksi |
+| Batas waktu | `BatasWaktuException` | `TampilanGalat`: ikon timer mati + "Waktu Permintaan Habis" + "Server tidak membalas" + **Coba Lagi** | sama |
 | 422 | `ValidasiException` | tidak umum | pesan per kolom di bawah `TextFormField` (`errorText` dari `errors[kolom]`) |
 | 409 | `BentrokException` | tidak umum | pesan **dari server** di layar yang sama (banner/SnackBar), tanpa `Navigator.push` |
-| 500 / tak terbaca | `ServerException` | `TampilanGalat`: ikon peringatan + pesan umum + **Coba lagi** | sama |
+| 500 / tak terbaca | `ServerException` | `TampilanGalat`: ikon server mati + "Gangguan Server (500)" + pesan umum "Terjadi kesalahan pada server" (tanpa jejak) + **Coba Lagi** | sama |
 | 404 | `TidakDitemukanException` | `TampilanKosong` (bukan galat) | — |
 
 ### 5.5 Identitas dan kunci idempoten
@@ -471,6 +471,8 @@ PDF menyarankan "endpoint sengaja melempar galat" untuk 500. Itu menambah endpoi
 | 500 | Isi `ZENVORA_PAKSA_GALAT=true`, restart server | `MiddlewareDemo` melempar `RuntimeException` |
 
 `MiddlewareDemo` aktif hanya bila flag terisi; nilai bawaan di `.env.example` adalah `0` dan `false`. Sebutkan mekanisme ini di README dan di video. Alternatif tanpa kode: turunkan `batasWaktu` sementara menjadi 1 detik di `konfigurasi.dart` (jangan di-commit).
+
+Validasi nama & alamat checkout hanya di server (`CheckoutRequest`): klien tidak mengulang aturan panjang, sehingga "alamat kosong → ketuk Bayar" benar-benar memicu 422 dan pesannya tampil sebagai `errorText` per kolom (bukan snackbar).
 
 ---
 
