@@ -113,28 +113,35 @@
 
 > Setiap halaman: empat `KeadaanMuat`, `mounted` setelah `await`, tombol **Coba lagi**, tanpa hitungan bisnis. Setelah tiap halaman jalankan grep di `conventions.md` Bagian 6.
 
-### [ ] E1 ★ Katalog (+ lencana keranjang)
+### [x] E1 ★ Katalog (+ lencana keranjang)
 - **Rujukan**: `prd.md` 6.1, `api-contract.md` 4.1 dan 6.
 - **Verifikasi**: daftar `GridView.builder`/`ListView.builder`; kategori dan pencarian **mengirim ulang** permintaan (periksa log server); produk stok nol/`tersedia=false` bertanda habis dan tombolnya mati; hasil pencarian kosong → keadaan **kosong** bukan galat.
+- **Bukti (tes)**: `mobile/test/uji_e1_katalog_test.dart` hijau di Chrome — grid termuat, `STOK HABIS` (iPhone), filter Laptop/Semua, pencarian kosong + Reset Filter, lencana keranjang naik ke `1`.
 
-### [ ] E2 ★ Rincian produk
+### [x] E2 ★ Rincian produk
 - **Verifikasi**: menampilkan `berat_gram`, `garansi_bulan`, `deskripsi` null → teks pengganti tanpa crash (produk #9/#12); tombol tambah mati bila habis; tambah berhasil → ke Keranjang; stok nol/jumlah berlebih → pesan 409 dari server di layar yang sama.
+- **Bukti (tes)**: `uji_e2_rincian_test.dart` hijau — #9 (4200 gram, 12 Bulan, deskripsi pengganti, tombol mati teruji perilaku), #12 (`HABIS`/`Stok Tidak Tersedia`), 409 stok usang ditampilkan di layar rincian, lalu tambah sukses.
 
-### [ ] E3 ★ Keranjang
+### [x] E3 ★ Keranjang
 - **Verifikasi**: ubah jumlah dan hapus memanggil server dan subtotal berubah dari server; keranjang kosong → keadaan kosong ramah dengan tombol kembali ke katalog; tutup-buka aplikasi → isi tetap.
+- **Bukti (tes)**: `uji_e3_keranjang_test.dart` hijau — subtotal server saat +/-, `2 item`→`3 item`→`2 item`, hapus, keadaan kosong + `Mulai Belanja`, isi tetap setelah aplikasi dibuka ulang.
 
-### [ ] E4 ★ Checkout
+### [x] E4 ★ Checkout
 - **Rujukan**: `architecture.md` 5.5, `api-contract.md` 4.10–4.11.
 - **Verifikasi**: `Form` + validator (pesan Indonesia); ganti kurir → ongkir dan total estimasi berubah (dari `GET /api/kurir`, tanpa hitungan Dart); tombol mati saat permintaan berjalan; `_kunci` dibuat sekali dan dipakai ulang saat **Coba lagi**; 422 → pesan per kolom; 409 → pesan server tanpa pindah halaman; 201 → `pushReplacement` ke Rincian pesanan. Ketuk dua kali cepat → satu pesanan (periksa DB).
+- **Bukti (tes)**: `uji_e4_checkout_test.dart` hijau — validator nama/alamat, ganti kurir mengubah ongkir & total, dialog 409 tanpa pindah halaman, dua ketukan cepat → tepat satu pesanan (jumlah riwayat +1), keranjang server kosong, rincian tampil.
 
-### [ ] E5 ★ Rincian pesanan
+### [x] E5 ★ Rincian pesanan
 - **Verifikasi**: nomor pesanan, status, item dengan harga saat beli, garansi, `nomor_seri` per unit, total, metode bayar; satu tombol per nilai `status_berikutnya` (Bayar → `menunggu_konfirmasi`, konfirmasi → `dibayar`, dst.) mengirim PATCH nyata; 409 ditampilkan; tombol "Kembali ke katalog" memakai `pushAndRemoveUntil`.
+- **Bukti (tes)**: `uji_e5_rincian_pesanan_test.dart` hijau — kelengkapan data & nomor seri, `Ubah: menunggu_konfirmasi` mengirim PATCH (dicek di server), tombol usang → 409 `tidak dapat dipindah`, kembali ke katalog.
 
-### [ ] E6 ★ Riwayat pesanan
+### [x] E6 ★ Riwayat pesanan
 - **Verifikasi**: urut terbaru → terlama; ketuk baris ke Rincian; tanpa pesanan → keadaan kosong.
+- **Bukti (tes)**: `uji_e6_riwayat_test.dart` hijau — urutan 3 nomor teratas sama dengan respons server, label status, ketuk baris → Rincian, kembali memuat ulang. Keadaan kosong diverifikasi terpisah saat tabel pesanan dikosongkan (`Belum Ada Pesanan` tampil).
 
-### [ ] E7 ★ Kelola produk + Form produk
+### [x] E7 ★ Kelola produk + Form produk
 - **Verifikasi**: tambah/ubah/hapus lewat dialog konfirmasi hapus; daftar menyegarkan dari server setelah tiap operasi; 422 per kolom di form; 409 hapus produk pada pesanan aktif → pesan server, tetap di daftar; kembali dengan `pop(true/false)`.
+- **Bukti (tes)**: `uji_e7_kelola_test.dart` hijau — validator `Nama Produk *`/`Harga (Rp) *`, tambah produk Rp1.234.000 stok 10 (terverifikasi di server), ubah nama, hapus via dialog, hapus produk pesanan aktif → `Gagal Menghapus (409)` dengan pesan server dan daftar tetap.
 
 ---
 
