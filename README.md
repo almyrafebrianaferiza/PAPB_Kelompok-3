@@ -6,7 +6,7 @@ Tugas Pengganti UTS PAPB dan Sistem Terdistribusi. Domain: **Elektronik dan Gawa
 | Nama | NIM |
 |---|---|
 |Aini Nur Azizah | 241020003| 
-|Anisa Kholifatul | 241020012|
+|Anisa Kholifatul | 241020005|
 |Inas Hasna Mufida| 241020012|
 |Maylany Helena Pratama Putri| 241020014|
 |Ahmad Dio | 2410200|
