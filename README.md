@@ -1,72 +1,118 @@
-# Toko Elektronik & Gawai (Laravel REST API + Flutter)
+# Zenvorā — Toko Elektronik & Gawai (Laravel REST API + Flutter)
 
-Tugas Pengganti UTS PAPB dan Sistem Terdistribusi. Domain: **Elektronik dan Gawai** (Kelompok 3).
+Tugas Pengganti UTS PAPB dan Sistem Terdistribusi — **Kelompok 3**.
 
-## 1. Anggota
-| Nama | NIM |
-|---|---|
-|Aini Nur Azizah | 241020003| 
-|Annisa Kholifatul | 241020005|
-|Inas Hasna Mufida| 241020012|
-|Maylany Helena Pratama Putri| 241020014|
-|Ahmad Dio | 2410200|
-|Almyra Febriana Feriza | 24102054|
-|M Mardiansyah | 24102037| 
+## 1. Anggota kelompok
+
+| Nama | NIM | Peran |
+|---|---|---|
+| Aini Nur Azizah | 241020003 | — |
+| Annisa Kholifatul | 241020005 | — |
+| Inas Hasna Mufida | 241020012 | Dokumentasi |
+| Maylany Helena Pratama Putri | 241020014 | — |
+| Ahmad Dio | 2410200 | Mobile, pengujian, dokumentasi teknis |
+| Almyra Febriana Feriza | 24102054 | Dokumentasi dan README |
+| M Mardiansyah | 24102037 | Backend, integrasi mobile, pengujian |
+
+> Peran yang bertanda "—" dilengkapi oleh kelompok sebelum pengumpulan.
 
 ## 2. Domain dan aturan bisnis
-Domain Proyek: Toko online khusus penjualan perangkat elektronik dan gawai.
-Aturan Bisnis & Pengiriman: Perhitungan ongkos kirim ditentukan secara dinamis oleh server berdasarkan total berat produk (dalam gram), bukan menggunakan tarif tetap.
 
-## 3. Menjalankan backend (butuh PHP >= 8.2, Composer, MySQL/XAMPP)
+Domain: toko online khusus perangkat elektronik dan gawai (kategori `gadget`, `laptop`, `tv`, `monitor`, `tablet`).
+
+Aturan bisnis khas: ongkos kirim dihitung **di server** dari total berat keranjang, bukan tarif tetap:
+
+```text
+ongkir = tarif_dasar + ceil(total_berat_gram / 1000) × tarif_per_kg
+```
+
+Server menolak checkout dengan **409** bila total berat melebihi `max_berat_gram` kurir. Flutter hanya menampilkan angka yang dikirim server; tidak ada perhitungan harga, subtotal, total, berat, atau stok di Dart.
+
+## 3. Menjalankan backend
+
+Prasyarat: PHP >= 8.3, Composer, dan MySQL/XAMPP.
+
 ```bash
-composer create-project laravel/laravel backend      # lewati bila folder backend sudah berisi proyek Laravel
-# salin isi folder backend/ dari paket ini ke dalam proyek Laravel tersebut (timpa bila ditanya)
 cd backend
-copy .env.example .env      # Windows (Linux/Mac: cp)
-# buat database kosong "toko_elektronik" di phpMyAdmin
 composer install
+copy .env.example .env      # Linux/Mac: cp .env.example .env
 php artisan key:generate
+# Buat database MySQL kosong bernama "zenvora" (utf8mb4) di phpMyAdmin
 php artisan migrate:fresh --seed
 php artisan serve
 ```
-Uji cepat: buka http://127.0.0.1:8000/api/produk // ini masih blm tau
 
-## 4. Menjalankan Flutter (butuh Flutter >= 3.22)
+Uji cepat:
+
 ```bash
-flutter create mobile            # lewati bila sudah ada
-# ganti folder mobile/lib dengan lib/ dari paket ini
-cd mobile
-flutter pub add http
-flutter run
+curl -H "Authorization: Bearer zenvora-dev-token-2026" http://127.0.0.1:8000/api/produk
 ```
-Android: pada `android/app/src/main/AndroidManifest.xml` tambahkan
-`<uses-permission android:name="android.permission.INTERNET"/>` (sebelum `<application>`) dan
-`android:usesCleartextTraffic="true"` di dalam tag `<application ...>`.
-Alamat server diubah di **`mobile/lib/konstanta.dart`** (`alamatServer`).
 
-## 5. Alamat Server
-Emulator Android: `http://10.0.2.2:8000/api` (`10.0.2.2` merujuk pada IP host laptop/komputer, sebab `localhost` di dalam emulator merujuk pada perangkat emulator itu sendiri)
-Perangkat HP Fisik: Jalankan `php artisan serve --host=0.0.0.0` pada backend Laravel, lalu hubungkan HP dengan IP lokal laptop (misalnya `http://192.168.1.10:8000/api`)
+Berkas `.env` asli tidak di-commit; yang ada di repositori hanya `.env.example`.
 
-## 6. Identitas pelanggan
-Statis: `pelanggan_id = 1` (header `X-Pelanggan-Id`, dikirim dari satu tempat: `LayananApi._header()`).
+## 4. Menjalankan aplikasi Flutter
 
-## 7. Endpoint (15)
+Prasyarat: Flutter >= 3.22.
+
+```bash
+cd mobile
+flutter pub get
+flutter run --dart-define=ALAMAT_SERVER=http://10.0.2.2:8000/api
+```
+
+Alamat server diubah di **`mobile/lib/config/konfigurasi.dart`** (nilai default), atau lewat `--dart-define=ALAMAT_SERVER=...` tanpa mengubah kode. Contoh untuk Chrome/desktop:
+
+```bash
+flutter run -d chrome --dart-define=ALAMAT_SERVER=http://127.0.0.1:8000/api
+```
+
+Android: `android:usesCleartextTraffic="true"` sudah aktif di `mobile/android/app/src/main/AndroidManifest.xml`. Untuk build release, pastikan `<uses-permission android:name="android.permission.INTERNET"/>` juga ada di manifest utama.
+
+## 5. Alamat server pengembangan dan alasannya
+
+- Emulator Android: `http://10.0.2.2:8000/api` — `10.0.2.2` menunjuk host laptop; `localhost` di emulator menunjuk emulator itu sendiri.
+- Chrome/desktop: `http://127.0.0.1:8000/api`.
+- HP fisik: jalankan `php artisan serve --host=0.0.0.0`, lalu pakai IP LAN laptop, misalnya `http://192.168.1.10:8000/api`.
+
+## 6. Identitas pelanggan dan token statis
+
+Semua permintaan mengirim header:
+
+```http
+Authorization: Bearer zenvora-dev-token-2026
+```
+
+Server memetakan token tersebut ke `pelanggan_id = 1`. Header dibentuk hanya di satu tempat: `mobile/lib/services/layanan_api.dart` pada `_header()`. Token ini token pengembangan untuk tugas, bukan rahasia produksi.
+
+## 7. Daftar endpoint (15)
+
 | Metode | Jalur | Keterangan |
 |---|---|---|
-| GET | /api/produk | `?kategori=` `?cari=`; 200 meski kosong |
-| GET | /api/produk/{id} | 404 bila tidak ada |
-| POST | /api/produk | 201 / 422 |
-| PUT | /api/produk/{id} | 200 / 404 / 422 |
-| DELETE | /api/produk/{id} | 200 / 404 / 409 (dipakai pesanan aktif) |
-| GET | /api/keranjang | subtotal, berat; `?kurir_id=` menambah ongkir dan total |
-| POST | /api/keranjang | 201 / 409 stok kurang / 422 |
-| PUT | /api/keranjang/{id} | 200 / 409 / 422 (jumlah <= 0) |
-| DELETE | /api/keranjang/{id} | 200 / 404 |
-| GET | /api/kurir | kurir dan tarif |
-| GET | /api/metode-pembayaran | tambahan: tunai_di_tempat, transfer_manual |
-| POST | /api/checkout | header `X-Kunci-Idempoten` wajib; 201 / 409 / 422 |
-| GET | /api/pesanan | terbaru dulu |
-| GET | /api/pesanan/{id} | item dengan harga saat pembelian dan nomor seri |
-| PATCH | /api/pesanan/{id}/status | 200 / 409 (perpindahan tidak sah) / 422 |
+| GET | `/api/produk` | `?kategori=` `?cari=` `?halaman=` `?per_halaman=`; tetap 200 saat kosong |
+| GET | `/api/produk/{id}` | 200 / 404 |
+| POST | `/api/produk` | 201 / 422 |
+| PUT | `/api/produk/{id}` | 200 / 404 / 422; `stok` = target jumlah unit |
+| DELETE | `/api/produk/{id}` | 200 / 404 / 409 bila dipakai pesanan aktif |
+| GET | `/api/keranjang` | item, `total_jumlah`, `subtotal` dari server |
+| POST | `/api/keranjang` | 201 / 200 bila sudah ada / 409 stok kurang / 422 |
+| PUT | `/api/keranjang/{id}` | 200 / 409 / 422 (jumlah <= 0) |
+| DELETE | `/api/keranjang/{id}` | 200 / 404 |
+| GET | `/api/kurir` | daftar kurir + estimasi ongkir dari berat keranjang |
+| POST | `/api/checkout` | header `X-Kunci-Idempoten` wajib; 201 / 409 / 422 |
+| GET | `/api/pesanan` | riwayat terbaru ke terlama |
+| GET | `/api/pesanan/{id}` | rincian + harga saat beli + nomor seri |
+| PATCH | `/api/pesanan/{id}/status` | 200 / 404 / 409 perpindahan tidak sah / 422 |
+| GET | `/api/metode-pembayaran` | 200 |
 
+Dokumentasi kontrak lengkap: [`api-contract (1).md`](api-contract%20%281%29.md). Koleksi Postman: `docs/postman/zenvora.postman_collection.json`.
+
+## 8. Video demo
+
+Tautan video demo: **(diisi sebelum pengumpulan)**.
+
+## 9. Catatan pemakaian AI, pustaka, dan flag demo
+
+- Pemakaian AI dicatat per berkas/fungsi di [`docs/log-ai.md`](docs/log-ai.md).
+- Pustaka pihak ketiga: `http` (klien HTTP), `intl` (format Rupiah), dan font **Poppins** (SIL Open Font License, lihat `mobile/assets/fonts/OFL.txt`).
+- Flag demo galat di backend: `ZENVORA_LAMBAT_DETIK=15` untuk simulasi batas waktu dan `ZENVORA_PAKSA_GALAT=true` untuk simulasi 500. Nilai bawaan `0` dan `false`.
+- Pemeriksaan cepat: `cd mobile && flutter analyze`; tes F2: `flutter test test/uji_f2_katalog_test.dart`. Tes integrasi E1–E7 dan F1 ada di `mobile/test/`.
