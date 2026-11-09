@@ -45,9 +45,9 @@ Android: pada `android/app/src/main/AndroidManifest.xml` tambahkan
 `android:usesCleartextTraffic="true"` di dalam tag `<application ...>`.
 Alamat server diubah di **`mobile/lib/konstanta.dart`** (`alamatServer`).
 
-## 5. Alamat server
-Emulator Android: `http://10.0.2.2:8000/api` (10.0.2.2 = laptop; `localhost` di emulator menunjuk emulator itu sendiri).
-HP fisik: jalankan `php artisan serve --host=0.0.0.0` lalu pakai IP laptop, mis. `http://192.168.1.10:8000/api`.
+## 5. Alamat Server
+Emulator Android: `http://10.0.2.2:8000/api` (`10.0.2.2` merujuk pada IP host laptop/komputer, sebab `localhost` di dalam emulator merujuk pada perangkat emulator itu sendiri)
+Perangkat HP Fisik: Jalankan `php artisan serve --host=0.0.0.0` pada backend Laravel, lalu hubungkan HP dengan IP lokal laptop (misalnya `http://192.168.1.10:8000/api`)
 
 ## 6. Identitas pelanggan
 Statis: `pelanggan_id = 1` (header `X-Pelanggan-Id`, dikirim dari satu tempat: `LayananApi._header()`).
