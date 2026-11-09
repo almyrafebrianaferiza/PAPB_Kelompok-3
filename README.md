@@ -14,9 +14,8 @@ Tugas Pengganti UTS PAPB dan Sistem Terdistribusi. Domain: **Elektronik dan Gawa
 |M Mardiansyah | 24102037| 
 
 ## 2. Domain dan aturan bisnis
-Atribut khas: `berat_gram`, `garansi_bulan`, tabel `unit_produk` (nomor seri per unit).
-Aturan bisnis: ongkos kirim dihitung server = `tarif_dasar + ceil(total_berat/1000) x tarif_per_kg`.
-Server menolak checkout (409) bila total berat melebihi batas kurir (`max_berat_gram`).
+Domain Proyek: Toko online khusus penjualan perangkat elektronik dan gawai.
+Aturan Bisnis & Pengiriman: Perhitungan ongkos kirim ditentukan secara dinamis oleh server berdasarkan total berat produk (dalam gram), bukan menggunakan tarif tetap.
 
 ## 3. Menjalankan backend (butuh PHP >= 8.2, Composer, MySQL/XAMPP)
 ```bash
