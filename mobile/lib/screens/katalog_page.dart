@@ -1,5 +1,7 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
+
 import '../enums/keadaan_muat.dart';
 import '../exceptions/galat_api.dart';
 import '../models/produk.dart';
@@ -50,6 +52,15 @@ class _KatalogPageState extends State<KatalogPage> {
     'tablet',
   ];
 
+  // Brand pilihan ditampilkan sebagai pintasan pencarian.
+  final List<Map<String, dynamic>> _daftarBrand = [
+    {'nama': 'Samsung', 'ikon': Icons.phone_android_rounded},
+    {'nama': 'Apple', 'ikon': Icons.phone_iphone_rounded},
+    {'nama': 'ASUS', 'ikon': Icons.laptop_mac_rounded},
+    {'nama': 'Xiaomi', 'ikon': Icons.devices_other_rounded},
+    {'nama': 'Lenovo', 'ikon': Icons.computer_rounded},
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -67,7 +78,10 @@ class _KatalogPageState extends State<KatalogPage> {
   }
 
   void _padaGulir() {
-    if (_pengontrolGulir.position.pixels >= _pengontrolGulir.position.maxScrollExtent - 200 &&
+    if (!_pengontrolGulir.hasClients) return;
+
+    if (_pengontrolGulir.position.pixels >=
+            _pengontrolGulir.position.maxScrollExtent - 200 &&
         !_apakahMemuatLagi &&
         _adaHalamanBerikutnya &&
         _keadaan == KeadaanMuat.berhasil) {
@@ -168,11 +182,18 @@ class _KatalogPageState extends State<KatalogPage> {
   void _padaPencarianDiubah(String nilai) {
     _penundaPencarian?.cancel();
     _penundaPencarian = Timer(const Duration(milliseconds: 400), () {
+      if (!mounted) return;
       setState(() {
         _pencarian = nilai.trim();
       });
       _muatData(ulang: true);
     });
+  }
+
+  void _cariBrand(String brand) {
+    _pengontrolCari.text = brand;
+    _padaPencarianDiubah(brand);
+    setState(() {});
   }
 
   @override
@@ -201,7 +222,8 @@ class _KatalogPageState extends State<KatalogPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (ctx) => RiwayatPesananPage(layananApi: widget.layananApi),
+                  builder: (ctx) =>
+                      RiwayatPesananPage(layananApi: widget.layananApi),
                 ),
               );
             },
@@ -213,7 +235,8 @@ class _KatalogPageState extends State<KatalogPage> {
               await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (ctx) => KelolaProdukPage(layananApi: widget.layananApi),
+                  builder: (ctx) =>
+                      KelolaProdukPage(layananApi: widget.layananApi),
                 ),
               );
               _muatData(ulang: true);
@@ -229,7 +252,8 @@ class _KatalogPageState extends State<KatalogPage> {
                   await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (ctx) => KeranjangPage(layananApi: widget.layananApi),
+                      builder: (ctx) =>
+                          KeranjangPage(layananApi: widget.layananApi),
                     ),
                   );
                   _muatJumlahKeranjang();
@@ -245,7 +269,8 @@ class _KatalogPageState extends State<KatalogPage> {
                       color: ZWarna.galat,
                       shape: BoxShape.circle,
                     ),
-                    constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                    constraints:
+                        const BoxConstraints(minWidth: 16, minHeight: 16),
                     child: Text(
                       '$_jumlahItemKeranjang',
                       style: const TextStyle(
@@ -273,19 +298,23 @@ class _KatalogPageState extends State<KatalogPage> {
               decoration: InputDecoration(
                 hintText: 'Cari gadget, spesifikasi, merk...',
                 prefixIcon: const Icon(Icons.search, color: ZWarna.teksSamar),
-                suffixIcon: _pencarian.isNotEmpty
+                suffixIcon: _pengontrolCari.text.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear, size: 18, color: ZWarna.teksSekunder),
+                        icon: const Icon(Icons.clear,
+                            size: 18, color: ZWarna.teksSekunder),
                         onPressed: () {
                           _pengontrolCari.clear();
                           _padaPencarianDiubah('');
+                          setState(() {});
                         },
                       )
                     : null,
                 filled: true,
                 fillColor: ZWarna.permukaanTinggi,
-                hintStyle: const TextStyle(color: ZWarna.teksSamar, fontSize: 14),
-                contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                hintStyle:
+                    const TextStyle(color: ZWarna.teksSamar, fontSize: 14),
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(ZRadius.sedang),
                   borderSide: BorderSide.none,
@@ -303,12 +332,15 @@ class _KatalogPageState extends State<KatalogPage> {
               separatorBuilder: (ctx, i) => const SizedBox(width: 8),
               itemBuilder: (ctx, i) {
                 final kat = _daftarKategori[i];
-                final bool terpilih = (_kategoriDipilih == null && kat == 'Semua') ||
-                    _kategoriDipilih == kat;
+                final bool terpilih =
+                    (_kategoriDipilih == null && kat == 'Semua') ||
+                        _kategoriDipilih == kat;
 
                 return ChoiceChip(
                   label: Text(
-                    kat == 'Semua' ? kat : '${kat[0].toUpperCase()}${kat.substring(1)}',
+                    kat == 'Semua'
+                        ? kat
+                        : '${kat[0].toUpperCase()}${kat.substring(1)}',
                   ),
                   selected: terpilih,
                   selectedColor: ZWarna.oranye,
@@ -332,44 +364,182 @@ class _KatalogPageState extends State<KatalogPage> {
             ),
           ),
           const Divider(height: 1, thickness: 0.5, color: ZWarna.batas),
+          Expanded(child: _bangunKonten()),
+        ],
+      ),
+    );
+  }
+
+  Widget _bangunBannerPromo() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: ZWarna.gradienUtama,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: ZWarna.oranye.withOpacity(0.16),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
           Expanded(
-            child: _bangunKonten(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: ZWarna.hitam.withOpacity(0.14),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Text(
+                    'WELCOME TO ZENVORĀ',
+                    style: TextStyle(
+                      color: ZWarna.hitam,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Upgrade Your\nDigital Lifestyle',
+                  style: TextStyle(
+                    color: ZWarna.hitam,
+                    fontSize: 23,
+                    height: 1.12,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Temukan teknologi yang mendukung aktivitasmu.',
+                  style: TextStyle(
+                    color: ZWarna.hitam,
+                    fontSize: 12,
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Image.asset(
+              'assets/images/banner_zenvora.png',
+              width: 115,
+              height: 125,
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) {
+                return const Icon(
+                  Icons.devices_other_rounded,
+                  size: 76,
+                  color: ZWarna.hitam,
+                );
+              },
+            ),
           ),
         ],
       ),
     );
   }
 
+  Widget _bangunBrandPilihan() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 18, 16, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _judulBagian('Jelajahi Brand', 'Temukan perangkat favoritmu'),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 76,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: _daftarBrand.length,
+              separatorBuilder: (context, index) => const SizedBox(width: 10),
+              itemBuilder: (context, index) {
+                final brand = _daftarBrand[index];
+                return InkWell(
+                  borderRadius: BorderRadius.circular(14),
+                  onTap: () => _cariBrand(brand['nama'] as String),
+                  child: Container(
+                    width: 88,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: ZWarna.permukaanTinggi,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: ZWarna.batas),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          brand['ikon'] as IconData,
+                          color: ZWarna.oranye,
+                          size: 23,
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          brand['nama'] as String,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: ZWarna.putih,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _judulBagian(String judul, String subjudul) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          judul,
+          style: const TextStyle(
+            color: ZWarna.putih,
+            fontSize: 17,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 3),
+        Text(
+          subjudul,
+          style: const TextStyle(
+            color: ZWarna.teksSekunder,
+            fontSize: 11,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Banner dan brand tetap ditampilkan walaupun API sedang loading,
+  // gagal merespons, atau belum memiliki produk.
   Widget _bangunKonten() {
-    if (_keadaan == KeadaanMuat.memuat && _daftarProduk.isEmpty) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
-    }
-
-    if (_keadaan == KeadaanMuat.galat && _daftarProduk.isEmpty) {
-      return TampilanGalat(
-        galat: _galat ?? ServerException('Terjadi kesalahan sistem'),
-        saatCobaLagi: () => _muatData(ulang: true),
-      );
-    }
-
-    if (_daftarProduk.isEmpty) {
-      return TampilanKosong(
-        ikon: Icons.devices_outlined,
-        judul: 'Tidak Ada Produk Ditemukan',
-        pesan: 'Coba ubah kata kunci pencarian atau pilih kategori lain.',
-        teksTombolAksi: 'Reset Filter',
-        saatTombolDitekan: () {
-          _pengontrolCari.clear();
-          setState(() {
-            _pencarian = '';
-            _kategoriDipilih = null;
-          });
-          _muatData(ulang: true);
-        },
-      );
-    }
+    final bool tampilkanBeranda =
+        _pencarian.isEmpty && _kategoriDipilih == null;
 
     return RefreshIndicator(
       onRefresh: () async {
@@ -377,43 +547,120 @@ class _KatalogPageState extends State<KatalogPage> {
         await _muatJumlahKeranjang();
       },
       color: ZWarna.oranye,
-      child: GridView.builder(
+      child: CustomScrollView(
         controller: _pengontrolGulir,
-        padding: const EdgeInsets.all(12),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 0.62,
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
-        ),
-        itemCount: _daftarProduk.length + (_apakahMemuatLagi ? 2 : 0),
-        itemBuilder: (ctx, i) {
-          if (i >= _daftarProduk.length) {
-            return const Center(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          if (tampilkanBeranda) ...[
+            SliverToBoxAdapter(child: _bangunBannerPromo()),
+            SliverToBoxAdapter(child: _bangunBrandPilihan()),
+            SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.all(16),
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-            );
-          }
-
-          final prod = _daftarProduk[i];
-          return KartuProduk(
-            produk: prod,
-            saatDiketuk: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (c) => RincianProdukPage(
-                    idProduk: prod.id,
-                    layananApi: widget.layananApi,
-                  ),
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
+                child: _judulBagian(
+                  'Produk Pilihan',
+                  'Pilihan perangkat untuk kebutuhan digitalmu',
                 ),
-              );
-              _muatJumlahKeranjang();
-            },
-          );
-        },
+              ),
+            ),
+          ] else
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                child: _judulBagian(
+                  'Hasil Produk',
+                  '${_daftarProduk.length} produk ditampilkan',
+                ),
+              ),
+            ),
+
+          // Kondisi loading, error, dan kosong ditampilkan di bawah banner.
+          if (_keadaan == KeadaanMuat.memuat && _daftarProduk.isEmpty)
+            const SliverFillRemaining(
+              hasScrollBody: false,
+              child: Center(
+                child: CircularProgressIndicator(color: ZWarna.oranye),
+              ),
+            )
+          else if (_keadaan == KeadaanMuat.galat && _daftarProduk.isEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                child: TampilanGalat(
+                  galat: _galat ?? ServerException('Terjadi kesalahan sistem'),
+                  saatCobaLagi: () => _muatData(ulang: true),
+                ),
+              ),
+            )
+          else if (_daftarProduk.isEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                child: TampilanKosong(
+                  ikon: Icons.devices_outlined,
+                  judul: 'Tidak Ada Produk Ditemukan',
+                  pesan:
+                      'Coba ubah kata kunci pencarian atau pilih kategori lain.',
+                  teksTombolAksi: 'Reset Filter',
+                  saatTombolDitekan: () {
+                    _pengontrolCari.clear();
+                    setState(() {
+                      _pencarian = '';
+                      _kategoriDipilih = null;
+                    });
+                    _muatData(ulang: true);
+                  },
+                ),
+              ),
+            )
+          else ...[
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
+              sliver: SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.62,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                ),
+                delegate: SliverChildBuilderDelegate(
+                  (ctx, i) {
+                    if (i >= _daftarProduk.length) {
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(16),
+                          child: CircularProgressIndicator(
+                            color: ZWarna.oranye,
+                            strokeWidth: 2,
+                          ),
+                        ),
+                      );
+                    }
+
+                    final prod = _daftarProduk[i];
+                    return KartuProduk(
+                      produk: prod,
+                      saatDiketuk: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (c) => RincianProdukPage(
+                              idProduk: prod.id,
+                              layananApi: widget.layananApi,
+                            ),
+                          ),
+                        );
+                        _muatJumlahKeranjang();
+                      },
+                    );
+                  },
+                  childCount:
+                      _daftarProduk.length + (_apakahMemuatLagi ? 2 : 0),
+                ),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }
