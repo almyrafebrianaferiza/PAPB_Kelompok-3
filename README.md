@@ -6,12 +6,12 @@ Tugas Pengganti UTS PAPB dan Sistem Terdistribusi — **Kelompok 3**.
 
 | Nama | NIM | Peran |
 |---|---|---|
-| Aini Nur Azizah | 241020003 | — |
-| Annisa Kholifatul | 241020005 | — |
-| Inas Hasna Mufida | 241020012 | Dokumentasi |
+| Aini Nur Azizah | 241020003 | Dokumentasi |
+| Annisa Kholifatul | 241020005 | Dokumentasi |
+| Inas Hasna Mufida | 241020012 | Laporan |
 | Maylany Helena Pratama Putri | 241020014 | ER Diagram dan dokumentasi|
 | Ahmad Dio | 2410200 | Mobile, pengujian, dokumentasi teknis |
-| Almyra Febriana Feriza | 24102054 | Dokumentasi dan README |
+| Almyra Febriana Feriza | 24102054 | Mobile, Dokumentasi dan README |
 | M Mardiansyah | 24102037 | Backend, integrasi mobile, pengujian |
 
 > Peran yang bertanda "—" dilengkapi oleh kelompok sebelum pengumpulan.
