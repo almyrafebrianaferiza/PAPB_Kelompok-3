@@ -14,8 +14,6 @@ Tugas Pengganti UTS PAPB dan Sistem Terdistribusi — **Kelompok 3**.
 | Almyra Febriana Feriza | 24102054 | Mobile, Dokumentasi dan README |
 | M Mardiansyah | 24102037 | Backend, integrasi mobile, pengujian |
 
-> Peran yang bertanda "—" dilengkapi oleh kelompok sebelum pengumpulan.
-
 ## 2. Domain dan aturan bisnis
 
 Domain: toko online khusus perangkat elektronik dan gawai (kategori `gadget`, `laptop`, `tv`, `monitor`, `tablet`).
@@ -108,7 +106,7 @@ Dokumentasi kontrak lengkap: [`api-contract (1).md`](api-contract%20%281%29.md).
 
 ## 8. Video demo
 
-Tautan video demo: **(diisi sebelum pengumpulan)**.
+Tautan video demo: **(menyusul)**.
 
 ## 9. Catatan pemakaian AI, pustaka, dan flag demo
 
