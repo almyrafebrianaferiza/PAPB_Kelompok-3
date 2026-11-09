@@ -69,3 +69,4 @@ Statis: `pelanggan_id = 1` (header `X-Pelanggan-Id`, dikirim dari satu tempat: `
 | GET | /api/pesanan | terbaru dulu |
 | GET | /api/pesanan/{id} | item dengan harga saat pembelian dan nomor seri |
 | PATCH | /api/pesanan/{id}/status | 200 / 409 (perpindahan tidak sah) / 422 |
+
