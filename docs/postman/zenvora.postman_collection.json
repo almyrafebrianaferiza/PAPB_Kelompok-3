@@ -1,0 +1,936 @@
+{
+  "info": {
+    "name": "Zenvora — 15 Endpoint",
+    "description": "Koleksi uji REST API Zenvora. Jalankan pada database hasil `php artisan migrate:fresh --seed` dan server `php artisan serve`. Variabel `base_url`, `token`, dan `kunci` diatur di tab Variables. Contoh 422, 409, dan idempotensi ada di folder terakhir.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000/api",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "zenvora-dev-token-2026",
+      "type": "string"
+    },
+    {
+      "key": "kunci",
+      "value": "6f1c2d3e-9b7a-4c55-8e21-0a1b2c3d4e5f",
+      "type": "string"
+    },
+    {
+      "key": "produk_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "keranjang_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "pesanan_id",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Produk (5 endpoint)",
+      "item": [
+        {
+          "name": "1. Daftar Produk",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "const b = pm.response.json();",
+                  "pm.test(\"pembungkus sukses\", function () { pm.expect(b.status).to.eql(\"sukses\"); pm.expect(String(b.code)).to.eql(\"200\"); });",
+                  "pm.test(\"data array\", function () { pm.expect(b.data).to.be.an(\"array\"); });",
+                  "pm.test(\"maksimal 10 item\", function () { pm.expect(b.data.length).to.be.at.most(10); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/produk?halaman=1&per_halaman=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "produk"
+              ],
+              "query": [
+                {
+                  "key": "halaman",
+                  "value": "1"
+                },
+                {
+                  "key": "per_halaman",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "2. Rincian Produk",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "const b = pm.response.json();",
+                  "pm.test(\"pembungkus sukses\", function () { pm.expect(b.status).to.eql(\"sukses\"); pm.expect(String(b.code)).to.eql(\"200\"); });",
+                  "pm.test(\"data objek\", function () { pm.expect(b.data).to.be.an(\"object\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/produk/{{produk_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "produk",
+                "{{produk_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "3. Tambah Produk",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "const b = pm.response.json();",
+                  "pm.test(\"pembungkus sukses\", function () { pm.expect(b.status).to.eql(\"sukses\"); pm.expect(String(b.code)).to.eql(\"201\"); });",
+                  "pm.collectionVariables.set(\"produk_id\", String(b.data.id));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/produk",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "produk"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama\": \"Produk Uji Postman {{$timestamp}}\",\n  \"merek\": \"Zenvora\",\n  \"harga\": 100000,\n  \"kategori\": \"gadget\",\n  \"stok\": 2,\n  \"tersedia\": true,\n  \"deskripsi\": \"Produk uji koleksi Postman\",\n  \"berat_gram\": 250,\n  \"garansi_bulan\": 6\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "4. Ubah Produk",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "const b = pm.response.json();",
+                  "pm.test(\"pembungkus sukses\", function () { pm.expect(b.status).to.eql(\"sukses\"); pm.expect(String(b.code)).to.eql(\"200\"); });",
+                  "pm.test(\"stok menjadi 3\", function () { pm.expect(b.data.stok).to.eql(3); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/produk/{{produk_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "produk",
+                "{{produk_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama\": \"Produk Uji Postman (diubah) {{$timestamp}}\",\n  \"merek\": \"Zenvora\",\n  \"harga\": 125000,\n  \"kategori\": \"gadget\",\n  \"stok\": 3,\n  \"tersedia\": true,\n  \"deskripsi\": \"Produk uji koleksi Postman\",\n  \"berat_gram\": 250,\n  \"garansi_bulan\": 6\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "5. Hapus Produk",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "const b = pm.response.json();",
+                  "pm.test(\"pembungkus sukses\", function () { pm.expect(b.status).to.eql(\"sukses\"); pm.expect(String(b.code)).to.eql(\"200\"); });",
+                  "pm.test(\"data null\", function () { pm.expect(b.data).to.be.null; });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/produk/{{produk_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "produk",
+                "{{produk_id}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Keranjang (4 endpoint)",
+      "item": [
+        {
+          "name": "6. Tambah Item Keranjang",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200/201\", function () { pm.expect([200,201]).to.include(pm.response.code); });",
+                  "const b = pm.response.json();",
+                  "pm.test(\"pembungkus sukses\", function () { pm.expect(b.status).to.eql(\"sukses\"); pm.expect([\"200\",\"201\"]).to.include(String(b.code)); });",
+                  "pm.collectionVariables.set(\"keranjang_id\", String(b.data.id));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/keranjang",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "keranjang"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"produk_id\": 4,\n  \"jumlah\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "7. Lihat Keranjang",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "const b = pm.response.json();",
+                  "pm.test(\"pembungkus sukses\", function () { pm.expect(b.status).to.eql(\"sukses\"); pm.expect(String(b.code)).to.eql(\"200\"); });",
+                  "pm.test(\"data objek\", function () { pm.expect(b.data).to.be.an(\"object\"); });",
+                  "pm.test(\"item array\", function () { pm.expect(b.data.item).to.be.an(\"array\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/keranjang",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "keranjang"
+              ]
+            }
+          }
+        },
+        {
+          "name": "8. Ubah Jumlah Item",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "const b = pm.response.json();",
+                  "pm.test(\"pembungkus sukses\", function () { pm.expect(b.status).to.eql(\"sukses\"); pm.expect(String(b.code)).to.eql(\"200\"); });",
+                  "pm.test(\"jumlah menjadi 2\", function () { pm.expect(b.data.jumlah).to.eql(2); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/keranjang/{{keranjang_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "keranjang",
+                "{{keranjang_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jumlah\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "9. Hapus Item Keranjang",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "const b = pm.response.json();",
+                  "pm.test(\"pembungkus sukses\", function () { pm.expect(b.status).to.eql(\"sukses\"); pm.expect(String(b.code)).to.eql(\"200\"); });",
+                  "pm.test(\"data null\", function () { pm.expect(b.data).to.be.null; });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/keranjang/{{keranjang_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "keranjang",
+                "{{keranjang_id}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Kurir dan Metode Pembayaran (2 endpoint)",
+      "item": [
+        {
+          "name": "10. Daftar Kurir",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "const b = pm.response.json();",
+                  "pm.test(\"pembungkus sukses\", function () { pm.expect(b.status).to.eql(\"sukses\"); pm.expect(String(b.code)).to.eql(\"200\"); });",
+                  "pm.test(\"data array\", function () { pm.expect(b.data).to.be.an(\"array\"); });",
+                  "pm.test(\"minimal 3 kurir\", function () { pm.expect(b.data.length).to.be.at.least(3); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/kurir",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "kurir"
+              ]
+            }
+          }
+        },
+        {
+          "name": "11. Daftar Metode Pembayaran",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "const b = pm.response.json();",
+                  "pm.test(\"pembungkus sukses\", function () { pm.expect(b.status).to.eql(\"sukses\"); pm.expect(String(b.code)).to.eql(\"200\"); });",
+                  "pm.test(\"data array\", function () { pm.expect(b.data).to.be.an(\"array\"); });",
+                  "pm.test(\"minimal 2 metode\", function () { pm.expect(b.data.length).to.be.at.least(2); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/metode-pembayaran",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "metode-pembayaran"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Checkout (1 endpoint)",
+      "item": [
+        {
+          "name": "Persiapan: isi keranjang",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200/201\", function () { pm.expect([200,201]).to.include(pm.response.code); });",
+                  "const b = pm.response.json();",
+                  "pm.test(\"pembungkus sukses\", function () { pm.expect(b.status).to.eql(\"sukses\"); pm.expect([\"200\",\"201\"]).to.include(String(b.code)); });",
+                  "pm.collectionVariables.set(\"keranjang_id\", String(b.data.id));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/keranjang",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "keranjang"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"produk_id\": 4,\n  \"jumlah\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "12. Checkout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "const b = pm.response.json();",
+                  "pm.test(\"pembungkus sukses\", function () { pm.expect(b.status).to.eql(\"sukses\"); pm.expect(String(b.code)).to.eql(\"201\"); });",
+                  "pm.collectionVariables.set(\"pesanan_id\", String(b.data.id));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Kunci-Idempoten",
+                "value": "{{kunci}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/checkout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "checkout"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kurir_id\": 1,\n  \"metode_pembayaran_id\": 1,\n  \"nama_penerima\": \"Budi Santoso\",\n  \"alamat_penerima\": \"Jl. Pahlawan No. 10, Sidoarjo\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Pesanan (3 endpoint)",
+      "item": [
+        {
+          "name": "13. Riwayat Pesanan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "const b = pm.response.json();",
+                  "pm.test(\"pembungkus sukses\", function () { pm.expect(b.status).to.eql(\"sukses\"); pm.expect(String(b.code)).to.eql(\"200\"); });",
+                  "pm.test(\"data array\", function () { pm.expect(b.data).to.be.an(\"array\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/pesanan",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pesanan"
+              ]
+            }
+          }
+        },
+        {
+          "name": "14. Rincian Pesanan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "const b = pm.response.json();",
+                  "pm.test(\"pembungkus sukses\", function () { pm.expect(b.status).to.eql(\"sukses\"); pm.expect(String(b.code)).to.eql(\"200\"); });",
+                  "pm.test(\"data objek\", function () { pm.expect(b.data).to.be.an(\"object\"); });",
+                  "pm.test(\"item array\", function () { pm.expect(b.data.item).to.be.an(\"array\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/pesanan/{{pesanan_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pesanan",
+                "{{pesanan_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "15. Ubah Status Pesanan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "const b = pm.response.json();",
+                  "pm.test(\"pembungkus sukses\", function () { pm.expect(b.status).to.eql(\"sukses\"); pm.expect(String(b.code)).to.eql(\"200\"); });",
+                  "pm.test(\"status baru\", function () { pm.expect(b.data.status).to.eql(\"menunggu_konfirmasi\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/pesanan/{{pesanan_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pesanan",
+                "{{pesanan_id}}",
+                "status"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"menunggu_konfirmasi\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Contoh Galat dan Idempotensi",
+      "item": [
+        {
+          "name": "Contoh 422: Tambah Produk body kosong",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 422\", function () { pm.response.to.have.status(422); });",
+                  "const b = pm.response.json();",
+                  "pm.test(\"pembungkus gagal + errors\", function () { pm.expect(b.status).to.eql(\"gagal\"); pm.expect(String(b.code)).to.eql(\"422\"); pm.expect(b.errors).to.be.an(\"object\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/produk",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "produk"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Contoh 409: Keranjang melebihi stok",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 409\", function () { pm.response.to.have.status(409); });",
+                  "const b = pm.response.json();",
+                  "pm.test(\"pembungkus gagal\", function () { pm.expect(b.status).to.eql(\"gagal\"); pm.expect(String(b.code)).to.eql(\"409\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/keranjang",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "keranjang"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"produk_id\": 4,\n  \"jumlah\": 999\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Contoh idempoten: Checkout ulang kunci sama",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "const b = pm.response.json();",
+                  "pm.test(\"pembungkus sukses\", function () { pm.expect(b.status).to.eql(\"sukses\"); pm.expect(String(b.code)).to.eql(\"201\"); });",
+                  "pm.test(\"pesanan sama (idempoten)\", function () { pm.expect(String(b.data.id)).to.eql(pm.collectionVariables.get(\"pesanan_id\")); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Kunci-Idempoten",
+                "value": "{{kunci}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/checkout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "checkout"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kurir_id\": 1,\n  \"metode_pembayaran_id\": 1,\n  \"nama_penerima\": \"Budi Santoso\",\n  \"alamat_penerima\": \"Jl. Pahlawan No. 10, Sidoarjo\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
