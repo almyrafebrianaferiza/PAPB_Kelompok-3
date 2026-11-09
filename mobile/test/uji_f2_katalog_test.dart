@@ -58,8 +58,9 @@ Future<void> _bukaKatalog(WidgetTester tester, LayananApi api) async {
 }
 
 int _jumlahKartu(WidgetTester tester) {
-  final grid = tester.widget<GridView>(find.byType(GridView));
-  return grid.childrenDelegate.estimatedChildCount ?? 0;
+  final grid = tester.widget<SliverGrid>(find.byType(SliverGrid));
+  final delegate = grid.delegate as SliverChildBuilderDelegate;
+  return delegate.childCount ?? 0;
 }
 
 void main() {
@@ -75,14 +76,14 @@ void main() {
     expect(_jumlahKartu(tester), 10);
     expect(api.panggilan.where((p) => p['halaman'] == 1), hasLength(1));
 
-    await tester.drag(find.byType(GridView), const Offset(0, -3000));
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -3000));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
 
     expect(api.panggilan.where((p) => p['halaman'] == 2), hasLength(1));
     expect(_jumlahKartu(tester), 15);
 
-    await tester.drag(find.byType(GridView), const Offset(0, -2500));
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -2500));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
 
@@ -128,7 +129,7 @@ void main() {
     await _bukaKatalog(tester, api);
     expect(_jumlahKartu(tester), 10);
 
-    await tester.drag(find.byType(GridView), const Offset(0, -3000));
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -3000));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
 

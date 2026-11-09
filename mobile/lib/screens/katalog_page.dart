@@ -379,7 +379,7 @@ class _KatalogPageState extends State<KatalogPage> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: ZWarna.oranye.withOpacity(0.16),
+            color: ZWarna.oranye.withValues(alpha: 0.16),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),
@@ -395,7 +395,7 @@ class _KatalogPageState extends State<KatalogPage> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                    color: ZWarna.hitam.withOpacity(0.14),
+                    color: ZWarna.hitam.withValues(alpha: 0.14),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Text(
@@ -434,7 +434,7 @@ class _KatalogPageState extends State<KatalogPage> {
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Image.asset(
-              'assets/images/banner_zenvora.png',
+              'assets/images/banner_zenvora.jpeg',
               width: 115,
               height: 125,
               fit: BoxFit.contain,
