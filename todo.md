@@ -152,9 +152,10 @@
 - **Verifikasi**: picu satu per satu dan catat tampilan: (1) hentikan `php artisan serve`; (2) `ZENVORA_LAMBAT_DETIK=15`; (3) alamat kosong → 422 per kolom; (4) produk stok nol → 409; (5) `ZENVORA_PAKSA_GALAT=true` → 500 pesan umum tanpa jejak. Kelimanya tampil **berbeda**; semua halaman daftar punya Coba lagi. Kembalikan flag `.env` ke nilai bawaan.
 - **Bukti (tes)**: `uji_f1a..f1d_*.dart` hijau di Chrome — (1) `Koneksi Terputus` + `Tidak dapat terhubung ke server` + Coba Lagi di katalog/riwayat/kelola/keranjang (alamat ke port mati, serve :8000 tidak diganggu); (2) `ZENVORA_LAMBAT_DETIK=15` → `Waktu Permintaan Habis` + `Server tidak membalas` setelah timeout 10 dtk; (3) nama & alamat kosong → **422 server** → `Nama penerima wajib diisi`/`Alamat penerima wajib diisi` per kolom, tetap di halaman checkout; (4) stok 0 → dialog `Stok Tidak Mencukupi` + pesan server; (5) `ZENVORA_PAKSA_GALAT=true` → `Gangguan Server (500)` + `Terjadi kesalahan pada server`, tanpa jejak (`.php`/`Trace`/`Exception` tidak ada). Flag `.env` dikembalikan `0`/`false`; lima tampilan berbeda; `Coba Lagi` terpasang di semua halaman daftar.
 
-### [ ] F2 ◇ Lazy load Katalog
+### [x] F2 ◇ Lazy load Katalog
 - **Rujukan**: `architecture.md` 5.7, `api-contract.md` 4.1.
 - **Verifikasi**: `per_halaman=10` memuat 10 lalu 5 item saat digulir; berhenti tanpa menampilkan "kosong" setelah halaman terakhir; ganti kategori/cari mereset ke halaman 1 (tiket usang diabaikan); galat halaman lanjutan tidak menghapus daftar.
+- **Bukti (tes)**: `mobile/test/uji_f2_katalog_test.dart` hijau tanpa backend — 10 lalu 5 item, halaman 3 tidak diminta, respons "laptop" yang terlambat tidak menimpa hasil "Semua", dan galat halaman lanjutan tidak menghapus 10 item yang sudah tampil. `flutter analyze` 0 issue.
 
 ### [x] F3 ★ Perapian kode
 - **Verifikasi**: semua perintah di `conventions.md` Bagian 6 lolos; tidak ada `print`, kode mati, atau berkas tak terpakai; `flutter analyze` bersih; rute API = 15.

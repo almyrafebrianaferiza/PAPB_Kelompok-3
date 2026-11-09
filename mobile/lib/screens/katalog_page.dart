@@ -29,6 +29,9 @@ class _KatalogPageState extends State<KatalogPage> {
   int _halaman = 1;
   bool _apakahMemuatLagi = false;
   bool _adaHalamanBerikutnya = true;
+  // Nomor urut permintaan. Dipakai agar respons lama yang datang terlambat
+  // tidak menimpa hasil filter/pencarian yang lebih baru.
+  int _idPermintaan = 0;
 
   String _pencarian = '';
   String? _kategoriDipilih;
@@ -80,14 +83,25 @@ class _KatalogPageState extends State<KatalogPage> {
           _jumlahItemKeranjang = keranjang.totalJumlah;
         });
       }
-    } on GalatApi catch (_) {}
+    } on GalatApi catch (_) {
+      // Lencana keranjang bersifat pelengkap. Bila gagal dimuat, angka lama
+      // dikosongkan agar tidak menampilkan jumlah yang sudah tidak akurat.
+      if (mounted) {
+        setState(() {
+          _jumlahItemKeranjang = 0;
+        });
+      }
+    }
   }
 
   Future<void> _muatData({bool ulang = false}) async {
+    final idPermintaan = ++_idPermintaan;
+
     if (ulang) {
       setState(() {
         _keadaan = KeadaanMuat.memuat;
         _halaman = 1;
+        _apakahMemuatLagi = false;
         _daftarProduk.clear();
         _galat = null;
       });
@@ -101,26 +115,25 @@ class _KatalogPageState extends State<KatalogPage> {
         perHalaman: 10,
       );
 
-      if (mounted) {
-        setState(() {
-          _daftarProduk = respon;
-          _adaHalamanBerikutnya = respon.length >= 10;
-          _keadaan = respon.isEmpty ? KeadaanMuat.kosong : KeadaanMuat.berhasil;
-        });
-      }
+      if (!mounted || idPermintaan != _idPermintaan) return;
+      setState(() {
+        _daftarProduk = respon;
+        _adaHalamanBerikutnya = respon.length >= 10;
+        _keadaan = respon.isEmpty ? KeadaanMuat.kosong : KeadaanMuat.berhasil;
+      });
     } on GalatApi catch (e) {
-      if (mounted) {
-        setState(() {
-          _galat = e;
-          _keadaan = KeadaanMuat.galat;
-        });
-      }
+      if (!mounted || idPermintaan != _idPermintaan) return;
+      setState(() {
+        _galat = e;
+        _keadaan = KeadaanMuat.galat;
+      });
     }
   }
 
   Future<void> _muatHalamanBerikutnya() async {
     if (_apakahMemuatLagi || !_adaHalamanBerikutnya) return;
 
+    final idPermintaan = _idPermintaan;
     setState(() {
       _apakahMemuatLagi = true;
     });
@@ -134,20 +147,21 @@ class _KatalogPageState extends State<KatalogPage> {
         perHalaman: 10,
       );
 
-      if (mounted) {
-        setState(() {
-          _halaman = halamanBaru;
-          _daftarProduk.addAll(respon);
-          _adaHalamanBerikutnya = respon.length >= 10;
-          _apakahMemuatLagi = false;
-        });
-      }
+      // Filter/pencarian bisa berubah saat halaman ini masih dimuat. Respons
+      // lama diabaikan agar daftar tidak tercampur hasil permintaan sebelumnya.
+      if (!mounted || idPermintaan != _idPermintaan) return;
+      setState(() {
+        _halaman = halamanBaru;
+        _daftarProduk.addAll(respon);
+        _adaHalamanBerikutnya = respon.length >= 10;
+        _apakahMemuatLagi = false;
+      });
     } on GalatApi catch (_) {
-      if (mounted) {
-        setState(() {
-          _apakahMemuatLagi = false;
-        });
-      }
+      if (!mounted || idPermintaan != _idPermintaan) return;
+      // Galat halaman lanjutan tidak boleh menghapus daftar yang sudah tampil.
+      setState(() {
+        _apakahMemuatLagi = false;
+      });
     }
   }
 
