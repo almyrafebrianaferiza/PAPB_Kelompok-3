@@ -106,6 +106,7 @@
 - **Rujukan**: `architecture.md` 5.4 dan 5.6.
 - **Verifikasi**: `flutter run` di emulator membuka Katalog tanpa galat.
 - **Selesai bila**: aplikasi berjalan di emulator dengan `alamatServer = http://10.0.2.2:8000/api`.
+- **Status**: widget, tema, dan navigasi sudah ada; tes E1–E7 berjalan di Chrome. Verifikasi emulator/HP menyusul di G2, jadi kotak ini belum dicentang.
 
 ---
 
@@ -167,6 +168,7 @@
 
 ### [ ] G1 ★ Jalankan seluruh skenario `testing.md`
 - **Verifikasi**: kolom "hasil nyata" terisi; setiap kegagalan diperbaiki lalu diuji ulang; SQL invarian 0 baris setelah seluruh uji.
+- **Bukti sebagian**: tes otomatis E1–E7, F1a–F1d, dan F2 sudah hijau (ringkasan di `testing.md`); kolom Hasil skenario manual diisi saat uji ulang pada database bersih.
 
 ### [ ] G2 ★ Uji di HP fisik
 - **Berkas**: ubah `alamatServer` ke IP LAN; `php artisan serve --host=0.0.0.0`; manifes debug `usesCleartextTraffic`.
@@ -175,6 +177,7 @@
 ### [ ] G3 ◇ Koleksi Postman
 - **Berkas**: `docs/postman/zenvora.postman_collection.json` (15 endpoint + variabel `{{base_url}}`, `{{token}}`, `{{kunci}}`; contoh 422/409/idempoten).
 - **Selesai bila**: ekspor memuat semua 15 request dan seluruhnya berhasil dijalankan berurutan pada basis data hasil seeder.
+- **Bukti sebagian**: koleksi berisi 19 request (15 endpoint + 1 persiapan checkout + 3 contoh 422/409/idempoten) dan JSON valid; belum dijalankan ke server karena `backend/vendor` belum tersedia.
 
 ---
 

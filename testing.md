@@ -4,6 +4,16 @@
 > Cara pakai: jalankan skenario, isi kolom **Hasil** (`LULUS`/`GAGAL` + catatan singkat), dan simpan bukti (tangkapan layar Postman atau hasil SQL). Bukti yang sama bisa dipakai untuk contoh nyata di PDF dokumentasi.
 > Nama tabel dan kolom pada SQL mengikuti `database-schema.md`; bila ada perbedaan nama kolom, sesuaikan dengan skema yang sebenarnya.
 
+## Bukti uji otomatis yang sudah dijalankan
+
+| Tanggal | Berkas uji | Cakupan | Hasil |
+|---------|------------|---------|-------|
+| 2026-11-08 | `mobile/test/uji_e1..e7_*.dart` | E1–E7 (katalog, rincian, keranjang, checkout, rincian pesanan, riwayat, kelola produk) | PASS di Chrome |
+| 2026-11-08 | `mobile/test/uji_f1a..f1d_*.dart` | lima tampilan galat: sambungan, batas waktu, 422, 409, 500 | PASS di Chrome |
+| 2026-11-09 | `mobile/test/uji_f2_katalog_test.dart` | lazy load 10+5 item, respons usang diabaikan, galat halaman lanjutan tidak menghapus daftar | PASS (3 tes, tanpa backend) |
+
+Kolom **Hasil** pada tabel skenario di bawah tetap diisi saat G1 dijalankan ulang pada database bersih; tabel di atas hanya merangkum bukti otomatis yang sudah ada.
+
 ---
 
 ## 0. Persiapan
