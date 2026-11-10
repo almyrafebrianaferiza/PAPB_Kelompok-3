@@ -202,16 +202,12 @@ class _KatalogPageState extends State<KatalogPage> {
       appBar: AppBar(
         title: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                gradient: ZWarna.gradienUtama,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(Icons.bolt, color: ZWarna.hitam, size: 20),
+            Image.asset(
+              'assets/images/logo-zenvora.png',
+              width: 150,
+              height: 150,
+              fit: BoxFit.contain,
             ),
-            const SizedBox(width: 8),
-            const Text('Zenvorā'),
           ],
         ),
         actions: [
