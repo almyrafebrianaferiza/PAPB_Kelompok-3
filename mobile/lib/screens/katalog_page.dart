@@ -371,84 +371,90 @@ class _KatalogPageState extends State<KatalogPage> {
   }
 
   Widget _bangunBannerPromo() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: ZWarna.gradienUtama,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: ZWarna.oranye.withValues(alpha: 0.16),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final lebar = constraints.maxWidth;
+
+        // Tinggi banner menyesuaikan lebar layar
+        final tinggi = lebar > 900
+            ? 400.0
+            : lebar > 600
+                ? 260.0
+                : 220.0;
+
+        return Container(
+          height: tinggi,
+          width: double.infinity,
+          margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.black,
+            image: const DecorationImage(
+              image: AssetImage('assets/images/banner_produk.png'),
+              fit: BoxFit.cover,
+              alignment: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: ZWarna.oranye.withValues(alpha: 0.16),
+                blurRadius: 18,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: ZWarna.hitam.withValues(alpha: 0.14),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Text(
-                    'WELCOME TO ZENVORĀ',
-                    style: TextStyle(
-                      color: ZWarna.hitam,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 1,
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: SizedBox(
+              width: lebar > 600 ? lebar * 0.45 : lebar * 0.65,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Text(
+                      'WELCOME TO ZENVORĀ',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                const Text(
-                  'Upgrade Your\nDigital Lifestyle',
-                  style: TextStyle(
-                    color: ZWarna.hitam,
-                    fontSize: 23,
-                    height: 1.12,
-                    fontWeight: FontWeight.w900,
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Upgrade Your\nDigital Lifestyle',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 23,
+                      height: 1.12,
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Temukan teknologi yang mendukung aktivitasmu.',
-                  style: TextStyle(
-                    color: ZWarna.hitam,
-                    fontSize: 12,
-                    height: 1.35,
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Temukan teknologi yang mendukung aktivitasmu.',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      height: 1.35,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-          const SizedBox(width: 8),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Image.asset(
-              'assets/images/banner_zenvora.jpeg',
-              width: 115,
-              height: 125,
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) {
-                return const Icon(
-                  Icons.devices_other_rounded,
-                  size: 76,
-                  color: ZWarna.hitam,
-                );
-              },
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
