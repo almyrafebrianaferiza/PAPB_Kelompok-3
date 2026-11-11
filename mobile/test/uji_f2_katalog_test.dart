@@ -52,6 +52,10 @@ Produk _produk(int id, String nama, {String kategori = 'gadget'}) => Produk(
     );
 
 Future<void> _bukaKatalog(WidgetTester tester, LayananApi api) async {
+  tester.view.physicalSize = const Size(800, 1600);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.resetPhysicalSize);
+  addTearDown(tester.view.resetDevicePixelRatio);
   await tester.pumpWidget(MaterialApp(home: KatalogPage(layananApi: api)));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 50));
