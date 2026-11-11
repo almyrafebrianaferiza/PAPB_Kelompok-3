@@ -51,7 +51,7 @@
         <div class="admin-table-wrap">
             <div class="admin-table-head">
                 <h2>Pesanan Terbaru</h2>
-                <span class="admin-nav-tag" style="margin-left: 0;">Tahap 3</span>
+                <a href="{{ route('admin.pesanan.index') }}" class="admin-page-link" style="font-size: 11px;">Lihat semua</a>
             </div>
 
             @if ($pesananTerbaru->isEmpty())

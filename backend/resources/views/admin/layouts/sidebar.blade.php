@@ -21,15 +21,15 @@
             Dashboard
         </a>
 
-        <span class="admin-nav-item is-disabled" aria-disabled="true">
+        <a href="{{ route('admin.pesanan.index') }}"
+           class="admin-nav-item {{ request()->routeIs('admin.pesanan.*') ? 'is-active' : '' }}">
             <svg class="admin-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
                 <path d="M3 6h18"></path>
                 <path d="M16 10a4 4 0 0 1-8 0"></path>
             </svg>
             Pesanan Masuk
-            <span class="admin-nav-tag">Tahap 3</span>
-        </span>
+        </a>
 
         <span class="admin-nav-item is-disabled" aria-disabled="true">
             <svg class="admin-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

@@ -692,3 +692,201 @@ a {
     background: rgba(115, 115, 115, 0.16);
     color: var(--text-secondary);
 }
+
+/* ===== Tab Filter ===== */
+.admin-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 5px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+
+.admin-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 14px;
+    border-radius: 9px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.admin-tab:hover {
+    background: #1f1f1f;
+    color: var(--text-primary);
+}
+
+.admin-tab span {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: rgba(115, 115, 115, 0.18);
+    color: var(--text-muted);
+}
+
+.admin-tab.is-active {
+    background: #25180e;
+    color: var(--text-primary);
+    box-shadow: inset 0 0 0 1px rgba(255, 106, 0, 0.42);
+}
+
+.admin-tab.is-active span {
+    background: rgba(255, 106, 0, 0.18);
+    color: var(--accent);
+}
+
+/* ===== Tombol Varian ===== */
+.admin-btn-sm {
+    padding: 7px 13px;
+    font-size: 12px;
+}
+
+.admin-btn-danger {
+    background: rgba(229, 72, 77, 0.14);
+    border-color: rgba(229, 72, 77, 0.4);
+    color: #ff8d90;
+}
+
+.admin-btn-danger:hover {
+    background: var(--danger);
+    color: #ffffff;
+}
+
+/* ===== Tata Letak Rincian ===== */
+.admin-detail-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+}
+
+.admin-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+}
+
+.admin-detail-list {
+    margin: 12px 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.admin-detail-list > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid rgba(51, 51, 51, 0.55);
+}
+
+.admin-detail-list > div:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+}
+
+.admin-detail-list dt {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    flex: none;
+}
+
+.admin-detail-list dd {
+    margin: 0;
+    font-size: 12.5px;
+    color: var(--text-primary);
+    text-align: right;
+}
+
+.admin-detail-list > div.is-total dt,
+.admin-detail-list > div.is-total dd {
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.admin-chip {
+    display: inline-block;
+    padding: 2px 8px;
+    margin: 1px 2px 1px 0;
+    border-radius: 6px;
+    background: #141414;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 10.5px;
+}
+
+.admin-action-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.admin-inline-form {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.admin-crumb {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin: 0 0 4px !important;
+}
+
+.admin-crumb a {
+    color: var(--text-secondary);
+}
+
+.admin-crumb a:hover {
+    color: var(--accent);
+}
+
+/* ===== Paginasi ===== */
+.admin-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 2px;
+    font-size: 12px;
+}
+
+.admin-page-link {
+    padding: 7px 13px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.admin-page-link:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.admin-page-link.is-disabled {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+.admin-page-info {
+    color: var(--text-muted);
+    font-size: 11.5px;
+}
+
+@media (max-width: 1100px) {
+    .admin-detail-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
