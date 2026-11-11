@@ -47,4 +47,9 @@ class Produk extends Model
     {
         return $this->hasMany(Keranjang::class, 'produk_id');
     }
+
+    public function varian(): HasMany
+    {
+        return $this->hasMany(ProdukVarian::class, 'produk_id');
+    }
 }

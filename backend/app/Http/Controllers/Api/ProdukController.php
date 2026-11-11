@@ -44,13 +44,13 @@ class ProdukController extends Controller
             $cari = strtolower($request->query('cari'));
             $query->where(function ($q) use ($cari) {
                 $q->whereRaw('LOWER(nama) LIKE ?', ["%{$cari}%"])
-                  ->orWhereRaw('LOWER(merek) LIKE ?', ["%{$cari}%"]);
+                    ->orWhereRaw('LOWER(merek) LIKE ?', ["%{$cari}%"]);
             });
         }
 
         // Urutan stabil ID naik
         $offset = ($halaman - 1) * $perHalaman;
-        $produk = $query->orderBy('id', 'asc')
+        $produk = $query->with('varian')->orderBy('id', 'asc')
             ->skip($offset)
             ->take($perHalaman)
             ->get();
@@ -63,9 +63,9 @@ class ProdukController extends Controller
      */
     public function show(int $id): JsonResponse
     {
-        $produk = Produk::find($id);
+        $produk = Produk::with('varian')->find($id);
 
-        if (!$produk) {
+        if (! $produk) {
             return Respons::gagal('Produk tidak ditemukan', 404);
         }
 
@@ -93,6 +93,7 @@ class ProdukController extends Controller
             ]);
 
             $this->servisStok->buatUnit($prod, (int) $validated['stok']);
+
             return $prod->fresh();
         });
 
@@ -106,7 +107,7 @@ class ProdukController extends Controller
     {
         $produk = Produk::find($id);
 
-        if (!$produk) {
+        if (! $produk) {
             return Respons::gagal('Produk tidak ditemukan', 404);
         }
 
@@ -138,7 +139,7 @@ class ProdukController extends Controller
     {
         $produk = Produk::find($id);
 
-        if (!$produk) {
+        if (! $produk) {
             return Respons::gagal('Produk tidak ditemukan', 404);
         }
 
