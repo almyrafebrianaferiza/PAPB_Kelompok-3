@@ -8,6 +8,7 @@ import '../widgets/tampilan_galat.dart';
 import '../widgets/tampilan_kosong.dart';
 import '../theme/zenvora_warna.dart';
 import 'form_produk_page.dart';
+import 'dashboard_admin_page.dart';
 
 class KelolaProdukPage extends StatefulWidget {
   final LayananApi layananApi;
@@ -122,6 +123,20 @@ class _KelolaProdukPageState extends State<KelolaProdukPage> {
       backgroundColor: ZWarna.hitam,
       appBar: AppBar(
         title: const Text('Kelola Produk (CRUD)'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.dashboard_outlined),
+            tooltip: 'Dashboard Ringkasan',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (ctx) => DashboardAdminPage(layananApi: widget.layananApi),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {

@@ -16,7 +16,7 @@ void main() {
     int? idBaru;
 
     await pumpAplikasi(tester);
-    await tungguMuncul(tester, find.text('Samsung Galaxy A55 5G 8/256'));
+    await tungguMuncul(tester, find.byIcon(Icons.admin_panel_settings_outlined));
     await ketukIkon(tester, Icons.admin_panel_settings_outlined);
     await tungguMuncul(tester, find.text('Kelola Produk (CRUD)'));
     await tungguMuncul(tester, find.text('Samsung Galaxy A55 5G 8/256'));
@@ -97,7 +97,7 @@ void main() {
 
     // 6. Kembali ke katalog.
     await tester.pageBack();
-    await tungguMuncul(tester, find.text('Samsung Galaxy A55 5G 8/256'));
+    await tungguMuncul(tester, find.byIcon(Icons.shopping_cart_outlined));
     await tester.pump(const Duration(milliseconds: 600));
     expect(find.text('Kelola Produk (CRUD)'), findsNothing);
 

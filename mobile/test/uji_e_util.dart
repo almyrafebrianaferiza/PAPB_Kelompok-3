@@ -55,18 +55,10 @@ Future<void> tungguMuncul(
   Duration batas = const Duration(seconds: 12),
 }) async {
   final akhir = DateTime.now().add(batas);
-  final scrollableVertikal = find.byWidgetPredicate(
-    (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
-  );
   while (DateTime.now().isBefore(akhir)) {
     if (finder.evaluate().isNotEmpty) {
       await tester.pump(const Duration(milliseconds: 100));
       return;
-    }
-    if (scrollableVertikal.evaluate().isNotEmpty) {
-      try {
-        await tester.drag(scrollableVertikal.first, const Offset(0, -250));
-      } catch (_) {}
     }
     await tester.pump(const Duration(milliseconds: 200));
   }
