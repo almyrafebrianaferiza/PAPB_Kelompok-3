@@ -137,10 +137,19 @@ class LayananApi {
   Future<void> hapusItemKeranjang(int id) =>
       _kirim(() => http.delete(_uri('/keranjang/$id'), headers: _header()));
 
-  // 10. GET /api/kurir (Memuat estimasi ongkir dinamis dari berat keranjang)
-  Future<List<Kurir>> ambilKurir() =>
-      _kirim(() => http.get(_uri('/kurir'), headers: _header()))
-          .then((d) => (d as List).map((j) => Kurir.fromJson(j as Map<String, dynamic>)).toList());
+  // 10. GET /api/kurir (Memuat estimasi ongkir dinamis dari berat keranjang & RajaOngkir)
+  Future<List<Kurir>> ambilKurir({int? kotaId}) =>
+      _kirim(() => http.get(
+            _uri('/kurir', {
+              if (kotaId != null) 'kota_id': '$kotaId',
+            }),
+            headers: _header(),
+          )).then((d) => (d as List).map((j) => Kurir.fromJson(j as Map<String, dynamic>)).toList());
+
+  // 10b. GET /api/kurir?opsi=kota (Daftar kota tujuan RajaOngkir)
+  Future<List<Map<String, dynamic>>> ambilDaftarKota() =>
+      _kirim(() => http.get(_uri('/kurir', {'opsi': 'kota'}), headers: _header()))
+          .then((d) => (d as List).cast<Map<String, dynamic>>());
 
   // 11. POST /api/checkout (Menerima header X-Kunci-Idempoten)
   Future<RincianPesanan> checkout({
