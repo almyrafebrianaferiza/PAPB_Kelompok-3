@@ -54,6 +54,7 @@ void main() {
     expect(daftarKurir.length, greaterThanOrEqualTo(2));
     final ongkirAwal = nilaiBaris(tester, 'Ongkos Kirim (');
     expect(ongkirAwal, formatRupiah(daftarKurir[0].ongkir));
+    await tester.ensureVisible(find.text(daftarKurir[1].nama));
     await tester.tap(find.text(daftarKurir[1].nama));
     await tester.pump(const Duration(milliseconds: 300));
     final ongkirBaru = nilaiBaris(tester, 'Ongkos Kirim (');

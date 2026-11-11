@@ -183,4 +183,51 @@ class LayananApi {
   Future<List<MetodePembayaran>> ambilMetodePembayaran() =>
       _kirim(() => http.get(_uri('/metode-pembayaran'), headers: _header()))
           .then((d) => (d as List).map((j) => MetodePembayaran.fromJson(j as Map<String, dynamic>)).toList());
+
+  // 16. Reverse Geocoding via OpenStreetMap Nominatim (Deteksi Lokasi Otomatis)
+  Future<String> geocodingBalik(double lat, double lon) async {
+    final uri = Uri.parse(
+      'https://nominatim.openstreetmap.org/reverse?format=json&lat=$lat&lon=$lon&zoom=18&addressdetails=1',
+    );
+    try {
+      final respons = await http.get(
+        uri,
+        headers: {
+          'User-Agent': 'ZenvoraMobileApp/1.0 (academic-project)',
+          'Accept-Language': 'id',
+        },
+      ).timeout(const Duration(seconds: 8));
+
+      if (respons.statusCode != 200) {
+        return 'Lat: $lat, Lon: $lon';
+      }
+
+      final data = jsonDecode(utf8.decode(respons.bodyBytes)) as Map<String, dynamic>;
+      final address = data['address'] as Map<String, dynamic>? ?? {};
+
+      final jalan = address['road'] ?? address['neighbourhood'] ?? address['suburb'];
+      final kelurahan = address['village'] ?? address['suburb'] ?? address['quarter'];
+      final kecamatan = address['city_district'] ?? address['municipality'] ?? address['district'];
+      final kota = address['city'] ?? address['town'] ?? address['regency'] ?? address['county'];
+      final provinsi = address['state'];
+      final kodePos = address['postcode'];
+
+      final bagian = [
+        if (jalan != null) jalan,
+        if (kelurahan != null) kelurahan,
+        if (kecamatan != null) 'Kec. $kecamatan',
+        if (kota != null) kota,
+        if (provinsi != null) provinsi,
+        if (kodePos != null) kodePos,
+      ];
+
+      if (bagian.isEmpty) {
+        return data['display_name'] as String? ?? 'Koordinat: $lat, $lon';
+      }
+
+      return bagian.join(', ');
+    } catch (_) {
+      return 'Koordinat: $lat, $lon';
+    }
+  }
 }
