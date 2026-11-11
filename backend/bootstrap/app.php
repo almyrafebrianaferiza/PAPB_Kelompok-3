@@ -2,6 +2,7 @@
 
 use App\Exceptions\BentrokException;
 use App\Exceptions\TokenTidakValidException;
+use App\Http\Middleware\PastikanAdmin;
 use App\Support\Respons;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -19,7 +20,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'admin' => PastikanAdmin::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $keJson = fn (Request $request): bool => $request->is('api/*') || $request->expectsJson();
