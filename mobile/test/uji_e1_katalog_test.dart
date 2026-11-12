@@ -14,11 +14,11 @@ void main() {
     await kosongkanKeranjang(api);
 
     await pumpAplikasi(tester);
-    await tungguMuncul(tester, find.text('Samsung Galaxy A55 5G 8/256'));
+    await gulirKe(tester, find.text('Samsung Galaxy A55 5G 8/256'));
     catat(tester, 'muat katalog');
 
-    // 1. Daftar memakai GridView.builder.
-    expect(find.byType(GridView), findsWidgets);
+    // 1. Daftar memakai SliverGrid dua kolom.
+    expect(find.byType(SliverGrid), findsWidgets);
 
     // 2. Produk stok nol bertanda STOK HABIS (iPhone 15 ada di baris kedua).
     await gulirKe(tester, find.text('Apple iPhone 15 128GB'));
@@ -40,7 +40,7 @@ void main() {
 
     // 5. Kembali ke Semua.
     await tester.tap(find.text('Semua'));
-    await tungguMuncul(tester, find.text('Samsung Galaxy A55 5G 8/256'));
+    await gulirKe(tester, find.text('Samsung Galaxy A55 5G 8/256'));
     catat(tester, 'filter semua');
 
     // 6. Pencarian tanpa hasil -> keadaan KOSONG, bukan galat.
@@ -52,7 +52,7 @@ void main() {
 
     // 7. Reset Filter memulihkan daftar penuh.
     await tester.tap(find.text('Reset Filter'));
-    await tungguMuncul(tester, find.text('Samsung Galaxy A55 5G 8/256'));
+    await gulirKe(tester, find.text('Samsung Galaxy A55 5G 8/256'));
     catat(tester, 'reset filter');
 
     // 8. Pencarian berhasil (server) untuk kata kunci nyata.
@@ -60,7 +60,7 @@ void main() {
     await tungguMuncul(tester, find.text('Samsung Galaxy A55 5G 8/256'));
     catat(tester, 'cari samsung');
     await gantiCari(tester, '');
-    await tungguMuncul(tester, find.text('Samsung Galaxy A55 5G 8/256'));
+    await gulirKe(tester, find.text('Samsung Galaxy A55 5G 8/256'));
     catat(tester, 'hapus kata kunci');
 
     // 9. Lencana keranjang muncul setelah ada isi (muat ulang saat kembali).

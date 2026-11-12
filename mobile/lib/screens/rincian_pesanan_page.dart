@@ -25,7 +25,6 @@ class _RincianPesananPageState extends State<RincianPesananPage> {
   KeadaanMuat _keadaan = KeadaanMuat.memuat;
   GalatApi? _galat;
   RincianPesanan? _pesanan;
-  bool _sedangUbahStatus = false;
 
   @override
   void initState() {
@@ -52,45 +51,6 @@ class _RincianPesananPageState extends State<RincianPesananPage> {
         setState(() {
           _galat = e;
           _keadaan = KeadaanMuat.galat;
-        });
-      }
-    }
-  }
-
-  Future<void> _ubahStatus(String statusBaru) async {
-    setState(() {
-      _sedangUbahStatus = true;
-    });
-
-    try {
-      final p = await widget.layananApi.ubahStatusPesanan(
-        widget.idPesanan,
-        statusBaru,
-      );
-      if (mounted) {
-        setState(() {
-          _pesanan = p;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Status pesanan berhasil diubah menjadi: $statusBaru'),
-            backgroundColor: ZWarna.sukses,
-          ),
-        );
-      }
-    } on GalatApi catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.pesan),
-            backgroundColor: ZWarna.galat,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _sedangUbahStatus = false;
         });
       }
     }
@@ -160,7 +120,6 @@ class _RincianPesananPageState extends State<RincianPesananPage> {
         ],
       ),
       body: _bangunBadan(),
-      bottomNavigationBar: _bangunAksiStatus(),
     );
   }
 
@@ -390,7 +349,30 @@ class _RincianPesananPageState extends State<RincianPesananPage> {
                 ],
               ),
             ),
-            const SizedBox(height: 80),
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: ZWarna.permukaan,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: ZWarna.batas),
+              ),
+              child: const Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.info_outline, size: 16, color: ZWarna.oranye),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Status pesanan diperbarui oleh penjual melalui panel admin web. '
+                      'Pembeli hanya dapat memantau status di sini.',
+                      style: TextStyle(fontSize: 11.5, color: ZWarna.teksSekunder),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
           ],
         ),
       ),
@@ -404,55 +386,6 @@ class _RincianPesananPageState extends State<RincianPesananPage> {
         Text(label, style: TextStyle(fontSize: 13, color: ZWarna.teksSekunder, fontWeight: tebal ? FontWeight.bold : FontWeight.normal)),
         Text(nilai, style: TextStyle(fontSize: 13, fontWeight: tebal ? FontWeight.bold : FontWeight.w600, color: warna ?? ZWarna.putih)),
       ],
-    );
-  }
-
-  Widget? _bangunAksiStatus() {
-    if (_keadaan != KeadaanMuat.berhasil || _pesanan == null) return null;
-
-    final p = _pesanan!;
-    final transisiTersedia = p.statusBerikutnya;
-
-    if (transisiTersedia.isEmpty) return null;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: ZWarna.permukaan,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 8,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: Row(
-          children: transisiTersedia.map((target) {
-            final bool isBatal = target == 'dibatalkan';
-            return Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: ElevatedButton(
-                  onPressed: _sedangUbahStatus ? null : () => _ubahStatus(target),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isBatal ? ZWarna.galat : ZWarna.oranye,
-                    foregroundColor: ZWarna.putih,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  ),
-                  child: Text(
-                    isBatal ? 'Batalkan Pesanan' : 'Ubah: $target',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-      ),
     );
   }
 }

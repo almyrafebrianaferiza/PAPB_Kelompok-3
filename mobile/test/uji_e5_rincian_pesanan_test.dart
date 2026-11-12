@@ -1,5 +1,5 @@
-// E5 — Rincian pesanan: kelengkapan data, tombol transisi status (PATCH nyata),
-// 409 saat transisi usang, dan "Kembali ke Katalog".
+// E5 — Rincian pesanan untuk pembeli: kelengkapan data, nomor seri, dan
+// tampilan read-only (tanpa tombol ubah status; status dikelola penjual di web).
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:zenvora_mobile/services/layanan_api.dart';
@@ -9,7 +9,7 @@ import 'uji_e_util.dart';
 void main() {
   LiveTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('E5 rincian pesanan', (tester) async {
+  testWidgets('E5 rincian pesanan read-only', (tester) async {
     final api = LayananApi();
     await kosongkanKeranjang(api);
     await aturStok(api, 1, 5);
@@ -28,7 +28,7 @@ void main() {
     final rincianApi = await api.rincianPesanan(dibuat.id);
 
     await pumpAplikasi(tester);
-    await tungguMuncul(tester, find.text('Samsung Galaxy A55 5G 8/256'));
+    await tungguMuncul(tester, find.byIcon(Icons.history_rounded));
     await ketukIkon(tester, Icons.history_rounded);
     await tungguMuncul(tester, find.text('Riwayat Pesanan'));
     await tungguMuncul(tester, find.text(dibuat.nomorPesanan));
@@ -57,33 +57,24 @@ void main() {
     expect(find.text(seri.first), findsOneWidget);
     catat(tester, 'verifikasi kelengkapan');
 
-    // 2. Satu tombol per nilai status berikutnya; transisi mengirim PATCH nyata.
-    expect(find.text('Ubah: menunggu_konfirmasi'), findsOneWidget);
-    await tester.tap(find.text('Ubah: menunggu_konfirmasi'));
-    await tungguMuncul(tester,
-        find.text('Status pesanan berhasil diubah menjadi: menunggu_konfirmasi'));
-    await tungguMuncul(tester, find.text('Menunggu Konfirmasi'));
-    catat(tester, 'transisi menunggu_konfirmasi');
-    expect((await api.rincianPesanan(dibuat.id)).status, 'menunggu_konfirmasi');
-
-    // 3. 409 saat tombol usang (status diubah di luar aplikasi).
-    await tungguHilang(
-      tester,
-      find.text('Status pesanan berhasil diubah menjadi: menunggu_konfirmasi'),
-      batas: const Duration(seconds: 8),
+    // 2. Pembeli tidak memiliki wewenang mengubah status pesanan.
+    expect(find.textContaining('Ubah:'), findsNothing);
+    expect(find.text('Batalkan Pesanan'), findsNothing);
+    expect(
+      find.textContaining('Status pesanan diperbarui oleh penjual'),
+      findsOneWidget,
     );
-    expect(find.text('Ubah: dibayar'), findsOneWidget);
-    await api.ubahStatusPesanan(dibuat.id, 'dibayar');
-    await tester.tap(find.text('Ubah: dibayar'));
-    await tungguMuncul(tester, find.textContaining('tidak dapat dipindah'));
-    catat(tester, '409 transisi usang');
+    expect((await api.rincianPesanan(dibuat.id)).status, 'menunggu_pembayaran');
+    catat(tester, 'read-only tanpa tombol status');
 
-    // 4. Kembali ke katalog memakai popUntil root.
+    // 3. Kembali ke katalog memakai popUntil root.
     await tester.tap(find.byIcon(Icons.home_outlined));
-    await tungguMuncul(tester, find.text('Samsung Galaxy A55 5G 8/256'));
+    await tungguMuncul(tester, find.byType(AppBar));
     catat(tester, 'kembali ke katalog');
     await tester.pump(const Duration(milliseconds: 800));
     expect(find.text('Rincian Pesanan'), findsNothing);
+    final sisaGalat = tester.takeException();
+    if (sisaGalat != null) fail('Galat tak tertangani: $sisaGalat');
     await aturStok(api, 1, 5);
   });
 }

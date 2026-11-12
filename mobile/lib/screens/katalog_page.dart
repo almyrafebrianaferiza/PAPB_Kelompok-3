@@ -13,8 +13,6 @@ import '../widgets/tampilan_kosong.dart';
 import 'rincian_produk_page.dart';
 import 'keranjang_page.dart';
 import 'riwayat_pesanan_page.dart';
-import 'kelola_produk_page.dart';
-import 'dashboard_admin_page.dart';
 
 class KatalogPage extends StatefulWidget {
   final LayananApi layananApi;
@@ -235,20 +233,6 @@ class _KatalogPageState extends State<KatalogPage> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.dashboard_outlined),
-            tooltip: 'Dashboard Admin',
-            onPressed: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (ctx) =>
-                      DashboardAdminPage(layananApi: widget.layananApi),
-                ),
-              );
-              _muatData(ulang: true);
-            },
-          ),
-          IconButton(
             icon: const Icon(Icons.history_rounded),
             tooltip: 'Riwayat Pesanan',
             onPressed: () {
@@ -259,20 +243,6 @@ class _KatalogPageState extends State<KatalogPage> {
                       RiwayatPesananPage(layananApi: widget.layananApi),
                 ),
               );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.admin_panel_settings_outlined),
-            tooltip: 'Kelola Produk',
-            onPressed: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (ctx) =>
-                      KelolaProdukPage(layananApi: widget.layananApi),
-                ),
-              );
-              _muatData(ulang: true);
             },
           ),
           Stack(
