@@ -31,17 +31,18 @@
             Pesanan Masuk
         </a>
 
-        <span class="admin-nav-item is-disabled" aria-disabled="true">
+        <a href="{{ route('admin.produk.index') }}"
+           class="admin-nav-item {{ request()->routeIs('admin.produk.*') ? 'is-active' : '' }}">
             <svg class="admin-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
                 <path d="m3.3 7 8.7 5 8.7-5"></path>
                 <path d="M12 22V12"></path>
             </svg>
             Katalog Produk
-            <span class="admin-nav-tag">Tahap 4</span>
-        </span>
+        </a>
 
-        <span class="admin-nav-item is-disabled" aria-disabled="true">
+        <a href="{{ route('admin.unit.index') }}"
+           class="admin-nav-item {{ request()->routeIs('admin.unit.*') ? 'is-active' : '' }}">
             <svg class="admin-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <rect x="3" y="3" width="18" height="18" rx="2"></rect>
                 <path d="M7 7h4v4H7z"></path>
@@ -50,8 +51,7 @@
                 <path d="M15 13h2"></path>
             </svg>
             Unit &amp; Serial
-            <span class="admin-nav-tag">Tahap 4</span>
-        </span>
+        </a>
     </nav>
 
     <div class="admin-sidebar-footer">
