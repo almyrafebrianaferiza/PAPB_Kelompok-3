@@ -18,6 +18,16 @@
 └───────────────────┴────────────────────────────────────────────────────┘
 ```
 
+## 2. Status Implementasi (untuk evaluasi)
+
+| Tahap | Lingkup | Status | Bukti |
+|---|---|---|---|
+| 1 | Fondasi routing `/admin`, sesi admin, layout Blade dark theme, sidebar, topbar | ✅ Selesai | `AuthController`, `PastikanAdmin`, `layouts/*`, `AdminPanelTest` (5 tes) |
+| 2 | Dashboard KPI omzet, pesanan perlu diproses, produk aktif, stok kritis, pesanan terbaru | ✅ Selesai | `DashboardController`, `admin/dashboard/index.blade.php` |
+| 3 | Pesanan masuk: filter status, rincian + nomor seri, transisi status, input resi, rollback unit | ✅ Selesai | `PesananController`, migrasi `nomor_resi`, `AdminPesananTest` (7 tes) |
+| 4 | Katalog CRUD, varian multi-SKU, sinkronisasi stok unit, halaman Unit & Serial | ✅ Selesai | `ProdukController`, `UnitProdukController`, `AdminProdukTest` (11 tes) |
+| 5 | Pembersihan otorisasi admin di mobile dan perbaikan overflow | ✅ Selesai | Hapus `dashboard_admin_page`, `kelola_produk_page`, `form_produk_page`; katalog & rincian pesanan read-only; `uji_e7_pemisahan_peran_test`; E1/E5/E7/F1a PASS; analisis 360×640 tanpa overflow |
+
 ---
 
 ### TAHAP 1: Fondasi Routing & Shell Layout Blade
