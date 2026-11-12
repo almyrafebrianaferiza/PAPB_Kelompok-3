@@ -102,7 +102,7 @@ Server memetakan token tersebut ke `pelanggan_id = 1`. Header dibentuk hanya di 
 | PATCH | `/api/pesanan/{id}/status` | 200 / 404 / 409 perpindahan tidak sah / 422 |
 | GET | `/api/metode-pembayaran` | 200 |
 
-Dokumentasi kontrak lengkap: [`api-contract (1).md`](api-contract%20%281%29.md). Koleksi Postman: `docs/postman/zenvora.postman_collection.json`.
+Dokumentasi kontrak lengkap: [`api-contract (1).md`](docs/Perancangan/api-contract%20%281%29.md). Koleksi Postman: `docs/postman/zenvora.postman_collection.json`.
 
 ## 8. Video demo
 
@@ -114,3 +114,30 @@ Tautan video demo: **(menyusul)**.
 - Pustaka pihak ketiga: `http` (klien HTTP), `intl` (format Rupiah), dan font **Poppins** (SIL Open Font License, lihat `mobile/assets/fonts/OFL.txt`).
 - Flag demo galat di backend: `ZENVORA_LAMBAT_DETIK=15` untuk simulasi batas waktu dan `ZENVORA_PAKSA_GALAT=true` untuk simulasi 500. Nilai bawaan `0` dan `false`.
 - Pemeriksaan cepat: `cd mobile && flutter analyze`; tes F2: `flutter test test/uji_f2_katalog_test.dart`. Tes integrasi E1–E7 dan F1 ada di `mobile/test/`.
+
+## 10. Web Admin (Seller Panel)
+
+Selain aplikasi mobile untuk pembeli, backend Laravel menyediakan panel penjual berbasis web (Blade) untuk memproses pesanan dan mengelola katalog.
+
+```bash
+cd backend
+php artisan migrate
+php artisan serve
+# Buka http://127.0.0.1:8000/admin
+```
+
+Kredensial awal (dapat diubah melalui `.env` pada `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_NAMA`):
+
+```text
+Email    : admin@zenvora.test
+Password : zenvora2026
+```
+
+Fitur panel admin:
+
+- **Dashboard**: omzet selesai, pesanan perlu diproses, produk aktif, dan stok kritis.
+- **Pesanan Masuk**: filter status, rincian pesanan + nomor seri, konfirmasi pembayaran, transisi status sesuai state machine, serta input/perbarui nomor resi.
+- **Katalog Produk**: CRUD produk, varian multi-SKU (RAM/penyimpanan/warna), sinkronisasi stok dengan unit fisik.
+- **Unit & Serial**: pemantauan nomor seri (IMEI/SN) dan penandaan unit rusak/tersedia.
+
+Panel admin memakai sesi web + CSRF dan terpisah dari 15 endpoint API mobile. Rancangan lengkap ada di [`docs/admin/`](docs/admin/).
