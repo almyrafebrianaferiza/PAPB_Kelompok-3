@@ -24,7 +24,7 @@ void main() {
     await isiKeranjang(api, 1, 2);
 
     await pumpAplikasi(tester);
-    await tungguMuncul(tester, find.text('Samsung Galaxy A55 5G 8/256'));
+    await tungguMuncul(tester, find.byIcon(Icons.shopping_cart_outlined));
     await tester.pump(const Duration(milliseconds: 800));
     await ketukIkon(tester, Icons.shopping_cart_outlined);
     await tungguMuncul(tester, find.text('Total Harga'));
@@ -54,6 +54,7 @@ void main() {
     expect(daftarKurir.length, greaterThanOrEqualTo(2));
     final ongkirAwal = nilaiBaris(tester, 'Ongkos Kirim (');
     expect(ongkirAwal, formatRupiah(daftarKurir[0].ongkir));
+    await tester.ensureVisible(find.text(daftarKurir[1].nama));
     await tester.tap(find.text(daftarKurir[1].nama));
     await tester.pump(const Duration(milliseconds: 300));
     final ongkirBaru = nilaiBaris(tester, 'Ongkos Kirim (');

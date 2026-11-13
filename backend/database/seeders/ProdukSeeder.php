@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Produk;
+use App\Models\ProdukVarian;
 use App\Models\UnitProduk;
 use Illuminate\Database\Seeder;
 
@@ -47,6 +48,33 @@ class ProdukSeeder extends Seeder
                 );
                 $unitSeq++;
             }
+        }
+
+        // Variasi produk representatif untuk toko elektronik
+        $varianData = [
+            // Samsung A55 5G
+            ['produk_id' => 1, 'nama_varian' => '8GB / 128GB - Awesome Navy', 'harga' => 5499000, 'stok' => 2, 'berat_gram' => 213, 'sku' => 'A55-8-128-NVY'],
+            ['produk_id' => 1, 'nama_varian' => '8GB / 256GB - Awesome Iceblue', 'harga' => 5999000, 'stok' => 3, 'berat_gram' => 213, 'sku' => 'A55-8-256-BLU'],
+
+            // Xiaomi Redmi Note 13 Pro
+            ['produk_id' => 2, 'nama_varian' => '8GB / 256GB - Midnight Black', 'harga' => 4299000, 'stok' => 4, 'berat_gram' => 187, 'sku' => 'RN13P-8-256-BLK'],
+            ['produk_id' => 2, 'nama_varian' => '12GB / 512GB - Aurora Purple', 'harga' => 4999000, 'stok' => 4, 'berat_gram' => 187, 'sku' => 'RN13P-12-512-PUR'],
+
+            // ASUS Vivobook 14
+            ['produk_id' => 4, 'nama_varian' => 'Core i3 / 8GB / 256GB SSD', 'harga' => 6999000, 'stok' => 1, 'berat_gram' => 1400, 'sku' => 'VB14-I3-8-256'],
+            ['produk_id' => 4, 'nama_varian' => 'Core i5 / 8GB / 512GB SSD', 'harga' => 8499000, 'stok' => 2, 'berat_gram' => 1400, 'sku' => 'VB14-I5-8-512'],
+            ['produk_id' => 4, 'nama_varian' => 'Core i7 / 16GB / 512GB SSD', 'harga' => 10499000, 'stok' => 1, 'berat_gram' => 1400, 'sku' => 'VB14-I7-16-512'],
+
+            // Samsung Galaxy Tab A9+
+            ['produk_id' => 13, 'nama_varian' => 'Wi-Fi 4GB / 64GB - Silver', 'harga' => 2799000, 'stok' => 3, 'berat_gram' => 510, 'sku' => 'TABA9-WIFI-64'],
+            ['produk_id' => 13, 'nama_varian' => '5G 8GB / 128GB - Graphite', 'harga' => 3699000, 'stok' => 3, 'berat_gram' => 510, 'sku' => 'TABA9-5G-128'],
+        ];
+
+        foreach ($varianData as $v) {
+            ProdukVarian::updateOrCreate(
+                ['produk_id' => $v['produk_id'], 'nama_varian' => $v['nama_varian']],
+                $v
+            );
         }
     }
 }

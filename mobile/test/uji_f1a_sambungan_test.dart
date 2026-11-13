@@ -8,9 +8,9 @@ import 'uji_e_util.dart';
 void main() {
   LiveTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('F1a sambungan putus di empat halaman daftar', (tester) async {
+  testWidgets('F1a sambungan putus di tiga halaman daftar', (tester) async {
     await pumpAplikasi(tester);
-    await tungguMuncul(tester, find.text('Koneksi Terputus'));
+    await gulirKe(tester, find.text('Koneksi Terputus'));
     expect(find.text('Tidak dapat terhubung ke server'), findsOneWidget);
     expect(find.widgetWithText(ElevatedButton, 'Coba Lagi'), findsOneWidget);
     catat(tester, 'katalog: koneksi terputus');
@@ -31,16 +31,7 @@ void main() {
     await tester.pageBack();
     await tungguMuncul(tester, find.text('Koneksi Terputus'));
 
-    // Halaman daftar 2: Kelola produk.
-    await ketukIkon(tester, Icons.admin_panel_settings_outlined);
-    await tungguMuncul(tester, find.text('Kelola Produk (CRUD)'));
-    await tungguMuncul(tester, find.text('Koneksi Terputus'));
-    expect(find.widgetWithText(ElevatedButton, 'Coba Lagi'), findsOneWidget);
-    catat(tester, 'kelola: koneksi terputus');
-    await tester.pageBack();
-    await tungguMuncul(tester, find.text('Koneksi Terputus'));
-
-    // Halaman daftar 3: Keranjang belanja.
+    // Halaman daftar 2: Keranjang belanja.
     await ketukIkon(tester, Icons.shopping_cart_outlined);
     await tungguMuncul(tester, find.text('Keranjang Belanja'));
     await tungguMuncul(tester, find.text('Koneksi Terputus'));

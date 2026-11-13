@@ -25,8 +25,17 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
   KeadaanMuat _keadaan = KeadaanMuat.memuat;
   GalatApi? _galat;
   Produk? _produk;
+  ProdukVarian? _varianTerpilih;
   int _kuantitas = 1;
   bool _sedangMenambahkan = false;
+
+  int get _hargaAktif => _varianTerpilih?.harga ?? _produk?.harga ?? 0;
+  int get _stokAktif => _varianTerpilih?.stok ?? _produk?.stok ?? 0;
+  bool get _apakahHabisAktif {
+    if (_produk == null) return true;
+    if (_varianTerpilih != null) return _varianTerpilih!.isHabis || !_produk!.tersedia;
+    return _produk!.isHabis;
+  }
 
   @override
   void initState() {
@@ -45,6 +54,9 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
       if (mounted) {
         setState(() {
           _produk = p;
+          if (p.varian.isNotEmpty) {
+            _varianTerpilih = p.varian.first;
+          }
           _keadaan = KeadaanMuat.berhasil;
         });
       }
@@ -194,13 +206,57 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  _formatRupiah(p.harga),
+                  _formatRupiah(_hargaAktif),
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w900,
                     color: ZWarna.oranye,
                   ),
                 ),
+                if (p.varian.isNotEmpty) ...[
+                  const SizedBox(height: 14),
+                  const Text(
+                    'Pilihan Varian / Spesifikasi:',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: ZWarna.teksSekunder,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: p.varian.map((v) {
+                      final bool terpilih = _varianTerpilih?.id == v.id;
+                      final bool habis = v.isHabis;
+                      return ChoiceChip(
+                        selected: terpilih,
+                        selectedColor: ZWarna.oranye,
+                        backgroundColor: ZWarna.permukaanTinggi,
+                        side: BorderSide(color: terpilih ? ZWarna.oranye : ZWarna.batas),
+                        label: Text(
+                          '${v.namaVarian}${habis ? ' (Habis)' : ''}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: terpilih ? FontWeight.bold : FontWeight.w500,
+                            color: terpilih ? ZWarna.hitam : (habis ? ZWarna.teksSamar : ZWarna.putih),
+                          ),
+                        ),
+                        onSelected: (selected) {
+                          if (selected) {
+                            setState(() {
+                              _varianTerpilih = v;
+                              if (_kuantitas > v.stok && v.stok > 0) {
+                                _kuantitas = v.stok;
+                              }
+                            });
+                          }
+                        },
+                      );
+                    }).toList(),
+                  ),
+                ],
                 const SizedBox(height: 14),
                 const Divider(height: 1, color: ZWarna.batas),
                 const SizedBox(height: 14),
@@ -209,13 +265,13 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
                     _itemSpesifikasi(
                       Icons.inventory_2_outlined,
                       'Sisa Stok',
-                      apakahHabis ? 'HABIS' : '${p.stok} unit',
-                      apakahHabis ? ZWarna.galat : ZWarna.sukses,
+                      _apakahHabisAktif ? 'HABIS' : '$_stokAktif unit',
+                      _apakahHabisAktif ? ZWarna.galat : ZWarna.sukses,
                     ),
                     _itemSpesifikasi(
                       Icons.scale_outlined,
                       'Berat Fisik',
-                      '${p.beratGram} gram',
+                      '${_varianTerpilih?.beratGram ?? p.beratGram} gram',
                       ZWarna.putih,
                     ),
                     _itemSpesifikasi(
@@ -299,8 +355,8 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
   Widget? _bangunNavigasiBawah() {
     if (_keadaan != KeadaanMuat.berhasil || _produk == null) return null;
 
-    final p = _produk!;
-    final bool apakahHabis = p.isHabis;
+    final bool apakahHabis = _apakahHabisAktif;
+    final int stokTersedia = _stokAktif;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -337,7 +393,7 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
                     ),
                     IconButton(
                       icon: const Icon(Icons.add, size: 18),
-                      onPressed: _kuantitas < p.stok
+                      onPressed: _kuantitas < stokTersedia
                           ? () => setState(() => _kuantitas++)
                           : null,
                     ),

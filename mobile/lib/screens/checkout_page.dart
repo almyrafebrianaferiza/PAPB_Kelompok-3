@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import '../enums/keadaan_muat.dart';
 import '../exceptions/galat_api.dart';
@@ -29,6 +30,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
   Keranjang? _keranjang;
   List<Kurir> _daftarKurir = [];
   List<MetodePembayaran> _daftarMetode = [];
+  List<Map<String, dynamic>> _daftarKota = [];
+  int? _idKotaTerpilih;
 
   Kurir? _kurirTerpilih;
   MetodePembayaran? _metodeTerpilih;
@@ -40,7 +43,125 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   String? _kunciIdempoten;
   bool _sedangCheckout = false;
+  bool _sedangDeteksiLokasi = false;
   Map<String, String> _galatServer = {};
+
+  Future<void> _deteksiLokasiOtomatis() async {
+    setState(() => _sedangDeteksiLokasi = true);
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Layanan lokasi (GPS) tidak aktif. Silakan aktifkan GPS perangkat.'),
+              backgroundColor: ZWarna.peringatan,
+            ),
+          );
+        }
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Izin akses lokasi ditolak.'),
+                backgroundColor: ZWarna.galat,
+              ),
+            );
+          }
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Izin lokasi ditolak permanen. Buka pengaturan untuk mengizinkan.'),
+              backgroundColor: ZWarna.galat,
+            ),
+          );
+        }
+        return;
+      }
+
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.medium,
+          timeLimit: Duration(seconds: 10),
+        ),
+      );
+
+      final alamatDitemukan = await widget.layananApi.geocodingBalik(
+        position.latitude,
+        position.longitude,
+      );
+
+      if (mounted) {
+        int? kotaCocok;
+        final alamatKecil = alamatDitemukan.toLowerCase();
+        for (final k in _daftarKota) {
+          final namaKota = (k['city_name'] ?? '').toString().toLowerCase();
+          if (namaKota.isNotEmpty && alamatKecil.contains(namaKota)) {
+            kotaCocok = (k['city_id'] as num?)?.toInt();
+            break;
+          }
+        }
+
+        setState(() {
+          _pengontrolAlamat.text = alamatDitemukan;
+          if (kotaCocok != null) _idKotaTerpilih = kotaCocok;
+          _kunciDiubahIsi();
+        });
+
+        if (kotaCocok != null) {
+          _pilihKota(kotaCocok);
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Lokasi berhasil dideteksi otomatis.'),
+            backgroundColor: ZWarna.sukses,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Gagal mendeteksi lokasi otomatis. Silakan masukkan alamat manual.'),
+            backgroundColor: ZWarna.galat,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _sedangDeteksiLokasi = false);
+      }
+    }
+  }
+
+  Future<void> _pilihKota(int kotaId) async {
+    setState(() {
+      _idKotaTerpilih = kotaId;
+      _kunciDiubahIsi();
+    });
+    try {
+      final kurir = await widget.layananApi.ambilKurir(kotaId: kotaId);
+      if (mounted) {
+        setState(() {
+          _daftarKurir = kurir;
+          if (kurir.isNotEmpty) _kurirTerpilih = kurir.first;
+        });
+      }
+    } catch (_) {}
+  }
 
   @override
   void initState() {
@@ -80,12 +201,17 @@ class _CheckoutPageState extends State<CheckoutPage> {
       final keranjang = await widget.layananApi.ambilKeranjang();
       final kurir = await widget.layananApi.ambilKurir();
       final metode = await widget.layananApi.ambilMetodePembayaran();
+      List<Map<String, dynamic>> kota = [];
+      try {
+        kota = await widget.layananApi.ambilDaftarKota();
+      } catch (_) {}
 
       if (mounted) {
         setState(() {
           _keranjang = keranjang;
           _daftarKurir = kurir;
           _daftarMetode = metode;
+          _daftarKota = kota;
           if (kurir.isNotEmpty) _kurirTerpilih = kurir.first;
           if (metode.isNotEmpty) _metodeTerpilih = metode.first;
           _keadaan = KeadaanMuat.berhasil;
@@ -260,10 +386,53 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     decoration: InputDecoration(
                       labelText: 'Alamat Lengkap Pengiriman *',
                       prefixIcon: const Icon(Icons.location_on_outlined, size: 20),
+                      suffixIcon: _sedangDeteksiLokasi
+                          ? const Padding(
+                              padding: EdgeInsets.all(12),
+                              child: SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                            )
+                          : IconButton(
+                              icon: const Icon(Icons.my_location, color: ZWarna.oranye, size: 20),
+                              tooltip: 'Gunakan Lokasi Saat Ini (GPS)',
+                              onPressed: _deteksiLokasiOtomatis,
+                            ),
                       hintText: 'Jalan, nomor rumah, RT/RW, kecamatan, kota',
                       errorText: _galatServer['alamat_penerima'],
                     ),
                   ),
+                  if (_daftarKota.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<int>(
+                      initialValue: _idKotaTerpilih,
+                      isExpanded: true,
+                      decoration: const InputDecoration(
+                        labelText: 'Kota / Kabupaten Tujuan (RajaOngkir)',
+                        prefixIcon: Icon(Icons.location_city_outlined, size: 20),
+                      ),
+                      hint: const Text(
+                        'Pilih kota tujuan untuk hitung tarif RajaOngkir',
+                        style: TextStyle(color: ZWarna.teksSamar, fontSize: 13),
+                      ),
+                      dropdownColor: ZWarna.permukaanTinggi,
+                      items: _daftarKota.map((k) {
+                        return DropdownMenuItem<int>(
+                          value: (k['city_id'] as num).toInt(),
+                          child: Text(
+                            k['label'] ?? '${k['city_name']}',
+                            style: const TextStyle(fontSize: 13, color: ZWarna.putih),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (val) {
+                        if (val != null) _pilihKota(val);
+                      },
+                    ),
+                  ],
                 ],
               ),
             ),

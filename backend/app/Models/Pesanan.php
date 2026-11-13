@@ -16,6 +16,7 @@ class Pesanan extends Model
         'kurir_id',
         'metode_pembayaran_id',
         'status',
+        'nomor_resi',
         'nama_penerima',
         'alamat_penerima',
         'subtotal',

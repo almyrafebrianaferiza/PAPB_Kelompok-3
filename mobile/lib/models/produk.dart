@@ -9,6 +9,7 @@ class Produk {
   final String? deskripsi; // Wajib nullable dan ditangani dengan aman di Flutter
   final int beratGram;
   final int garansiBulan;
+  final List<ProdukVarian> varian;
 
   Produk({
     required this.id,
@@ -21,6 +22,7 @@ class Produk {
     this.deskripsi,
     required this.beratGram,
     required this.garansiBulan,
+    this.varian = const [],
   });
 
   factory Produk.fromJson(Map<String, dynamic> json) {
@@ -35,8 +37,46 @@ class Produk {
       deskripsi: json['deskripsi'] as String?,
       beratGram: json['berat_gram'] as int? ?? 0,
       garansiBulan: json['garansi_bulan'] as int? ?? 0,
+      varian: (json['varian'] as List<dynamic>?)
+              ?.map((v) => ProdukVarian.fromJson(v as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
   }
 
   bool get isHabis => stok <= 0 || !tersedia;
+}
+
+class ProdukVarian {
+  final int id;
+  final int produkId;
+  final String namaVarian;
+  final int harga;
+  final int stok;
+  final int beratGram;
+  final String? sku;
+
+  ProdukVarian({
+    required this.id,
+    required this.produkId,
+    required this.namaVarian,
+    required this.harga,
+    required this.stok,
+    required this.beratGram,
+    this.sku,
+  });
+
+  factory ProdukVarian.fromJson(Map<String, dynamic> json) {
+    return ProdukVarian(
+      id: json['id'] as int,
+      produkId: json['produk_id'] as int? ?? 0,
+      namaVarian: json['nama_varian'] as String? ?? '',
+      harga: json['harga'] as int? ?? 0,
+      stok: json['stok'] as int? ?? 0,
+      beratGram: json['berat_gram'] as int? ?? 0,
+      sku: json['sku'] as String?,
+    );
+  }
+
+  bool get isHabis => stok <= 0;
 }

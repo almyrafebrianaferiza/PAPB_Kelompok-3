@@ -62,7 +62,15 @@ Future<void> tungguMuncul(
     }
     await tester.pump(const Duration(milliseconds: 200));
   }
-  throw StateError('Tidak muncul dalam ${batas.inSeconds} dtk: $finder');
+  throw StateError(
+    'Tidak muncul dalam ${batas.inSeconds} dtk: $finder'
+    '${_galatTertunda(tester)}',
+  );
+}
+
+String _galatTertunda(WidgetTester tester) {
+  final e = tester.takeException();
+  return e == null ? '' : ' | galat tertunda: $e';
 }
 
 /// Tunggu finder hilang (mis. menutup dialog/menyudahi loading).

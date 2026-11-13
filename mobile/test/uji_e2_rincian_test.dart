@@ -21,6 +21,7 @@ void main() {
     await gantiCari(tester, 'TCL 32');
     await tungguMuncul(tester, find.text('TCL 32" HD Android TV'));
     catat(tester, 'cari TCL');
+    await tester.ensureVisible(find.text('TCL 32" HD Android TV'));
     await tester.tap(find.text('TCL 32" HD Android TV'));
     await tungguMuncul(tester, find.text('Detail Produk'));
     await tungguMuncul(tester, find.text('Deskripsi belum tersedia untuk produk ini.'));
@@ -45,6 +46,7 @@ void main() {
     await gantiCari(tester, 'Samsung 27');
     await tungguMuncul(tester, find.text('Samsung 27" Curved 144Hz'));
     catat(tester, 'cari Samsung 27');
+    await tester.ensureVisible(find.text('Samsung 27" Curved 144Hz'));
     await tester.tap(find.text('Samsung 27" Curved 144Hz'));
     await tungguMuncul(tester, find.text('Detail Produk'));
     await tungguMuncul(tester, find.text('Deskripsi belum tersedia untuk produk ini.'));
@@ -62,6 +64,7 @@ void main() {
     // 3. Stok usang: server jadi 0 saat layar masih menampilkan stok 5 -> 409 di layar sama.
     await gantiCari(tester, '');
     await tungguMuncul(tester, find.text('Samsung Galaxy A55 5G 8/256'));
+    await gulirKe(tester, find.text('Samsung Galaxy A55 5G 8/256'));
     await tester.tap(find.text('Samsung Galaxy A55 5G 8/256'));
     await tungguMuncul(tester, find.text('Detail Produk'));
     await tungguMuncul(tester, find.text('Tambah ke Keranjang'));

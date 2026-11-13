@@ -13,7 +13,6 @@ import '../widgets/tampilan_kosong.dart';
 import 'rincian_produk_page.dart';
 import 'keranjang_page.dart';
 import 'riwayat_pesanan_page.dart';
-import 'kelola_produk_page.dart';
 
 class KatalogPage extends StatefulWidget {
   final LayananApi layananApi;
@@ -246,20 +245,6 @@ class _KatalogPageState extends State<KatalogPage> {
               );
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.admin_panel_settings_outlined),
-            tooltip: 'Kelola Produk',
-            onPressed: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (ctx) =>
-                      KelolaProdukPage(layananApi: widget.layananApi),
-                ),
-              );
-              _muatData(ulang: true);
-            },
-          ),
           Stack(
             alignment: Alignment.center,
             children: [
@@ -437,29 +422,29 @@ class _KatalogPageState extends State<KatalogPage> {
                           'WELCOME TO ZENVORĀ',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 16,
+                            fontSize: 10,
                             fontWeight: FontWeight.w800,
                             letterSpacing: 1,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
                       const Text(
                         'Upgrade Your\nDigital Lifestyle',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 35,
-                          height: 2,
+                          fontSize: 22,
+                          height: 1.15,
                           fontWeight: FontWeight.w900,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 6),
                       const Text(
                         'Temukan teknologi yang mendukung aktivitasmu.',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 16,
-                          height: 1.35,
+                          fontSize: 11,
+                          height: 1.3,
                         ),
                       ),
                     ],
