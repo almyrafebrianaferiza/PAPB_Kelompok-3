@@ -122,6 +122,7 @@ Selain aplikasi mobile untuk pembeli, backend Laravel menyediakan panel penjual 
 ```bash
 cd backend
 php artisan migrate
+php artisan storage:link
 php artisan serve
 # Buka http://127.0.0.1:8000/admin
 ```
@@ -137,7 +138,7 @@ Fitur panel admin:
 
 - **Dashboard**: omzet selesai, pesanan perlu diproses, produk aktif, dan stok kritis.
 - **Pesanan Masuk**: filter status, rincian pesanan + nomor seri, konfirmasi pembayaran, transisi status sesuai state machine, serta input/perbarui nomor resi.
-- **Katalog Produk**: CRUD produk, varian multi-SKU (RAM/penyimpanan/warna), sinkronisasi stok dengan unit fisik.
+- **Katalog Produk**: CRUD produk, unggah gambar produk, varian multi-SKU (RAM/penyimpanan/warna), sinkronisasi stok dengan unit fisik.
 - **Unit & Serial**: pemantauan nomor seri (IMEI/SN) dan penandaan unit rusak/tersedia.
 
 Panel admin memakai sesi web + CSRF dan terpisah dari 15 endpoint API mobile. Rancangan lengkap ada di [`docs/admin/`](docs/admin/).

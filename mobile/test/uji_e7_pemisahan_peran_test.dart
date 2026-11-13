@@ -29,10 +29,10 @@ void main() {
     expect(find.textContaining('Ubah:'), findsNothing);
     expect(find.text('Batalkan Pesanan'), findsNothing);
     expect(
-      find.textContaining('Status pesanan diperbarui oleh penjual'),
+      find.textContaining('Pembeli dapat mengonfirmasi pembayaran'),
       findsOneWidget,
     );
-    catat(tester, 'rincian pesanan read-only');
+    catat(tester, 'rincian pesanan tanpa aksi penjual');
 
     // 4. Kembali ke katalog.
     await tester.tap(find.byIcon(Icons.home_outlined));

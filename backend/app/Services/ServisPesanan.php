@@ -19,7 +19,7 @@ class ServisPesanan
         $statusSekarang = StatusPesanan::from($pesanan->status);
         $statusBaru = StatusPesanan::tryFrom($statusBaruNilai);
 
-        if (!$statusBaru || !$statusSekarang->bolehPindahKe($statusBaru)) {
+        if (! $statusBaru || ! $statusSekarang->bolehPindahKe($statusBaru)) {
             throw new BentrokException(
                 "Pesanan berstatus {$pesanan->status} tidak dapat dipindah ke {$statusBaruNilai}"
             );
@@ -42,7 +42,7 @@ class ServisPesanan
     public function formatRincian(Pesanan $pesanan): array
     {
         $statusEnum = StatusPesanan::from($pesanan->status);
-        $statusBerikutnya = array_map(fn($s) => $s->value, $statusEnum->berikutnya());
+        $statusBerikutnya = array_map(fn ($s) => $s->value, $statusEnum->berikutnya());
 
         $items = $pesanan->detail->map(function ($d) {
             return [
@@ -63,6 +63,7 @@ class ServisPesanan
             'nomor_pesanan' => $pesanan->nomor_pesanan,
             'status' => $pesanan->status,
             'status_berikutnya' => $statusBerikutnya,
+            'nomor_resi' => $pesanan->nomor_resi,
             'nama_penerima' => $pesanan->nama_penerima,
             'alamat_penerima' => $pesanan->alamat_penerima,
             'kurir' => [

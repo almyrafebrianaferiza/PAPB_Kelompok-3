@@ -17,14 +17,14 @@ class AutentikasiTokenStatis
     {
         $authHeader = $request->header('Authorization');
 
-        if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
+        if (! $authHeader || ! str_starts_with($authHeader, 'Bearer ')) {
             return Respons::gagal('Token tidak valid atau tidak disertakan', 401);
         }
 
         $token = trim(substr($authHeader, 7));
         $pelanggan = Pelanggan::where('token_statis', $token)->first();
 
-        if (!$pelanggan) {
+        if (! $pelanggan) {
             return Respons::gagal('Token tidak valid', 401);
         }
 

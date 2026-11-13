@@ -24,26 +24,27 @@ bukti tertulis, lampirkan ke dokumen ini agar tidak menimbulkan bias.
 ## 0. Ringkasan eksekutif
 
 - Arah yang dipilih adalah **Opsi A**:
-  - **Mobile = pembeli, read-only.**
+  - **Mobile = pembeli**, katalog/pesanan read-only kecuali aksi **Saya Sudah Bayar**.
   - **Web Admin `/admin` = penjual**, memakai sesi web dan CSRF.
   - Web admin berada di `backend/routes/web.php`; **tidak ada rute API baru**.
 - Kontrak jumlah endpoint tetap: **15 rute API** dan **16 rute web admin**
-  (termasuk login/logout), diverifikasi 2026-11-12.
+  (termasuk login/logout), diverifikasi ulang 2026-11-13.
 - Perbaikan Tahap 5 **tidak melanggar jumlah endpoint**, tetapi **mengubah
   perilaku** yang tertulis di PDF tugas, PRD, dan API contract. Perubahan itu
   disetujui sebagai revisi, sehingga dokumen lama wajib diselaraskan.
-- Kondisi verifikasi terakhir:
-  - `php artisan test`: **25 tes PASS**, 93 assertion.
+- Kondisi verifikasi terakhir (2026-11-13):
+  - `php artisan test`: **29 tes PASS**, 106 assertion.
   - `flutter analyze`: **No issues found**.
-  - E1, E5, E7, F1a: **PASS** di Chrome.
+  - E4, E5, E7, F1b: **PASS** di Chrome (2026-11-13); E1/F1a PASS (2026-11-12).
   - Audit viewport 360x640: tidak ada overflow.
-  - `pint --test`: **belum hijau** pada 7 berkas; lihat Bagian 13.
+  - `pint --test`: **hijau** (seluruh berkas).
 - Tiga hal yang paling mudah menimbulkan salah paham:
   1. `produk_varian` adalah tabel domain ke-9, bukan bagian dari 8 tabel inti.
   2. Varian sudah tampil dan punya harga/stok sendiri, tetapi keranjang/checkout
      masih memakai produk induk dan **belum mengirim `varian_id`**.
-  3. API masih mengizinkan token pembeli memanggil mutasi produk/status;
-     pemisahan peran baru ditegakkan di UI mobile, belum di API.
+  3. API sudah membatasi transisi status pembeli ke `menunggu_konfirmasi`
+     atau `dibatalkan`, tetapi token pembeli **masih dapat** memanggil mutasi
+     produk (`POST/PUT/DELETE /api/produk`). Pemisahan peran belum menyeluruh.
 
 ---
 
@@ -72,12 +73,12 @@ Label yang dipakai:
 
 | Kanal | Peran | Wewenang |
 |---|---|---|
-| Mobile Flutter | Pembeli | Katalog, keranjang, checkout, riwayat, rincian pesanan read-only |
+| Mobile Flutter | Pembeli | Katalog, keranjang, checkout, riwayat, rincian pesanan; hanya aksi konfirmasi bayar/batal |
 | Web Admin Laravel | Penjual/admin | Dashboard, pesanan, transisi status, resi, katalog, varian, unit serial |
 
 Konsekuensi yang diterima:
 
-- Tombol **Bayar simulasi** di mobile dihapus.
+- Tombol **Bayar simulasi** diganti **Saya Sudah Bayar** (tanpa gateway/bukti).
 - CRUD produk dari dalam aplikasi mobile dihapus.
 - Panel admin mobile dihapus.
 - Aksi penjual dipindahkan ke web admin.
@@ -99,8 +100,9 @@ Konsekuensi yang diterima:
 - Jangan menyebut integrasi varian sudah transaksional.
 - Jangan menyebut status berubah real-time; aplikasi memuat ulang saat dibuka
   atau di-refresh.
-- Jangan menyebut pembeli bisa melacak resi di mobile; API belum mengirim resi.
-- Jangan menyebut API sudah role-aware; otorisasi API belum diperketat.
+- Jangan menyebut pembeli bisa melacak posisi kurir; yang ada hanya nomor resi.
+- Jangan menyebut API sudah role-aware sepenuhnya; baru status pesanan yang dibatasi.
+- Jangan menyebut pembayaran otomatis/gateway; pembeli hanya mengonfirmasi manual.
 
 ---
 
@@ -165,6 +167,7 @@ hitungan domain.
 | C10 | `34ebb92` | Mobile dijadikan khusus pembeli | Pemisahan peran | Hapus 3 layar admin, hapus tombol status, read-only card, tes E1/E5/E7/F1a |
 | C11 | `655cf85` | Sinkronisasi registran plugin `geolocator` | Build Flutter | `android/`, `pubspec.yaml` |
 | C12 | `2c98d91` | Tahap 5 ditandai selesai | Dokumentasi status | `docs/admin/05-rencana-eksekusi.md`, `docs/log-ai.md` |
+| C13 | `(lokal)` | Gambar produk, resi mobile, konfirmasi bayar pembeli, ongkir lokal, pembatasan status API | Menutup gap fitur/keamanan | `ProdukController`, `Produk`, migrasi `gambar_path`, `KurirController`, `PesananController`, `ServisPesanan`, mobile model/screen, `ApiPesananTest` |
 
 Catatan: C4 sengaja dicatat karena sempat ada, lalu dibatalkan oleh C10. Jangan
 menganggap dashboard admin mobile masih ada.
@@ -178,8 +181,9 @@ menganggap dashboard admin mobile masih ada.
 | Fase 1: GPS + alamat otomatis | Selesai | Geolocator + Nominatim; isi alamat checkout | E4 PASS; analyze bersih |
 | Fase 2: RajaOngkir | Selesai | Tarif dinamis per kota; dropdown kota | E4 PASS; 15 rute tetap |
 | Fase 3: Varian produk | Selesai di UI/API, belum transaksional | Varian tampil dan punya harga/stok; keranjang belum memilih varian | E2 PASS; lihat G1 |
-| Fase 4: Web admin | Selesai Tahap 1-4 | Dashboard, pesanan, resi, katalog, varian, unit serial | 23 tes admin PASS; total suite 25 PASS |
+| Fase 4: Web admin | Selesai Tahap 1-4 | Dashboard, pesanan, resi, katalog, varian, unit serial | 23 tes admin PASS saat itu; total suite kini 29 PASS |
 | Fase 5: Mobile read-only | Selesai | Admin mobile dan tombol status dihapus | E1/E5/E7/F1a PASS; 360x640 aman |
+| Perbaikan lanjutan 2026-11-13 | Selesai | Gambar produk, resi, konfirmasi bayar, ongkir lokal, batas status API | 29 tes backend PASS; E4/E5/E7/F1b PASS; analyze bersih |
 
 ---
 
@@ -220,8 +224,8 @@ Migrasi: `backend/database/migrations/2026_11_12_032611_add_nomor_resi_to_pesana
 
 - Kolom `pesanan.nomor_resi`, string(50), nullable.
 - Diisi dari web admin saat status `diproses` menuju `dikirim`.
-- **Belum diekspos** oleh `GET /api/pesanan/{id}`.
-- **Belum ditampilkan** di mobile.
+- Sudah diekspos oleh `GET /api/pesanan/{id}` melalui `ServisPesanan::formatRincian`.
+- Sudah ditampilkan di mobile (`rincian_pesanan_page.dart`).
 - **Belum tercatat** di `database-schema.md`.
 
 ### 7.4 Invarian stok
@@ -237,7 +241,16 @@ Migrasi: `backend/database/migrations/2026_11_12_032611_add_nomor_resi_to_pesana
 - `database-schema.md` masih menyebut 8 tabel dan urutan migrasi lama.
 - Dokumen belum memuat relasi `produk_varian`.
 - Dokumen belum memuat `nomor_resi`.
+- Dokumen belum memuat `produk.gambar_path`.
 - Perubahan skema ini harus masuk ke laporan, bukan hanya ke kode.
+
+### 7.6 `produk.gambar_path`
+
+- Migrasi: `2026_11_13_134441_add_gambar_path_to_produk_table.php`.
+- Kolom `produk.gambar_path`, string nullable, menyimpan path relatif di disk `public`.
+- Accessor `Produk::gambar_url` mengembalikan URL absolut berbasis host request
+  (bukan `APP_URL`), sehingga emulator `10.0.2.2` dan web `127.0.0.1` sama-sama benar.
+- Prasyarat: `php artisan storage:link` dan disk `public` dapat ditulis.
 
 ---
 
@@ -245,7 +258,7 @@ Migrasi: `backend/database/migrations/2026_11_12_032611_add_nomor_resi_to_pesana
 
 ### 8.1 Jumlah rute
 
-**FAKTA (2026-11-12):**
+**FAKTA (2026-11-13):**
 
 - `routes/api.php`: **15 rute**.
 - `routes/web.php`: **16 rute admin**, termasuk `admin/masuk`, `admin/masuk`
@@ -255,41 +268,46 @@ Migrasi: `backend/database/migrations/2026_11_12_032611_add_nomor_resi_to_pesana
 ### 8.2 Perubahan bentuk respons
 
 `GET /api/produk` dan `GET /api/produk/{id}` sekarang memuat relasi `varian`
-karena `ProdukController` memakai `with('varian')`.
+karena `ProdukController` memakai `with('varian')`. Model `Produk` juga
+menambahkan `gambar_path` dan `gambar_url` melalui `$appends`.
 
 Konsekuensi:
 
-- Field `varian` **tidak ada** di objek Produk pada `api-contract`.
+- Field `varian`, `gambar_path`, dan `gambar_url` **tidak ada** di objek Produk pada `api-contract`.
 - Mobile memakai field ini untuk selector, jadi field ini tidak bisa dihapus
   tanpa mengubah UI.
 - Dokumen kontrak harus menambahkan `varian` sebagai field opsional/array.
 
 ### 8.3 Otorisasi API
 
-**GAP:** semua rute API berada di bawah middleware
-`MiddlewareDemo` + `AutentikasiTokenStatis`, tanpa pembedaan peran. Token pembeli
-masih dapat memanggil:
+Semua rute API berada di bawah middleware `MiddlewareDemo` +
+`AutentikasiTokenStatis`, tanpa pembedaan peran.
 
-- `POST/PUT/DELETE /api/produk`
-- `PATCH /api/pesanan/{id}/status`
+Sudah diperbaiki:
 
-UI mobile sudah tidak menyediakan tombolnya, tetapi API belum menolak. Ini
-adalah **perbedaan antara UI dan kontrak keamanan**.
+- `PATCH /api/pesanan/{id}/status` memeriksa kepemilikan pesanan (404 jika bukan
+  milik pelanggan token) dan hanya mengizinkan target `menunggu_konfirmasi`
+  atau `dibatalkan`. Target `dibayar` dan seterusnya ditolak 403.
 
-Jika otorisasi API akan diperketat:
+**GAP yang tersisa:** token pembeli masih dapat memanggil
+`POST/PUT/DELETE /api/produk`. UI mobile tidak menyediakan tombolnya, tetapi API
+belum menolak. Ini masih **perbedaan antara UI dan kontrak keamanan**.
+
+Jika otorisasi produk akan diperketat:
 
 - Tidak perlu menambah endpoint.
 - Perlu addendum `api-contract` dan PRD.
 - Perlu memperbarui Postman, tes, dan dokumentasi peran.
-- Jangan mengerjakannya diam-diam karena akan mengubah perilaku kontrak.
+- Tes mobile E4/F1b saat ini memakai token pembeli untuk menyiapkan stok lewat
+  API produk; tes itu harus dipindah ke token admin/fixture sebelum aturan
+  diaktifkan.
 
 ### 8.4 Resi
 
 - Web admin dapat menyimpan resi.
-- API pesanan belum mengembalikan `nomor_resi`.
-- Mobile belum menampilkan resi.
-- Klaim di `docs/admin/02` bahwa pembeli dapat melacak resi di mobile adalah
-  **tidak benar untuk kode saat ini**.
+- API pesanan sudah mengembalikan `nomor_resi` di rincian pesanan.
+- Mobile sudah menampilkan nomor resi pada rincian pesanan.
+- Pelacakan posisi kurir belum ada; yang ditampilkan hanya nomor resi.
 
 ---
 
@@ -315,8 +333,12 @@ Tidak ada lagi:
 ### 9.2 Perubahan read-only
 
 - Ikon dashboard/admin di katalog dihapus.
-- Tombol transisi status di rincian pesanan dihapus.
-- Rincian pesanan menampilkan kartu informasi bahwa status dikelola penjual.
+- Tombol transisi status penjual di rincian pesanan dihapus.
+- Satu aksi pembeli ditambahkan: **Saya Sudah Bayar** saat status
+  `menunggu_pembayaran`, memanggil `PATCH /api/pesanan/{id}/status` ke
+  `menunggu_konfirmasi`.
+- Rincian pesanan menampilkan kartu informasi bahwa status pengemasan dan
+  pengiriman dikelola penjual.
 - `status_berikutnya` masih dikirim API, tetapi tidak dipakai untuk menampilkan
   aksi penjual di mobile.
 
@@ -334,12 +356,16 @@ invarian stoknya jelas.
 
 ### 9.4 Bukti uji mobile
 
-- E1 katalog: PASS (memakai scroll karena hero landing page).
-- E5 rincian pesanan: PASS (read-only, tanpa tombol status).
-- E7 pemisahan peran: PASS (tidak ada ikon admin, rincian read-only).
-- F1a sambungan putus: PASS (katalog, riwayat, keranjang; port 8099).
-- `flutter analyze`: No issues found (2026-11-12).
-- Audit viewport 360x640: tidak ada overflow.
+- E1 katalog: PASS (memakai scroll karena hero landing page; 2026-11-12).
+- E4 checkout: **PASS** (2026-11-13), termasuk tombol **Buat Pesanan** dan
+  konfirmasi **Saya Sudah Bayar**.
+- E5 rincian pesanan: **PASS** (2026-11-13); memverifikasi tombol konfirmasi
+  pembeli ada dan tombol status penjual tidak ada.
+- E7 pemisahan peran: **PASS** (2026-11-13); tidak ada ikon admin/aksi penjual.
+- F1a sambungan putus: PASS (katalog, riwayat, keranjang; port 8099; 2026-11-12).
+- F1b 422/409: **PASS** (2026-11-13), memakai label **Buat Pesanan**.
+- `flutter analyze`: No issues found (2026-11-13).
+- Audit viewport 360x640: tidak ada overflow (2026-11-12).
 
 Catatan menjalankan tes integrasi:
 
@@ -383,8 +409,10 @@ Catatan menjalankan tes integrasi:
 
 - `AdminPanelTest`: 5 tes.
 - `AdminPesananTest`: 7 tes.
-- `AdminProdukTest`: 11 tes.
-- Total suite: 25 tes, 93 assertion, PASS pada 2026-11-12.
+- `AdminProdukTest`: 12 tes (termasuk unggah gambar).
+- `ApiPesananTest`: 3 tes (konfirmasi bayar, larangan `dibayar`, larangan
+  mengubah pesanan pelanggan lain).
+- Total suite: 29 tes, 106 assertion, PASS pada 2026-11-13.
 
 ---
 
@@ -394,17 +422,18 @@ Catatan menjalankan tes integrasi:
 |---|---|---|---|
 | 15 endpoint API | API contract | Patuh | Jumlah dan jalur tidak berubah |
 | Web admin tidak menambah API | Arsitektur admin | Patuh | Semua rute admin di `web.php` |
-| Tombol bayar simulasi di mobile | PDF baris 320 | Menyimpang (disetujui) | Dihapus; pembayaran diproses penjual di web |
+| Tombol bayar simulasi di mobile | PDF baris 320 | Menyimpang (disetujui) | Konfirmasi **Saya Sudah Bayar** ada; tidak ada gateway/unggah bukti; verifikasi tetap di web |
 | CRUD produk dari aplikasi | PDF baris 324, 334, 568 | Menyimpang (disetujui) | CRUD dipindah ke web admin |
 | Admin mobile tanpa login | PRD baris 47-52 | Menyimpang (disetujui) | Admin sekarang web + login |
-| Semua aksi status di mobile | API contract baris 550 | Menyimpang (disetujui) | Mobile read-only |
+| Semua aksi status di mobile | API contract baris 550 | Menyimpang (disetujui) | Hanya konfirmasi bayar dan batal yang diizinkan; sisanya admin |
 | 8 tabel domain | Master context | Tidak literal | Ada 9 tabel karena `produk_varian` |
 | H1 tanpa hitungan di Dart | Conventions/PDF | Patuh | Tidak ada perhitungan bisnis baru |
 | Token statis API | PDF/contract | Patuh | Tetap dipakai |
 | Varian transaksional | Revisi/plan | Belum | `varian_id` belum masuk keranjang/checkout |
-| Resi terlihat pembeli | Dokumen admin 02 | Belum | API belum mengekspos resi |
-| Real-time | Dokumen admin 01/02/05 | Tidak benar | Hanya refresh/reopen |
-| Otorisasi API berbasis peran | PRD/keamanan | Belum | Token pembeli masih bisa mutasi |
+| Resi terlihat pembeli | Dokumen admin 02 | Patuh | API + mobile menampilkan `nomor_resi` |
+| Gambar produk | Revisi katalog | Patuh | Unggah gambar di web admin; API mengirim `gambar_url` |
+| Real-time | Dokumen admin 01/02/05 | Tidak benar | Hanya refresh/reopen; klaim dokumen sudah dikoreksi |
+| Otorisasi API berbasis peran | PRD/keamanan | Sebagian | Status pesanan dibatasi; mutasi produk masih terbuka |
 
 ---
 
@@ -415,14 +444,16 @@ Catatan menjalankan tes integrasi:
 1. `docs/Perancangan/database-schema.md`
    - Tambah `nomor_resi` pada `pesanan`.
    - Tambah bagian `produk_varian` dan relasinya.
+   - Tambah `produk.gambar_path` dan migrasi `2026_11_13_134441`.
    - Ubah klaim 8 tabel menjadi "8 tabel inti + 1 tabel varian" atau setarakan
      dengan keputusan revisi.
    - Perbarui urutan migrasi.
 2. `docs/Perancangan/api-contract (1).md`
-   - Tambah `varian` pada objek Produk.
-   - Perjelas bahwa aksi status tidak lagi dilakukan dari mobile.
-   - Catat perbedaan otorisasi API yang masih terbuka.
-   - Jika resi akan dikirim ke mobile, tambahkan field dan contoh respons.
+   - Tambah `varian`, `gambar_path`, dan `gambar_url` pada objek Produk.
+   - Perjelas bahwa pembeli hanya boleh mengonfirmasi bayar/membatalkan;
+     status lain ditolak API.
+   - Catat bahwa mutasi produk API masih terbuka.
+   - Tambahkan `nomor_resi` pada rincian pesanan beserta contoh respons.
 3. `docs/Perancangan/prd (1).md`
    - Ganti "admin mobile tanpa login" dengan "web admin sesi + login".
    - Tegaskan mobile hanya untuk pembeli.
@@ -431,15 +462,15 @@ Catatan menjalankan tes integrasi:
      admin.
 5. `docs/admin/01-arsitektur-admin.md`
    - Label `Api\PesananController`/`Api\ProdukController` sebagai "Mobile Read"
-     belum benar secara API; jelaskan bahwa UI mobile read-only, API belum
-     di-hardening.
-   - Hapus klaim real-time.
+     belum sepenuhnya benar; status pesanan sudah dibatasi, mutasi produk belum.
+   - Hapus klaim real-time (sudah dikoreksi).
    - Snippet rute lama tidak memuat login/logout dan nama metode yang berbeda
      dari kode; selaraskan.
 6. `docs/admin/02-alur-pemrosesan-pesanan.md`
-   - Pembeli tidak lagi mengubah `menunggu_konfirmasi`, membatalkan, atau
-     menyelesaikan dari mobile.
-   - Hapus klaim real-time dan pelacakan resi di mobile sampai API mendukung.
+   - Pembeli mengubah `menunggu_pembayaran` -> `menunggu_konfirmasi` lewat
+     **Saya Sudah Bayar**; pembatalan masih diizinkan API.
+   - Klaim real-time sudah dikoreksi; resi sudah tampil di mobile, tetapi
+     pelacakan posisi kurir belum ada.
 7. `docs/admin/05-rencana-eksekusi.md`
    - Klaim "instan" setelah perubahan status harus dikoreksi.
    - Status Tahap 5 tetap selesai, tetapi detail verifikasi diselaraskan.
@@ -471,30 +502,27 @@ Catatan menjalankan tes integrasi:
 | ID | Gap/risiko | Dampak | Tindakan |
 |---|---|---|---|
 | G1 | Varian belum transaksional | Harga tampil bisa beda dari keranjang | Putuskan `varian_id` di skema/kontrak |
-| G2 | API belum role-aware | Token pembeli bisa mutasi | Addendum + hardening + tes |
-| G3 | Resi tidak diekspos API | Pembeli tidak bisa lacak resi | Tambah field/kontrak atau koreksi dokumen |
+| G2 | API baru sebagian role-aware | Status pesanan aman; mutasi produk masih terbuka | Addendum + hardening + tes |
+| G3 | ~~Resi tidak diekspos API~~ | Selesai: API + mobile menampilkan resi | Perbarui kontrak/skema |
 | G4 | Dokumen stale | Evaluator membaca klaim yang salah | Kerjakan P0/P1 |
 | G5 | Bukti bayar belum ada | Alur pembayaran belum lengkap | Putuskan web-only/API; jangan tambah endpoint tanpa revisi |
 | G6 | Tidak ada CI | Regresi tidak otomatis terdeteksi | Pertimbangkan workflow test/analyze |
-| G7 | `pint --test` gagal di 7 berkas saat ini | Gaya kode belum seragam | Commit terpisah khusus format |
+| G7 | ~~`pint --test` gagal~~ | Selesai: seluruh berkas hijau pada 2026-11-13 | - |
 | G8 | Tidak ada real-time | Ekspektasi dokumen tidak terpenuhi | Koreksi dokumen atau tambah polling |
 | G9 | 9 tabel domain | Berbeda dari batas literal | Catat sebagai revisi resmi |
 | G10 | README placeholder | Laporan belum final | Lengkapi NIM/video |
 | G11 | Tes integrasi manual | Hasil bergantung server/DB | Dokumentasikan perintah dan state server |
 | G12 | Kredensial admin plaintext config | Tidak layak produksi | Sebut sebagai batas tugas/dev |
 
-Detail G7 - `pint --test` pada 2026-11-12 melaporkan:
+Detail G7 - riwayat `pint --test`:
 
-- `app/Http/Controllers/Api/CheckoutController.php`
-- `app/Http/Controllers/Api/KeranjangController.php`
-- `app/Http/Controllers/Api/PesananController.php`
-- `app/Http/Middleware/AutentikasiTokenStatis.php`
-- `app/Services/ServisCheckout.php`
-- `app/Services/ServisPesanan.php`
-- `routes/api.php`
+- 2026-11-12: gagal pada 7 berkas.
+- 2026-11-13: 2 berkas yang tersentuh C13 dirapikan; 5 berkas lama menyusul.
+- 2026-11-13 (akhir): seluruh berkas dirapikan; `pint --test` hijau.
 
-Jangan menganggap Pint bersih hanya karena tes lulus. Perbaikan format harus
-dilakukan di commit terpisah agar tidak mengaburkan perubahan dokumen.
+Perapian 5 berkas lama hanya format dan penghapusan import tak terpakai:
+`CheckoutController`, `KeranjangController`, `AutentikasiTokenStatis`,
+`ServisCheckout`, dan `routes/api.php`.
 
 ---
 
@@ -512,10 +540,12 @@ vendor\bin\pint --test
 
 Hasil terakhir:
 
-- `php artisan test`: 25 PASS, 93 assertion, sekitar 21,7 detik.
+- `php artisan test`: 29 PASS, 106 assertion, sekitar 5 detik.
 - Rute API: 15.
 - Rute admin: 16.
-- `pint --test`: gagal pada 7 berkas (G7).
+- `pint --test`: hijau (seluruh berkas; G7 selesai).
+- `php artisan migrate --force`: migrasi `gambar_path` berhasil.
+- `php artisan storage:link`: symlink `public/storage` berhasil dibuat.
 
 ### 14.2 Mobile
 
@@ -523,12 +553,15 @@ Hasil terakhir:
 cd mobile
 flutter analyze
 flutter test test\uji_e1_katalog_test.dart --platform chrome --dart-define=ALAMAT_SERVER=http://127.0.0.1:8000/api
+flutter test test\uji_e4_checkout_test.dart --platform chrome --dart-define=ALAMAT_SERVER=http://127.0.0.1:8000/api
 flutter test test\uji_e5_rincian_pesanan_test.dart --platform chrome --dart-define=ALAMAT_SERVER=http://127.0.0.1:8000/api
 flutter test test\uji_e7_pemisahan_peran_test.dart --platform chrome --dart-define=ALAMAT_SERVER=http://127.0.0.1:8000/api
 flutter test test\uji_f1a_sambungan_test.dart --platform chrome --dart-define=ALAMAT_SERVER=http://127.0.0.1:8099/api
+flutter test test\uji_f1b_422_409_test.dart --platform chrome --dart-define=ALAMAT_SERVER=http://127.0.0.1:8000/api
 ```
 
-Hasil terakhir: E1/E5/E7/F1a PASS, analyze bersih.
+Hasil terakhir: E4/E5/E7/F1b PASS (2026-11-13); E1/F1a PASS (2026-11-12);
+analyze bersih.
 
 Prasyarat tes integrasi:
 
@@ -539,10 +572,10 @@ Prasyarat tes integrasi:
 
 ### 14.3 State lingkungan saat dokumen dibuat
 
-- HEAD: `2c98d91`.
-- Working tree bersih sebelum dokumen ini dibuat.
+- HEAD: `2c98d91`; perubahan 2026-11-13 **belum di-commit**.
+- Working tree berisi perubahan C13 (lihat Bagian 5 dan 19).
 - Server PHP dan MySQL tidak dijalankan permanen.
-- Dokumen ini belum mengubah kode.
+- `.env` mobile tidak diubah; E4/E5/E7/F1b dijalankan ulang dan PASS.
 
 ---
 
@@ -657,3 +690,48 @@ dda44fd feat(mobile): dashboard admin terpadu kpi omzet pemrosesan pesanan dan p
 | Versi | Tanggal | Perubahan |
 |---|---|---|
 | 1.0 | 2026-11-12 | Dibuat; mencatat Opsi A, register perubahan, gap, bukti verifikasi, dan rencana revisi dokumen |
+| 1.1 | 2026-11-13 | Pembaruan C13: gambar produk, resi mobile, konfirmasi bayar, ongkir lokal, batas status API, hasil 29 tes, dan sisa gap |
+
+---
+
+## 19. Pembaruan 2026-11-13 (C13)
+
+Ringkasan perubahan lokal, belum di-commit:
+
+| Area | Perubahan | Berkas utama | Bukti |
+|---|---|---|---|
+| Gambar produk | Kolom `produk.gambar_path`; unggah/hapus file di admin; accessor `gambar_url`; thumbnail admin; gambar di mobile | migrasi `2026_11_13_134441_add_gambar_path_to_produk_table.php`, `Produk`, `Admin/ProdukController`, view `produk/form` + `produk/index`, `mobile/lib/models/produk.dart`, `kartu_produk.dart`, `rincian_produk_page.dart` | `AdminProdukTest::test_produk_baru_menerima_gambar_produk` PASS |
+| Pembayaran pembeli | Tombol **Saya Sudah Bayar** mengubah `menunggu_pembayaran` -> `menunggu_konfirmasi`; teks status diperbarui | `rincian_pesanan_page.dart` | `ApiPesananTest` PASS; E4/E5 PASS |
+| Keamanan status API | Cek kepemilikan pesanan; target pembeli hanya `menunggu_konfirmasi`/`dibatalkan` | `Api/PesananController.php` | 403/404 di `ApiPesananTest` PASS |
+| Ongkir | Checkout selalu memakai kurir DB; `kota_id` tidak mengubah tarif; `opsi=kota` tetap untuk daftar kota | `Api/KurirController.php` | Total suite PASS; E4 PASS |
+| Resi | `nomor_resi` dikirim API dan tampil di mobile | `ServisPesanan.php`, `rincian_pesanan.dart`, `rincian_pesanan_page.dart` | Backend PASS; tampilan belum diuji ulang |
+| Checkout | Label tombol **Bayar Sekarang** -> **Buat Pesanan** agar tidak menyiratkan pembayaran langsung | `checkout_page.dart`, `uji_e4`, `uji_f1b` | analyze bersih |
+| Lingkungan | Migrasi dijalankan; symlink storage dibuat; README menambah `storage:link` | migrasi, `public/storage`, `README.md` | perintah sukses |
+
+Verifikasi yang sudah dijalankan:
+
+```text
+php artisan test --compact                        29 PASS, 106 assertion
+flutter analyze                                   No issues found
+vendor\bin\pint --test                            hijau
+dart format <10 berkas>                           sukses
+php artisan migrate --force                       sukses (gambar_path)
+php artisan storage:link                          sukses
+flutter test E4/E5/E7/F1b (Chrome)                PASS
+```
+
+File baru:
+
+- `backend/database/migrations/2026_11_13_134441_add_gambar_path_to_produk_table.php`
+- `backend/tests/Feature/ApiPesananTest.php`
+
+Sisa pekerjaan setelah C13:
+
+1. Perketat `POST/PUT/DELETE /api/produk`; pindahkan persiapan stok E4/F1b ke
+   token admin/fixture sebelum aturan diaktifkan.
+2. Selesaikan varian transaksional atau sembunyikan pemilih varian dari
+   keranjang/checkout.
+3. Selaraskan `api-contract`, `database-schema.md`, PRD, dan `testing.md` dengan
+   field `gambar_path`/`gambar_url`, `nomor_resi`, serta perilaku pembayaran.
+4. Putuskan apakah bukti transfer diunggah; saat ini hanya tombol konfirmasi.
+5. Pertimbangkan tes integrasi upload gambar nyata (saat ini `Storage::fake`).

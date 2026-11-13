@@ -1,14 +1,14 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\ProdukController;
+use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\KeranjangController;
 use App\Http\Controllers\Api\KurirController;
 use App\Http\Controllers\Api\MetodePembayaranController;
-use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\PesananController;
+use App\Http\Controllers\Api\ProdukController;
 use App\Http\Middleware\AutentikasiTokenStatis;
 use App\Http\Middleware\MiddlewareDemo;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------

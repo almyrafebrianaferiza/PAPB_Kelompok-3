@@ -62,8 +62,19 @@
                     @foreach ($produk as $item)
                         <tr>
                             <td>
-                                <strong>{{ $item->nama }}</strong><br>
-                                <span style="font-size: 11px;">{{ $item->merek }}</span>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    @if ($item->gambar_url)
+                                        <img src="{{ $item->gambar_url }}" alt="Gambar {{ $item->nama }}" style="width: 48px; height: 48px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border);">
+                                    @else
+                                        <div style="width: 48px; height: 48px; display: grid; place-items: center; border-radius: 8px; background: var(--surface-elevated); color: var(--text-muted);">
+                                            <span aria-hidden="true">—</span>
+                                        </div>
+                                    @endif
+                                    <div>
+                                        <strong>{{ $item->nama }}</strong><br>
+                                        <span style="font-size: 11px;">{{ $item->merek }}</span>
+                                    </div>
+                                </div>
                             </td>
                             <td>{{ ucfirst($item->kategori) }}</td>
                             <td style="text-align: right;">Rp {{ number_format($item->harga, 0, ',', '.') }}</td>

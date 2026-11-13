@@ -12,6 +12,21 @@ class Produk extends Model
 
     protected $table = 'produk';
 
+    protected $appends = ['gambar_url'];
+
+    public function getGambarUrlAttribute(): ?string
+    {
+        if (! $this->gambar_path) {
+            return null;
+        }
+
+        $basis = app()->runningInConsole()
+            ? rtrim((string) config('app.url'), '/')
+            : request()->getSchemeAndHttpHost();
+
+        return $basis.'/storage/'.$this->gambar_path;
+    }
+
     protected $fillable = [
         'nama',
         'merek',
@@ -20,6 +35,7 @@ class Produk extends Model
         'stok',
         'tersedia',
         'deskripsi',
+        'gambar_path',
         'berat_gram',
         'garansi_bulan',
     ];

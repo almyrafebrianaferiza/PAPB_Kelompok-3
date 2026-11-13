@@ -54,7 +54,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Layanan lokasi (GPS) tidak aktif. Silakan aktifkan GPS perangkat.'),
+              content: Text(
+                  'Layanan lokasi (GPS) tidak aktif. Silakan aktifkan GPS perangkat.'),
               backgroundColor: ZWarna.peringatan,
             ),
           );
@@ -82,7 +83,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Izin lokasi ditolak permanen. Buka pengaturan untuk mengizinkan.'),
+              content: Text(
+                  'Izin lokasi ditolak permanen. Buka pengaturan untuk mengizinkan.'),
               backgroundColor: ZWarna.galat,
             ),
           );
@@ -135,7 +137,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Gagal mendeteksi lokasi otomatis. Silakan masukkan alamat manual.'),
+            content: Text(
+                'Gagal mendeteksi lokasi otomatis. Silakan masukkan alamat manual.'),
             backgroundColor: ZWarna.galat,
           ),
         );
@@ -333,7 +336,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   String _formatRupiah(num nominal) {
-    final format = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
+    final format =
+        NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
     return format.format(nominal);
   }
 
@@ -385,18 +389,21 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     maxLines: 2,
                     decoration: InputDecoration(
                       labelText: 'Alamat Lengkap Pengiriman *',
-                      prefixIcon: const Icon(Icons.location_on_outlined, size: 20),
+                      prefixIcon:
+                          const Icon(Icons.location_on_outlined, size: 20),
                       suffixIcon: _sedangDeteksiLokasi
                           ? const Padding(
                               padding: EdgeInsets.all(12),
                               child: SizedBox(
                                 width: 20,
                                 height: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
                               ),
                             )
                           : IconButton(
-                              icon: const Icon(Icons.my_location, color: ZWarna.oranye, size: 20),
+                              icon: const Icon(Icons.my_location,
+                                  color: ZWarna.oranye, size: 20),
                               tooltip: 'Gunakan Lokasi Saat Ini (GPS)',
                               onPressed: _deteksiLokasiOtomatis,
                             ),
@@ -411,7 +418,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       isExpanded: true,
                       decoration: const InputDecoration(
                         labelText: 'Kota / Kabupaten Tujuan (RajaOngkir)',
-                        prefixIcon: Icon(Icons.location_city_outlined, size: 20),
+                        prefixIcon:
+                            Icon(Icons.location_city_outlined, size: 20),
                       ),
                       hint: const Text(
                         'Pilih kota tujuan untuk hitung tarif RajaOngkir',
@@ -423,7 +431,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           value: (k['city_id'] as num).toInt(),
                           child: Text(
                             k['label'] ?? '${k['city_name']}',
-                            style: const TextStyle(fontSize: 13, color: ZWarna.putih),
+                            style: const TextStyle(
+                                fontSize: 13, color: ZWarna.putih),
                             overflow: TextOverflow.ellipsis,
                           ),
                         );
@@ -449,10 +458,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   children: _daftarKurir.map((k) {
                     return RadioListTile<Kurir>(
                       value: k,
-                      title: Text(k.nama, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      title: Text(k.nama,
+                          style: const TextStyle(fontWeight: FontWeight.bold)),
                       subtitle: Text(
                         '${k.wilayah} • ${_formatRupiah(k.tarifPerKg)}/kg (berat ${k.beratKgTertagih} kg)',
-                        style: const TextStyle(fontSize: 12, color: ZWarna.teksSekunder),
+                        style: const TextStyle(
+                            fontSize: 12, color: ZWarna.teksSekunder),
                       ),
                       secondary: Text(
                         _formatRupiah(k.ongkir),
@@ -479,8 +490,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   children: _daftarMetode.map((m) {
                     return RadioListTile<MetodePembayaran>(
                       value: m,
-                      title: Text(m.nama, style: const TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text(m.kode, style: const TextStyle(fontSize: 12, color: ZWarna.teksSekunder)),
+                      title: Text(m.nama,
+                          style: const TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text(m.kode,
+                          style: const TextStyle(
+                              fontSize: 12, color: ZWarna.teksSekunder)),
                       secondary: Icon(
                         m.kode.toLowerCase().contains('qris')
                             ? Icons.qr_code_2
@@ -605,7 +619,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Total Tagihan', style: TextStyle(fontSize: 11, color: ZWarna.teksSekunder)),
+                const Text('Total Tagihan',
+                    style: TextStyle(fontSize: 11, color: ZWarna.teksSekunder)),
                 Text(
                   _formatRupiah(_totalEstimasi),
                   style: const TextStyle(
@@ -622,11 +637,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   ? const SizedBox(
                       width: 20,
                       height: 20,
-                      child: CircularProgressIndicator(color: ZWarna.putih, strokeWidth: 2),
+                      child: CircularProgressIndicator(
+                          color: ZWarna.putih, strokeWidth: 2),
                     )
                   : const Text(
-                      'Bayar Sekarang',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                      'Buat Pesanan',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                     ),
             ),
           ],

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\StatusPesanan;
 use App\Exceptions\BentrokException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UbahStatusRequest;
@@ -56,7 +57,7 @@ class PesananController extends Controller
             ->where('pelanggan_id', $pelanggan->id)
             ->first();
 
-        if (!$pesanan) {
+        if (! $pesanan) {
             return Respons::gagal('Pesanan tidak ditemukan', 404);
         }
 
@@ -71,9 +72,23 @@ class PesananController extends Controller
     public function ubahStatus(UbahStatusRequest $request, int $id): JsonResponse
     {
         $validated = $request->validated();
+        $pelanggan = $request->attributes->get('pelanggan');
+        $pesanan = Pesanan::where('id', $id)
+            ->where('pelanggan_id', $pelanggan->id)
+            ->first();
+
+        if (! $pesanan) {
+            return Respons::gagal('Pesanan tidak ditemukan', 404);
+        }
+
+        $statusTujuan = StatusPesanan::tryFrom($validated['status']);
+
+        if (! $statusTujuan || ! in_array($statusTujuan, [StatusPesanan::MenungguKonfirmasi, StatusPesanan::Dibatalkan], true)) {
+            return Respons::gagal('Pembeli hanya dapat mengonfirmasi pembayaran atau membatalkan pesanan', 403);
+        }
 
         try {
-            $pesanan = $this->servisPesanan->ubahStatus($id, $validated['status']);
+            $pesanan = $this->servisPesanan->ubahStatus($pesanan->id, $validated['status']);
             $rincian = $this->servisPesanan->formatRincian($pesanan);
 
             return Respons::sukses($rincian, 'Status pesanan berhasil diperbarui', 200);

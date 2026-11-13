@@ -36,17 +36,18 @@ void main() {
 
     // 1. Validasi 422 per kolom dari server (CheckoutRequest).
     await tester.enterText(kolom('Nama Lengkap Penerima *'), '');
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Bayar Sekarang'));
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Buat Pesanan'));
     await tungguMuncul(tester, find.text('Nama penerima wajib diisi'));
     catat(tester, '422 nama');
     await tester.enterText(kolom('Nama Lengkap Penerima *'), 'Ahmad Fauzi');
     await tester.enterText(kolom('Alamat Lengkap Pengiriman *'), 'pendek');
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Bayar Sekarang'));
-    await tungguMuncul(tester, find.text('Alamat penerima minimal 10 karakter'));
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Buat Pesanan'));
+    await tungguMuncul(
+        tester, find.text('Alamat penerima minimal 10 karakter'));
     expect(find.text('Pengiriman & Checkout'), findsOneWidget);
     catat(tester, '422 alamat');
-    await tester.enterText(
-        kolom('Alamat Lengkap Pengiriman *'), 'Jl. Ijen No. 45, Klojen, Kota Malang');
+    await tester.enterText(kolom('Alamat Lengkap Pengiriman *'),
+        'Jl. Ijen No. 45, Klojen, Kota Malang');
     await tester.pump(const Duration(milliseconds: 200));
 
     // 2. Ganti kurir -> ongkir & total estimasi berubah, dari server.
@@ -68,7 +69,7 @@ void main() {
     final jumlahPesananAwal = (await api.riwayatPesanan()).length;
     try {
       await api.ubahProduk(1, dataProduk(produk1, stok: 0));
-      await tester.tap(find.widgetWithText(ElevatedButton, 'Bayar Sekarang'));
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Buat Pesanan'));
       await tungguMuncul(tester, find.text('Stok Tidak Mencukupi'));
       expect(find.text('Pengiriman & Checkout'), findsOneWidget);
       await tester.tap(find.text('Tutup'));
@@ -79,8 +80,8 @@ void main() {
     }
 
     // 4. Ketuk dua kali cepat -> tepat satu pesanan (kunci idempoten + tombol mati).
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Bayar Sekarang'));
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Bayar Sekarang'),
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Buat Pesanan'));
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Buat Pesanan'),
         warnIfMissed: false);
     catat(tester, 'dua ketukan');
     await tungguMuncul(tester, find.text('Rincian Pesanan'));
@@ -89,6 +90,13 @@ void main() {
     await tungguMuncul(tester, find.text('Total Akhir'));
     catat(tester, 'rincian termuat');
     expect(find.text('Menunggu Pembayaran'), findsOneWidget);
+
+    final tombolBayar = find.widgetWithText(ElevatedButton, 'Saya Sudah Bayar');
+    await tester.ensureVisible(tombolBayar);
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.tap(tombolBayar);
+    await tungguMuncul(tester, find.text('Menunggu Konfirmasi'));
+    catat(tester, 'konfirmasi pembayaran');
 
     final jumlahPesananAkhir = (await api.riwayatPesanan()).length;
     expect(jumlahPesananAkhir, jumlahPesananAwal + 1,

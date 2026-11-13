@@ -6,7 +6,9 @@ class Produk {
   final String kategori;
   final int stok;
   final bool tersedia;
-  final String? deskripsi; // Wajib nullable dan ditangani dengan aman di Flutter
+  final String?
+      deskripsi; // Wajib nullable dan ditangani dengan aman di Flutter
+  final String? gambarUrl;
   final int beratGram;
   final int garansiBulan;
   final List<ProdukVarian> varian;
@@ -20,6 +22,7 @@ class Produk {
     required this.stok,
     required this.tersedia,
     this.deskripsi,
+    this.gambarUrl,
     required this.beratGram,
     required this.garansiBulan,
     this.varian = const [],
@@ -35,6 +38,7 @@ class Produk {
       stok: json['stok'] as int,
       tersedia: json['tersedia'] as bool? ?? true,
       deskripsi: json['deskripsi'] as String?,
+      gambarUrl: json['gambar_url'] as String?,
       beratGram: json['berat_gram'] as int? ?? 0,
       garansiBulan: json['garansi_bulan'] as int? ?? 0,
       varian: (json['varian'] as List<dynamic>?)

@@ -31,7 +31,8 @@
     @endif
 
     <form method="POST"
-          action="{{ $mode === 'create' ? route('admin.produk.store') : route('admin.produk.update', $produk) }}">
+          action="{{ $mode === 'create' ? route('admin.produk.store') : route('admin.produk.update', $produk) }}"
+          enctype="multipart/form-data">
         @csrf
         @if ($mode === 'edit')
             @method('PUT')
@@ -86,6 +87,15 @@
                     <div class="admin-field admin-field-full">
                         <label for="deskripsi">Deskripsi</label>
                         <textarea id="deskripsi" name="deskripsi" class="admin-input admin-textarea" maxlength="2000">{{ old('deskripsi', $produk->deskripsi) }}</textarea>
+                    </div>
+
+                    <div class="admin-field admin-field-full">
+                        <label for="gambar">Gambar Produk</label>
+                        @if ($produk->gambar_url)
+                            <img src="{{ $produk->gambar_url }}" alt="Gambar {{ $produk->nama }}" style="display: block; width: 180px; height: 120px; object-fit: cover; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 10px;">
+                        @endif
+                        <input id="gambar" type="file" name="gambar" class="admin-input" accept="image/jpeg,image/png,image/webp">
+                        <span style="font-size: 10.5px; color: var(--text-muted);">JPG, PNG, atau WebP. Maksimal 2 MB.</span>
                     </div>
 
                     <div class="admin-field admin-field-full">

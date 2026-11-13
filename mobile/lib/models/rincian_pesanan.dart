@@ -41,6 +41,7 @@ class RincianPesanan {
   final int id;
   final String nomorPesanan;
   final String status;
+  final String? nomorResi;
   final List<String> statusBerikutnya;
   final String namaPenerima;
   final String alamatPenerima;
@@ -58,6 +59,7 @@ class RincianPesanan {
     required this.id,
     required this.nomorPesanan,
     required this.status,
+    this.nomorResi,
     required this.statusBerikutnya,
     required this.namaPenerima,
     required this.alamatPenerima,
@@ -80,6 +82,7 @@ class RincianPesanan {
       id: json['id'] as int,
       nomorPesanan: json['nomor_pesanan'] as String? ?? '-',
       status: json['status'] as String,
+      nomorResi: json['nomor_resi'] as String?,
       statusBerikutnya: rawStatusNext.map((s) => s.toString()).toList(),
       namaPenerima: json['nama_penerima'] as String? ?? '',
       alamatPenerima: json['alamat_penerima'] as String? ?? '',
@@ -90,7 +93,9 @@ class RincianPesanan {
       beratKgTertagih: json['berat_kg_tertagih'] as int? ?? 0,
       ongkir: json['ongkir'] as int? ?? 0,
       total: json['total'] as int? ?? 0,
-      item: rawItems.map((i) => DetailItemPesanan.fromJson(i as Map<String, dynamic>)).toList(),
+      item: rawItems
+          .map((i) => DetailItemPesanan.fromJson(i as Map<String, dynamic>))
+          .toList(),
       dibuatPada: json['dibuat_pada'] as String? ?? '',
     );
   }
