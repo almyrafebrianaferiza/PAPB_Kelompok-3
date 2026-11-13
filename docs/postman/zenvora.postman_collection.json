@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Zenvora — 15 Endpoint",
-    "description": "Koleksi uji REST API Zenvora. Jalankan pada database hasil `php artisan migrate:fresh --seed` dan server `php artisan serve`. Variabel `base_url`, `token`, dan `kunci` diatur di tab Variables. Contoh 422, 409, dan idempotensi ada di folder terakhir.",
+    "description": "Koleksi uji REST API Zenvora. Jalankan pada database hasil `php artisan migrate:fresh --seed` dan server `php artisan serve`. Variabel `base_url`, `token`, `token_admin`, dan `kunci` diatur di tab Variables. Mutasi produk (3/4/5 dan contoh 422) memakai `token_admin`; sisanya memakai `token` pembeli. Contoh 422, 409, dan idempotensi ada di folder terakhir.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -23,6 +23,11 @@
     {
       "key": "token",
       "value": "zenvora-dev-token-2026",
+      "type": "string"
+    },
+    {
+      "key": "token_admin",
+      "value": "zenvora-dev-admin-token-2026",
       "type": "string"
     },
     {
@@ -151,6 +156,16 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_admin}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
             "header": [
               {
@@ -201,6 +216,16 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_admin}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "PUT",
             "header": [
               {
@@ -252,6 +277,16 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_admin}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "DELETE",
             "header": [
               {
@@ -793,6 +828,16 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_admin}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
             "header": [
               {

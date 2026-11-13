@@ -69,7 +69,7 @@ class ServisCheckout
                     ->lockForUpdate()
                     ->count() : 0;
 
-                if (!$p || !$p->tersedia || $unitTersedia < $item->jumlah) {
+                if (! $p || ! $p->tersedia || $unitTersedia < $item->jumlah) {
                     $itemKurang[] = [
                         'produk_id' => $item->produk_id,
                         'nama' => $p?->nama ?? 'Produk Tidak Ditemukan',
@@ -79,7 +79,7 @@ class ServisCheckout
                 }
             }
 
-            if (!empty($itemKurang)) {
+            if (! empty($itemKurang)) {
                 throw new BentrokException('Stok beberapa barang tidak mencukupi', [
                     'item_kurang' => $itemKurang,
                 ]);

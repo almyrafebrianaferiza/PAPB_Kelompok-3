@@ -1,5 +1,6 @@
 // E2 — Rincian produk: berat/garansi/deskripsi null, tombol mati saat habis
 // (stok 0 dan tersedia=false), tambah berhasil, dan 409 di layar yang sama.
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:zenvora_mobile/exceptions/galat_api.dart';
 import 'package:zenvora_mobile/services/layanan_api.dart';
@@ -10,11 +11,18 @@ void main() {
   LiveTestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('E2 rincian produk', (tester) async {
+    final penanganSebelumnya = FlutterError.onError;
+    FlutterError.onError = (d) {
+      // ignore: avoid_print
+      print('GALAT FRAMEWORK: ${d.exceptionAsString()}');
+      penanganSebelumnya?.call(d);
+    };
+    addTearDown(() => FlutterError.onError = penanganSebelumnya);
     final api = LayananApi();
     await kosongkanKeranjang(api);
 
     await pumpAplikasi(tester);
-    await tungguMuncul(tester, find.text('Samsung Galaxy A55 5G 8/256'));
+    await gulirKe(tester, find.text('Samsung Galaxy A55 5G 8/256'));
     catat(tester, 'katalog');
 
     // 1. Produk #9 (stok 0, deskripsi NULL): tanpa crash, tombol mati.
@@ -24,7 +32,8 @@ void main() {
     await tester.ensureVisible(find.text('TCL 32" HD Android TV'));
     await tester.tap(find.text('TCL 32" HD Android TV'));
     await tungguMuncul(tester, find.text('Detail Produk'));
-    await tungguMuncul(tester, find.text('Deskripsi belum tersedia untuk produk ini.'));
+    await tungguMuncul(
+        tester, find.text('Deskripsi belum tersedia untuk produk ini.'));
     catat(tester, 'detail TCL');
     expect(find.text('STOK HABIS'), findsOneWidget);
     expect(find.text('Sisa Stok'), findsOneWidget);
@@ -49,7 +58,8 @@ void main() {
     await tester.ensureVisible(find.text('Samsung 27" Curved 144Hz'));
     await tester.tap(find.text('Samsung 27" Curved 144Hz'));
     await tungguMuncul(tester, find.text('Detail Produk'));
-    await tungguMuncul(tester, find.text('Deskripsi belum tersedia untuk produk ini.'));
+    await tungguMuncul(
+        tester, find.text('Deskripsi belum tersedia untuk produk ini.'));
     catat(tester, 'detail Samsung 27');
     expect(find.text('5500 gram'), findsOneWidget);
     expect(find.text('24 Bulan'), findsOneWidget);
@@ -63,7 +73,6 @@ void main() {
 
     // 3. Stok usang: server jadi 0 saat layar masih menampilkan stok 5 -> 409 di layar sama.
     await gantiCari(tester, '');
-    await tungguMuncul(tester, find.text('Samsung Galaxy A55 5G 8/256'));
     await gulirKe(tester, find.text('Samsung Galaxy A55 5G 8/256'));
     await tester.tap(find.text('Samsung Galaxy A55 5G 8/256'));
     await tungguMuncul(tester, find.text('Detail Produk'));
@@ -73,7 +82,7 @@ void main() {
     final produk1 = await api.rincianProduk(1);
     var pesan409 = '';
     try {
-      await api.ubahProduk(1, dataProduk(produk1, stok: 0));
+      await ubahProdukAdmin(1, dataProduk(produk1, stok: 0));
       try {
         await api.tambahKeranjang(1, 1);
       } on BentrokException catch (e) {
@@ -86,7 +95,7 @@ void main() {
       expect(find.text('Detail Produk'), findsOneWidget,
           reason: '409 tampil di layar yang sama, tanpa pindah halaman');
     } finally {
-      await api.ubahProduk(1, dataProduk(produk1));
+      await ubahProdukAdmin(1, dataProduk(produk1));
     }
     catat(tester, 'pulihkan stok 1');
 
@@ -98,7 +107,8 @@ void main() {
     await tester.tap(find.text('Tambah ke Keranjang'));
     await tungguMuncul(
       tester,
-      find.text('1x Samsung Galaxy A55 5G 8/256 berhasil ditambahkan ke keranjang.'),
+      find.text(
+          '1x Samsung Galaxy A55 5G 8/256 berhasil ditambahkan ke keranjang.'),
     );
     catat(tester, 'snackbar sukses');
     final k = await api.ambilKeranjang();

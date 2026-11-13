@@ -11,6 +11,7 @@ use App\Services\ServisStok;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -71,6 +72,9 @@ class ProdukController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $this->validasi($request);
+        $data['gambar_path'] = $request->hasFile('gambar')
+            ? $request->file('gambar')->store('produk', 'public')
+            : null;
 
         $produk = DB::transaction(function () use ($data): Produk {
             $daftarVarian = $this->normalisasiVarian($data['varian'] ?? []);
@@ -86,6 +90,7 @@ class ProdukController extends Controller
                 'stok' => 0,
                 'tersedia' => (bool) ($data['tersedia'] ?? false),
                 'deskripsi' => $data['deskripsi'] ?? null,
+                'gambar_path' => $data['gambar_path'] ?? null,
                 'berat_gram' => (int) $data['berat_gram'],
                 'garansi_bulan' => (int) $data['garansi_bulan'],
             ]);
@@ -125,6 +130,12 @@ class ProdukController extends Controller
     public function update(Request $request, Produk $produk): RedirectResponse
     {
         $data = $this->validasi($request);
+        $gambarLama = $produk->gambar_path;
+        $data['gambar_path'] = $gambarLama;
+
+        if ($request->hasFile('gambar')) {
+            $data['gambar_path'] = $request->file('gambar')->store('produk', 'public');
+        }
 
         DB::transaction(function () use ($data, $produk): void {
             $daftarVarian = $this->normalisasiVarian($data['varian'] ?? []);
@@ -139,6 +150,7 @@ class ProdukController extends Controller
                 'kategori' => $data['kategori'],
                 'tersedia' => (bool) ($data['tersedia'] ?? false),
                 'deskripsi' => $data['deskripsi'] ?? null,
+                'gambar_path' => $data['gambar_path'] ?? $produk->gambar_path,
                 'berat_gram' => (int) $data['berat_gram'],
                 'garansi_bulan' => (int) $data['garansi_bulan'],
             ]);
@@ -146,6 +158,10 @@ class ProdukController extends Controller
             $this->sinkronkanVarian($produk, $daftarVarian);
             $this->servisStok->sesuaikanUnitKeTarget($produk, $stokTarget);
         });
+
+        if ($request->hasFile('gambar') && $gambarLama) {
+            Storage::disk('public')->delete($gambarLama);
+        }
 
         return redirect()
             ->route('admin.produk.edit', $produk)
@@ -169,10 +185,16 @@ class ProdukController extends Controller
             ]);
         }
 
+        $gambarLama = $produk->gambar_path;
+
         DB::transaction(function () use ($produk): void {
             $produk->delete();
             Keranjang::where('produk_id', $produk->id)->delete();
         });
+
+        if ($gambarLama) {
+            Storage::disk('public')->delete($gambarLama);
+        }
 
         return redirect()
             ->route('admin.produk.index')
@@ -194,6 +216,7 @@ class ProdukController extends Controller
             'stok' => ['required', 'integer', 'min:0'],
             'tersedia' => ['nullable', 'boolean'],
             'deskripsi' => ['nullable', 'string'],
+            'gambar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'berat_gram' => ['required', 'integer', 'min:1'],
             'garansi_bulan' => ['required', 'integer', 'min:0'],
 

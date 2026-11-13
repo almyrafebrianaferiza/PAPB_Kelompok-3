@@ -8,13 +8,15 @@ class KartuProduk extends StatelessWidget {
   final Produk produk;
   final VoidCallback saatDiketuk;
 
-  const KartuProduk({super.key,
+  const KartuProduk({
+    super.key,
     required this.produk,
     required this.saatDiketuk,
   });
 
   String _formatRupiah(num nominal) {
-    final format = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
+    final format =
+        NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
     return format.format(nominal);
   }
 
@@ -36,11 +38,23 @@ class KartuProduk extends StatelessWidget {
                   width: double.infinity,
                   decoration: const BoxDecoration(
                     color: ZWarna.permukaanTinggi,
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(ZRadius.besar)),
+                    borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(ZRadius.besar)),
                   ),
-                  child: const Center(
-                    child: Icon(Icons.devices_other, size: 48, color: ZWarna.teksSamar),
-                  ),
+                  child:
+                      produk.gambarUrl != null && produk.gambarUrl!.isNotEmpty
+                          ? Image.network(
+                              produk.gambarUrl!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => const Center(
+                                child: Icon(Icons.devices_other,
+                                    size: 48, color: ZWarna.teksSamar),
+                              ),
+                            )
+                          : const Center(
+                              child: Icon(Icons.devices_other,
+                                  size: 48, color: ZWarna.teksSamar),
+                            ),
                 ),
                 if (apakahHabis)
                   const Positioned(
@@ -53,7 +67,8 @@ class KartuProduk extends StatelessWidget {
                     top: 8,
                     left: 8,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: ZWarna.hitam.withValues(alpha: 0.75),
                         borderRadius: BorderRadius.circular(4),
@@ -72,7 +87,8 @@ class KartuProduk extends StatelessWidget {
                   top: 8,
                   right: 8,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: ZWarna.oranye.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(4),
@@ -129,7 +145,8 @@ class KartuProduk extends StatelessWidget {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(Icons.scale_outlined, size: 12, color: ZWarna.teksSekunder),
+                      const Icon(Icons.scale_outlined,
+                          size: 12, color: ZWarna.teksSekunder),
                       const SizedBox(width: 3),
                       Text(
                         '${produk.beratGram}g',

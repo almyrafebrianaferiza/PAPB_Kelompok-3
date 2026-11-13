@@ -10,7 +10,6 @@ use App\Models\Produk;
 use App\Support\Respons;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class KeranjangController extends Controller
 {
@@ -44,7 +43,7 @@ class KeranjangController extends Controller
                 'berat_gram_satuan' => $prod?->berat_gram ?? 0,
                 'subtotal_item' => $subtotalItem,
                 'stok' => $prod?->stok ?? 0,
-                'tersedia' => $prod ? $prod->tersedia && !$prod->trashed() : false,
+                'tersedia' => $prod ? $prod->tersedia && ! $prod->trashed() : false,
             ];
         });
 
@@ -65,7 +64,7 @@ class KeranjangController extends Controller
 
         $produk = Produk::find($validated['produk_id']);
 
-        if (!$produk->tersedia || $produk->stok <= 0) {
+        if (! $produk->tersedia || $produk->stok <= 0) {
             return Respons::gagal("Produk {$produk->nama} saat ini tidak tersedia atau stok habis", 409);
         }
 
@@ -119,12 +118,12 @@ class KeranjangController extends Controller
             ->where('pelanggan_id', $pelanggan->id)
             ->first();
 
-        if (!$itemKeranjang) {
+        if (! $itemKeranjang) {
             return Respons::gagal('Item keranjang tidak ditemukan', 404);
         }
 
         $produk = $itemKeranjang->produk;
-        if (!$produk || !$produk->tersedia) {
+        if (! $produk || ! $produk->tersedia) {
             return Respons::gagal('Produk tidak tersedia', 409);
         }
 
@@ -161,7 +160,7 @@ class KeranjangController extends Controller
             ->where('pelanggan_id', $pelanggan->id)
             ->first();
 
-        if (!$itemKeranjang) {
+        if (! $itemKeranjang) {
             return Respons::gagal('Item keranjang tidak ditemukan', 404);
         }
 

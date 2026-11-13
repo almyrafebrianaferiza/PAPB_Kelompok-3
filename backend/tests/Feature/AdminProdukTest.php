@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\Produk;
 use App\Models\UnitProduk;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class AdminProdukTest extends TestCase
@@ -75,6 +77,23 @@ class AdminProdukTest extends TestCase
             ->assertOk()
             ->assertSee('Unit &amp; Serial', false)
             ->assertSee($unit->nomor_seri);
+    }
+
+    public function test_produk_baru_menerima_gambar_produk(): void
+    {
+        Storage::fake('public');
+
+        $this->sebagaiAdmin()
+            ->post(route('admin.produk.store'), array_merge($this->dataProduk(), [
+                'gambar' => UploadedFile::fake()->image('gadget.jpg', 800, 600),
+            ]))
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $produk = Produk::where('nama', 'Uji Produk Baru')->firstOrFail();
+
+        $this->assertNotNull($produk->gambar_path);
+        Storage::disk('public')->assertExists($produk->gambar_path);
     }
 
     public function test_produk_baru_membuat_unit_serial_sesuai_stok(): void

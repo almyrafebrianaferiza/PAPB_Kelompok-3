@@ -17,7 +17,7 @@ class KurirController extends Controller
     ) {}
 
     /**
-     * GET /api/kurir (Memuat ongkir dan estimasi total dinamis berdasarkan berat keranjang dan opsi kota)
+     * GET /api/kurir (Daftar kota tujuan atau kurir aktif dengan estimasi ongkir keranjang)
      */
     public function index(Request $request): JsonResponse
     {
@@ -43,28 +43,6 @@ class KurirController extends Controller
 
         $beratKgTertagih = $totalBeratGram > 0 ? (int) ceil($totalBeratGram / 1000) : 0;
 
-        // Jika ada parameter kota_id, kalkulasi tarif dinamis RajaOngkir
-        if ($request->has('kota_id')) {
-            $kotaId = (int) $request->query('kota_id');
-            $tarifDinamis = $this->rajaOngkir->hitungTarif($kotaId, $totalBeratGram);
-
-            $idCounter = 1;
-            $result = array_map(function ($item) use (&$idCounter, $subtotal) {
-                return [
-                    'id' => $idCounter++,
-                    'nama' => $item['nama'],
-                    'wilayah' => $item['wilayah'],
-                    'tarif_per_kg' => $item['tarif_per_kg'],
-                    'berat_kg_tertagih' => $item['berat_kg_tertagih'],
-                    'ongkir' => $item['ongkir'],
-                    'total_estimasi' => $subtotal + $item['ongkir'],
-                ];
-            }, $tarifDinamis);
-
-            return Respons::sukses($result, 'Daftar kurir dan tarif RajaOngkir berhasil diambil', 200);
-        }
-
-        // Bawaan: Kurir database lokal
         $kurirs = Kurir::where('aktif', true)->orderBy('id', 'asc')->get();
 
         $result = $kurirs->map(function ($k) use ($beratKgTertagih, $subtotal) {

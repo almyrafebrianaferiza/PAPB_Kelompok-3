@@ -57,15 +57,19 @@ void main() {
     expect(find.text(seri.first), findsOneWidget);
     catat(tester, 'verifikasi kelengkapan');
 
-    // 2. Pembeli tidak memiliki wewenang mengubah status pesanan.
+    // 2. Pembeli hanya punya aksi konfirmasi bayar, bukan aksi penjual.
     expect(find.textContaining('Ubah:'), findsNothing);
     expect(find.text('Batalkan Pesanan'), findsNothing);
     expect(
-      find.textContaining('Status pesanan diperbarui oleh penjual'),
+      find.widgetWithText(ElevatedButton, 'Saya Sudah Bayar'),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining('Pembeli dapat mengonfirmasi pembayaran'),
       findsOneWidget,
     );
     expect((await api.rincianPesanan(dibuat.id)).status, 'menunggu_pembayaran');
-    catat(tester, 'read-only tanpa tombol status');
+    catat(tester, 'aksi pembeli tanpa tombol status penjual');
 
     // 3. Kembali ke katalog memakai popUntil root.
     await tester.tap(find.byIcon(Icons.home_outlined));

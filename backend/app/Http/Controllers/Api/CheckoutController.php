@@ -25,7 +25,7 @@ class CheckoutController extends Controller
         $pelanggan = $request->attributes->get('pelanggan');
         $kunciIdempoten = $request->header('X-Kunci-Idempoten');
 
-        if (!$kunciIdempoten || strlen(trim($kunciIdempoten)) < 8) {
+        if (! $kunciIdempoten || strlen(trim($kunciIdempoten)) < 8) {
             return Respons::gagal('Header X-Kunci-Idempoten wajib disertakan', 422, [
                 'kunci_idempoten' => ['Header X-Kunci-Idempoten wajib diisi (minimal 8 karakter)'],
             ]);

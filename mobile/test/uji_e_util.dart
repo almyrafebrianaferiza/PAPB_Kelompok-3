@@ -1,9 +1,12 @@
 // Helper bersama untuk seluruh integration test E1-E7 ( Chrome / emulator ).
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:zenvora_mobile/config/konfigurasi.dart';
 import 'package:zenvora_mobile/exceptions/galat_api.dart';
 import 'package:zenvora_mobile/main.dart';
 import 'package:zenvora_mobile/models/keranjang.dart';
@@ -38,8 +41,40 @@ Future<void> ketukIkon(
 Future<void> aturStok(LayananApi api, int produkId, int stok) async {
   final p = await api.rincianProduk(produkId);
   if (p.stok != stok) {
-    await api.ubahProduk(produkId, dataProduk(p, stok: stok));
+    await ubahProdukAdmin(produkId, dataProduk(p, stok: stok));
   }
+}
+
+/// Token admin khusus persiapan tes; token pembeli ditolak untuk mutasi produk.
+const String tokenAdminUji = String.fromEnvironment(
+  'TOKEN_ADMIN',
+  defaultValue: 'zenvora-dev-admin-token-2026',
+);
+
+/// Ubah produk lewat API memakai token admin (hanya untuk fixture tes).
+Future<Produk> ubahProdukAdmin(int id, Map<String, dynamic> body) async {
+  final dasar = alamatServer.endsWith('/')
+      ? alamatServer.substring(0, alamatServer.length - 1)
+      : alamatServer;
+
+  final respons = await http
+      .put(
+        Uri.parse('$dasar/produk/$id'),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $tokenAdminUji',
+        },
+        body: jsonEncode(body),
+      )
+      .timeout(batasWaktu);
+
+  final badan =
+      jsonDecode(utf8.decode(respons.bodyBytes)) as Map<String, dynamic>;
+  if (badan['status'] != 'sukses') {
+    fail('Mutasi admin uji gagal: ${badan['message']}');
+  }
+  return Produk.fromJson(badan['data'] as Map<String, dynamic>);
 }
 
 /// Bangun aplikasi dari main() (jalur produksi).

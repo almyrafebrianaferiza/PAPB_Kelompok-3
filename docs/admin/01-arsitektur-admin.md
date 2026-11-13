@@ -16,7 +16,7 @@ Dalam sistem e-commerce terdistribusi modern dan profesional, antarmuka dibagi m
 │ • Eksplorasi katalog & varian produk  │      │ • Memantau omzet & ringkasan KPI toko │
 │ • Deteksi lokasi GPS saat checkout    │      │ • Verifikasi mutasi pembayaran        │
 │ • Menempatkan pesanan transaksional   │      │ • Mengalokasikan serial number fisik  │
-│ • Memantau status pesanan (read-only) │      │ • Memasukkan nomor resi ekspedisi     │
+│ • Memantau status + konfirmasi bayar  │      │ • Memasukkan nomor resi ekspedisi     │
 │ • REST API via Bearer Token statis    │      │ • Web Session + CSRF Protection       │
 └──────────────────┬────────────────────┘      └──────────────────┬────────────────────┘
                    │                                              │
@@ -91,4 +91,4 @@ Route::prefix('admin')->name('admin.')->group(function () {
    - Brand Accent: Orange Zenvora `#FF6A00` & Hover `#E85D00`.
    - Tipografi: Google Font **Poppins** (SemiBold untuk heading, Regular untuk isi data).
 4. **Interaktivitas Ringan**: Vanilla JavaScript / CSS native murni tanpa dependensi Node.js / NPM kompleks agar server dapat langsung dijalankan dengan `php artisan serve`.
-5. **Database Interactivity**: Memanfaatkan model Eloquent yang sudah ada (`Produk`, `ProdukVarian`, `UnitProduk`, `Pesanan`, `DetailPesanan`, `Kurir`, `Pelanggan`) sehingga data antara aplikasi mobile dan web dashboard selalu tersinkronisasi secara real-time.
+5. **Database Interactivity**: Memanfaatkan model Eloquent yang sudah ada (`Produk`, `ProdukVarian`, `UnitProduk`, `Pesanan`, `DetailPesanan`, `Kurir`, `Pelanggan`) sehingga data antara aplikasi mobile dan web dashboard tersinkron setelah halaman dimuat ulang (bukan real-time).

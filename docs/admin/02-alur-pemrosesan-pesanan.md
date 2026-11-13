@@ -11,7 +11,7 @@ Untuk menjamin kepatuhan sistem keamanan e-commerce dan integritas data keuangan
 | Status Pesanan | Siapa yang Berhak Mengubah? | Media / Kanal | Aksi / Pemicu |
 |---|---|---|---|
 | `menunggu_pembayaran` | Sistem | Mobile | Pembeli menyelesaikan checkout |
-| `menunggu_konfirmasi` | Pembeli | Mobile | Pembeli mengirim bukti bayar / konfirmasi transfer |
+| `menunggu_konfirmasi` | Pembeli | Mobile | Pembeli menekan **Saya Sudah Bayar** (tanpa unggah bukti) |
 | `dibayar` | **Admin Toko** | **Web Dashboard** | Admin memvalidasi mutasi rekening / gateway |
 | `diproses` | **Admin Toko** | **Web Dashboard** | Gudang menyiapkan unit fisik & verifikasi serial number |
 | `dikirim` | **Admin Toko** | **Web Dashboard** | Kurir menjemput barang + input nomor resi pengiriman |
@@ -73,7 +73,7 @@ Setiap perpindahan status dikunci secara ketat oleh `App\Enums\StatusPesanan::bo
    - Metode pembayaran (misal `BCA Virtual Account` atau `QRIS`).
    - Total nominal yang harus dibayar.
 3. Admin menekan tombol hijau **"Konfirmasi Pembayaran"**.
-4. Status pesanan berpindah menjadi `dibayar`. Pembeli di aplikasi mobile langsung melihat status pesanannya berubah secara real-time.
+4. Status pesanan berpindah menjadi `dibayar`. Pembeli melihat perubahan setelah halaman rincian dimuat ulang; tidak ada pembaruan real-time.
 
 ### Langkah 3: Penyiapan Barang & Verifikasi Nomor Seri Fisik
 1. Pada pesanan berstatus `dibayar`, admin/gudang menekan tombol **"Kemas & Siapkan"**.

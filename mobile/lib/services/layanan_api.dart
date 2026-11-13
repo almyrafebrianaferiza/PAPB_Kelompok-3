@@ -44,7 +44,8 @@ class LayananApi {
 
     Map<String, dynamic> badan;
     try {
-      badan = jsonDecode(utf8.decode(respons.bodyBytes)) as Map<String, dynamic>;
+      badan =
+          jsonDecode(utf8.decode(respons.bodyBytes)) as Map<String, dynamic>;
     } on FormatException {
       throw ServerException();
     }
@@ -85,32 +86,18 @@ class LayananApi {
               'per_halaman': '$perHalaman',
             }),
             headers: _header(),
-          )).then((d) => (d as List).map((j) => Produk.fromJson(j as Map<String, dynamic>)).toList());
+          )).then((d) => (d
+              as List)
+          .map((j) => Produk.fromJson(j as Map<String, dynamic>))
+          .toList());
 
   // 2. GET /api/produk/{id}
   Future<Produk> rincianProduk(int id) =>
       _kirim(() => http.get(_uri('/produk/$id'), headers: _header()))
           .then((d) => Produk.fromJson(d as Map<String, dynamic>));
 
-  // 3. POST /api/produk
-  Future<Produk> tambahProduk(Map<String, dynamic> body) =>
-      _kirim(() => http.post(
-            _uri('/produk'),
-            headers: _header(),
-            body: jsonEncode(body),
-          )).then((d) => Produk.fromJson(d as Map<String, dynamic>));
-
-  // 4. PUT /api/produk/{id}
-  Future<Produk> ubahProduk(int id, Map<String, dynamic> body) =>
-      _kirim(() => http.put(
-            _uri('/produk/$id'),
-            headers: _header(),
-            body: jsonEncode(body),
-          )).then((d) => Produk.fromJson(d as Map<String, dynamic>));
-
-  // 5. DELETE /api/produk/{id}
-  Future<void> hapusProduk(int id) =>
-      _kirim(() => http.delete(_uri('/produk/$id'), headers: _header()));
+  // 3-5. Mutasi produk (POST/PUT/DELETE /api/produk) sengaja TIDAK disediakan
+  // di klien mobile: hanya token admin/web admin yang boleh mengubah katalog.
 
   // 6. GET /api/keranjang
   Future<Keranjang> ambilKeranjang() =>
@@ -138,18 +125,20 @@ class LayananApi {
       _kirim(() => http.delete(_uri('/keranjang/$id'), headers: _header()));
 
   // 10. GET /api/kurir (Memuat estimasi ongkir dinamis dari berat keranjang & RajaOngkir)
-  Future<List<Kurir>> ambilKurir({int? kotaId}) =>
-      _kirim(() => http.get(
+  Future<List<Kurir>> ambilKurir({int? kotaId}) => _kirim(() => http.get(
             _uri('/kurir', {
               if (kotaId != null) 'kota_id': '$kotaId',
             }),
             headers: _header(),
-          )).then((d) => (d as List).map((j) => Kurir.fromJson(j as Map<String, dynamic>)).toList());
+          ))
+      .then((d) => (d as List)
+          .map((j) => Kurir.fromJson(j as Map<String, dynamic>))
+          .toList());
 
   // 10b. GET /api/kurir?opsi=kota (Daftar kota tujuan RajaOngkir)
-  Future<List<Map<String, dynamic>>> ambilDaftarKota() =>
-      _kirim(() => http.get(_uri('/kurir', {'opsi': 'kota'}), headers: _header()))
-          .then((d) => (d as List).cast<Map<String, dynamic>>());
+  Future<List<Map<String, dynamic>>> ambilDaftarKota() => _kirim(
+          () => http.get(_uri('/kurir', {'opsi': 'kota'}), headers: _header()))
+      .then((d) => (d as List).cast<Map<String, dynamic>>());
 
   // 11. POST /api/checkout (Menerima header X-Kunci-Idempoten)
   Future<RincianPesanan> checkout({
@@ -172,8 +161,10 @@ class LayananApi {
 
   // 12. GET /api/pesanan (Terbaru ke terlama)
   Future<List<RingkasanPesanan>> riwayatPesanan() =>
-      _kirim(() => http.get(_uri('/pesanan'), headers: _header()))
-          .then((d) => (d as List).map((j) => RingkasanPesanan.fromJson(j as Map<String, dynamic>)).toList());
+      _kirim(() => http.get(_uri('/pesanan'), headers: _header())).then((d) =>
+          (d as List)
+              .map((j) => RingkasanPesanan.fromJson(j as Map<String, dynamic>))
+              .toList());
 
   // 13. GET /api/pesanan/{id}
   Future<RincianPesanan> rincianPesanan(int id) =>
@@ -191,7 +182,9 @@ class LayananApi {
   // 15. GET /api/metode-pembayaran
   Future<List<MetodePembayaran>> ambilMetodePembayaran() =>
       _kirim(() => http.get(_uri('/metode-pembayaran'), headers: _header()))
-          .then((d) => (d as List).map((j) => MetodePembayaran.fromJson(j as Map<String, dynamic>)).toList());
+          .then((d) => (d as List)
+              .map((j) => MetodePembayaran.fromJson(j as Map<String, dynamic>))
+              .toList());
 
   // 16. Reverse Geocoding via OpenStreetMap Nominatim (Deteksi Lokasi Otomatis)
   Future<String> geocodingBalik(double lat, double lon) async {
@@ -211,13 +204,21 @@ class LayananApi {
         return 'Lat: $lat, Lon: $lon';
       }
 
-      final data = jsonDecode(utf8.decode(respons.bodyBytes)) as Map<String, dynamic>;
+      final data =
+          jsonDecode(utf8.decode(respons.bodyBytes)) as Map<String, dynamic>;
       final address = data['address'] as Map<String, dynamic>? ?? {};
 
-      final jalan = address['road'] ?? address['neighbourhood'] ?? address['suburb'];
-      final kelurahan = address['village'] ?? address['suburb'] ?? address['quarter'];
-      final kecamatan = address['city_district'] ?? address['municipality'] ?? address['district'];
-      final kota = address['city'] ?? address['town'] ?? address['regency'] ?? address['county'];
+      final jalan =
+          address['road'] ?? address['neighbourhood'] ?? address['suburb'];
+      final kelurahan =
+          address['village'] ?? address['suburb'] ?? address['quarter'];
+      final kecamatan = address['city_district'] ??
+          address['municipality'] ??
+          address['district'];
+      final kota = address['city'] ??
+          address['town'] ??
+          address['regency'] ??
+          address['county'];
       final provinsi = address['state'];
       final kodePos = address['postcode'];
 

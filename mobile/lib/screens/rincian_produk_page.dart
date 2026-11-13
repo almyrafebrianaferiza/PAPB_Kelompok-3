@@ -12,7 +12,8 @@ class RincianProdukPage extends StatefulWidget {
   final int idProduk;
   final LayananApi layananApi;
 
-  const RincianProdukPage({super.key,
+  const RincianProdukPage({
+    super.key,
     required this.idProduk,
     required this.layananApi,
   });
@@ -33,7 +34,9 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
   int get _stokAktif => _varianTerpilih?.stok ?? _produk?.stok ?? 0;
   bool get _apakahHabisAktif {
     if (_produk == null) return true;
-    if (_varianTerpilih != null) return _varianTerpilih!.isHabis || !_produk!.tersedia;
+    if (_varianTerpilih != null) {
+      return _varianTerpilih!.isHabis || !_produk!.tersedia;
+    }
     return _produk!.isHabis;
   }
 
@@ -82,7 +85,8 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${_kuantitas}x ${_produk!.nama} berhasil ditambahkan ke keranjang.'),
+            content: Text(
+                '${_kuantitas}x ${_produk!.nama} berhasil ditambahkan ke keranjang.'),
             backgroundColor: ZWarna.sukses,
             behavior: SnackBarBehavior.floating,
           ),
@@ -109,7 +113,8 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
   }
 
   String _formatRupiah(num nominal) {
-    final format = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
+    final format =
+        NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
     return format.format(nominal);
   }
 
@@ -147,9 +152,22 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
             color: ZWarna.permukaanTinggi,
             child: Stack(
               children: [
-                const Center(
-                  child: Icon(Icons.devices_other, size: 80, color: ZWarna.teksSamar),
-                ),
+                if (p.gambarUrl != null && p.gambarUrl!.isNotEmpty)
+                  Positioned.fill(
+                    child: Image.network(
+                      p.gambarUrl!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => const Center(
+                        child: Icon(Icons.devices_other,
+                            size: 80, color: ZWarna.teksSamar),
+                      ),
+                    ),
+                  )
+                else
+                  const Center(
+                    child: Icon(Icons.devices_other,
+                        size: 80, color: ZWarna.teksSamar),
+                  ),
                 if (apakahHabis)
                   const Positioned(
                     top: 16,
@@ -169,7 +187,8 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: ZWarna.oranye.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(6),
@@ -234,13 +253,17 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
                         selected: terpilih,
                         selectedColor: ZWarna.oranye,
                         backgroundColor: ZWarna.permukaanTinggi,
-                        side: BorderSide(color: terpilih ? ZWarna.oranye : ZWarna.batas),
+                        side: BorderSide(
+                            color: terpilih ? ZWarna.oranye : ZWarna.batas),
                         label: Text(
                           '${v.namaVarian}${habis ? ' (Habis)' : ''}',
                           style: TextStyle(
                             fontSize: 12,
-                            fontWeight: terpilih ? FontWeight.bold : FontWeight.w500,
-                            color: terpilih ? ZWarna.hitam : (habis ? ZWarna.teksSamar : ZWarna.putih),
+                            fontWeight:
+                                terpilih ? FontWeight.bold : FontWeight.w500,
+                            color: terpilih
+                                ? ZWarna.hitam
+                                : (habis ? ZWarna.teksSamar : ZWarna.putih),
                           ),
                         ),
                         onSelected: (selected) {
@@ -323,7 +346,8 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
     );
   }
 
-  Widget _itemSpesifikasi(IconData ikon, String label, String nilai, Color warnaNilai) {
+  Widget _itemSpesifikasi(
+      IconData ikon, String label, String nilai, Color warnaNilai) {
     return Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -334,7 +358,8 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
               const SizedBox(width: 4),
               Text(
                 label,
-                style: const TextStyle(fontSize: 11, color: ZWarna.teksSekunder),
+                style:
+                    const TextStyle(fontSize: 11, color: ZWarna.teksSekunder),
               ),
             ],
           ),
@@ -389,7 +414,8 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
                     ),
                     Text(
                       '$_kuantitas',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 15),
                     ),
                     IconButton(
                       icon: const Icon(Icons.add, size: 18),
@@ -411,7 +437,8 @@ class _RincianProdukPageState extends State<RincianProdukPage> {
                     ? const SizedBox(
                         width: 18,
                         height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: ZWarna.putih),
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: ZWarna.putih),
                       )
                     : const Icon(Icons.add_shopping_cart_rounded),
                 label: Text(
