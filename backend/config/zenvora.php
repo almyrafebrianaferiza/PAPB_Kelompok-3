@@ -23,6 +23,16 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Token Statis Admin (pengembangan)
+    |--------------------------------------------------------------------------
+    | Hanya berlaku untuk jalur /api/produk (khususnya mutasi). Token pembeli
+    | tidak dapat menambah, mengubah, atau menghapus produk melalui API.
+    */
+
+    'token_admin' => env('ZENVORA_TOKEN_ADMIN', 'zenvora-dev-admin-token-2026'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Flag Demo Galat
     |--------------------------------------------------------------------------
     | Dibaca MiddlewareDemo untuk perekaman video demo E5.

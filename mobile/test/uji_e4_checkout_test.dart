@@ -68,7 +68,7 @@ void main() {
     final produk1 = await api.rincianProduk(1);
     final jumlahPesananAwal = (await api.riwayatPesanan()).length;
     try {
-      await api.ubahProduk(1, dataProduk(produk1, stok: 0));
+      await ubahProdukAdmin(1, dataProduk(produk1, stok: 0));
       await tester.tap(find.widgetWithText(ElevatedButton, 'Buat Pesanan'));
       await tungguMuncul(tester, find.text('Stok Tidak Mencukupi'));
       expect(find.text('Pengiriman & Checkout'), findsOneWidget);
@@ -76,7 +76,7 @@ void main() {
       await tungguHilang(tester, find.text('Stok Tidak Mencukupi'));
       catat(tester, 'dialog 409');
     } finally {
-      await api.ubahProduk(1, dataProduk(produk1, stok: 5));
+      await ubahProdukAdmin(1, dataProduk(produk1, stok: 5));
     }
 
     // 4. Ketuk dua kali cepat -> tepat satu pesanan (kunci idempoten + tombol mati).

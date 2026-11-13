@@ -77,6 +77,10 @@ class ProdukController extends Controller
      */
     public function store(SimpanProdukRequest $request): JsonResponse
     {
+        if ($ditolak = $this->tolakBukanAdmin($request)) {
+            return $ditolak;
+        }
+
         $validated = $request->validated();
 
         $produk = DB::transaction(function () use ($validated) {
@@ -105,6 +109,10 @@ class ProdukController extends Controller
      */
     public function update(SimpanProdukRequest $request, int $id): JsonResponse
     {
+        if ($ditolak = $this->tolakBukanAdmin($request)) {
+            return $ditolak;
+        }
+
         $produk = Produk::find($id);
 
         if (! $produk) {
@@ -135,8 +143,12 @@ class ProdukController extends Controller
     /**
      * DELETE /api/produk/{id} (Soft Delete & 409 guard)
      */
-    public function destroy(int $id): JsonResponse
+    public function destroy(Request $request, int $id): JsonResponse
     {
+        if ($ditolak = $this->tolakBukanAdmin($request)) {
+            return $ditolak;
+        }
+
         $produk = Produk::find($id);
 
         if (! $produk) {
@@ -160,5 +172,17 @@ class ProdukController extends Controller
         });
 
         return Respons::sukses(null, 'Produk berhasil dihapus', 200);
+    }
+
+    /**
+     * Tolak mutasi produk bila bukan token admin (pertahanan lapis kedua).
+     */
+    private function tolakBukanAdmin(Request $request): ?JsonResponse
+    {
+        if ($request->attributes->get('peran') === 'admin') {
+            return null;
+        }
+
+        return Respons::gagal('Mutasi produk hanya dapat dilakukan dengan token admin', 403);
     }
 }

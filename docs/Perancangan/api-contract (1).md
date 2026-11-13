@@ -18,10 +18,14 @@
 | Header wajib semua permintaan | `Accept: application/json`, `Authorization: Bearer <token-statis>` |
 | Header tambahan untuk body | `Content-Type: application/json` |
 | Header khusus checkout | `X-Kunci-Idempoten: <nilai-acak>` |
+| Token pembeli (baca + keranjang/checkout/status) | `zenvora-dev-token-2026` (`ZENVORA_TOKEN_PEMBELI`) |
+| Token admin (khusus mutasi produk #3–#5) | `zenvora-dev-admin-token-2026` (`ZENVORA_TOKEN_ADMIN`) |
 | Zona waktu | `Asia/Jakarta`; waktu ditulis ISO 8601, mis. `2026-11-07T10:15:00+07:00` |
 | Uang | Integer rupiah bulat, tanpa desimal dan tanpa pemisah ribuan |
 
-**Token statis:** nilai ditulis di README (usulan `zenvora-dev-token-2026`, **[PERLU DIKONFIRMASI]**). Server memetakannya ke `pelanggan_id = 1`. Flutter mengirim token **hanya di satu tempat** (`LayananApi`, metode pembentuk header). Token hilang atau salah → **401** (lihat 1.4).
+**Token statis:** nilai ditulis di README. Token pembeli memetakannya ke `pelanggan_id = 1`. Flutter mengirim token **hanya di satu tempat** (`LayananApi`, metode pembentuk header). Token hilang atau salah → **401** (lihat 1.4).
+
+**Token admin** (`ZENVORA_TOKEN_ADMIN`) hanya berlaku untuk jalur `/api/produk`; dipakai untuk mutasi #3–#5. Token admin di luar jalur produk → **403**. Token pembeli pada POST/PUT/DELETE `/api/produk` → **403** dengan pesan "Mutasi produk hanya dapat dilakukan dengan token admin".
 
 ### 1.2 Pembungkus respons (seragam untuk semua endpoint)
 
@@ -60,6 +64,7 @@ Gagal:
 | 200 | Baca atau ubah berhasil | daftar produk (juga saat kosong), hapus item keranjang |
 | 201 | Sumber daya baru dibuat | produk baru, item keranjang baru, pesanan baru |
 | 401 | Token tidak ada atau tidak dikenal | header `Authorization` salah |
+| 403 | Token sah tetapi tidak berhak atas aksi/jalur ini | token pembeli mencoba mutasi produk; token admin di luar `/api/produk`; pembeli mengirim status selain `menunggu_konfirmasi`/`dibatalkan` |
 | 404 | Sumber daya yang diminta tidak ada (atau bukan milik pelanggan) | `GET /api/produk/9999` |
 | 409 | Permintaan sah secara bentuk tetapi bertentangan dengan keadaan server | stok kurang, produk tidak tersedia, status tidak boleh berpindah, produk dipakai pesanan aktif |
 | 422 | Isi permintaan gagal validasi | `jumlah` ≤ 0, alamat kosong, keranjang kosong saat checkout |
@@ -76,7 +81,7 @@ Perbedaan inti untuk uji petik B3: **404** = barangnya tidak ada; **422** = isi 
 | 422 | `ValidasiException(errors)` | Pesan per kolom di bawah kolom form |
 | 409 | `BentrokException(message, data)` | Pesan dari server di layar yang sama, tanpa pindah halaman |
 | 404 | `TidakDitemukanException` | Keadaan **kosong** (bukan dialog teknis) |
-| 401 | `ServerException` | Pesan umum (kasus pengembangan, tidak ada layar khusus) |
+| 401, 403 | `ServerException` | Pesan umum (kasus pengembangan; klien mobile tidak memanggil mutasi produk) |
 | 500, dan respons yang tidak bisa dibaca | `ServerException` | Pesan umum + **Coba lagi**, tanpa jejak galat |
 | 200/201 | — | Tampilkan data / pindah halaman hasil |
 
@@ -102,8 +107,21 @@ Seluruh nilai uang, berat, ongkir, total, stok, dan ketersediaan dihitung **di s
   "stok": 3,
   "tersedia": true,
   "deskripsi": null,
+  "gambar_path": "produk/xyz.jpg",
+  "gambar_url": "http://127.0.0.1:8000/storage/produk/xyz.jpg",
   "berat_gram": 1400,
-  "garansi_bulan": 24
+  "garansi_bulan": 24,
+  "varian": [
+    {
+      "id": 1,
+      "produk_id": 4,
+      "nama_varian": "16GB / 512GB",
+      "harga": 9999000,
+      "stok": 1,
+      "berat_gram": 1400,
+      "sku": "VIV-16-512"
+    }
+  ]
 }
 ```
 
@@ -117,10 +135,16 @@ Seluruh nilai uang, berat, ongkir, total, stok, dan ketersediaan dihitung **di s
 | stok | int | `int` | tidak |
 | tersedia | bool | `bool` | tidak |
 | deskripsi | string | `String?` | **ya** |
+| gambar_path | string (path relatif disk `public`) | `String?` | **ya** |
+| gambar_url | string (URL absolut berdasarkan host request) | `String?` | **ya** |
 | berat_gram | int | `int` | tidak |
 | garansi_bulan | int | `int` | tidak |
+| varian | array objek varian (`id`, `produk_id`, `nama_varian`, `harga`, `stok`, `berat_gram`, `sku?`) | `List<ProdukVarian>` | tidak (boleh kosong) |
 
 Produk dianggap **habis** bila `stok == 0` **atau** `tersedia == false`. Penanda habis dan tombol tambah dimatikan menurut dua kunci ini (keduanya berasal dari server).
+
+- `gambar_path` diisi oleh web admin saat mengunggah gambar; `gambar_url` = `<host-request>/storage/<gambar_path>` (bukan `APP_URL`), sehingga benar untuk emulator dan desktop. Tanpa gambar: `null`.
+- `varian` selalu ikut pada endpoint #1 dan #2 (hasil relasi eager-load); dapat berupa array kosong. Varian tampil di UI, tetapi keranjang/checkout **belum** memakai `varian_id` (lihat status revisi, GAP G1).
 
 ### 2.2 Item keranjang
 
@@ -186,6 +210,7 @@ Produk dianggap **habis** bila `stok == 0` **atau** `tersedia == false`. Penanda
   "nomor_pesanan": "ZNV-20261107-00004",
   "status": "menunggu_pembayaran",
   "status_berikutnya": ["menunggu_konfirmasi", "dibatalkan"],
+  "nomor_resi": null,
   "nama_penerima": "Budi Santoso",
   "alamat_penerima": "Jl. Pahlawan No. 10, Sidoarjo",
   "kurir": { "nama": "Zenvora Jawa", "wilayah": "Jawa Timur lainnya", "tarif_per_kg": 7500 },
@@ -213,6 +238,7 @@ Produk dianggap **habis** bila `stok == 0` **atau** `tersedia == false`. Penanda
 ```
 
 - `kurir.tarif_per_kg` adalah **salinan** `pesanan.tarif_per_kg_saat_pesan`, bukan tarif kurir hari ini.
+- `nomor_resi` (string, boleh `null`) diisi web admin saat pesanan berpindah ke `dikirim`; mobile menampilkannya di rincian pesanan bila terisi.
 - Semua kolom pada `item` adalah **salinan saat pembelian** (`detail_pesanan`), bukan data produk hari ini.
 - `nomor_seri` berisi satu string per unit; panjangnya sama dengan `jumlah`.
 - `status_berikutnya` datang dari server (daftar perpindahan sah dari status saat ini). Flutter memakainya untuk menampilkan tombol aksi (mis. tombol **Bayar** bila memuat `menunggu_konfirmasi`), sehingga aturan perpindahan tidak diduplikasi di Dart. Untuk status akhir, nilainya `[]`.
@@ -225,9 +251,9 @@ Produk dianggap **habis** bila `stok == 0` **atau** `tersedia == false`. Penanda
 |---|------------------|--------|-------------|
 | 1 | GET `/api/produk` | Daftar produk (filter, cari, lazy load) | 200, 422 |
 | 2 | GET `/api/produk/{id}` | Rincian produk | 200, 404 |
-| 3 | POST `/api/produk` | Tambah produk | 201, 422 |
-| 4 | PUT `/api/produk/{id}` | Ubah produk | 200, 404, 422 |
-| 5 | DELETE `/api/produk/{id}` | Hapus produk | 200, 404, 409 |
+| 3 | POST `/api/produk` | Tambah produk | 201, 403, 422 |
+| 4 | PUT `/api/produk/{id}` | Ubah produk | 200, 403, 404, 422 |
+| 5 | DELETE `/api/produk/{id}` | Hapus produk | 200, 403, 404, 409 |
 | 6 | GET `/api/keranjang` | Isi keranjang + subtotal | 200 |
 | 7 | POST `/api/keranjang` | Tambah item | 201 (baru), 200 (menambah jumlah), 409, 422 |
 | 8 | PUT `/api/keranjang/{id}` | Ubah jumlah | 200, 404, 409, 422 |
@@ -236,10 +262,10 @@ Produk dianggap **habis** bila `stok == 0` **atau** `tersedia == false`. Penanda
 | 11 | POST `/api/checkout` | Buat pesanan | 201, 409, 422 |
 | 12 | GET `/api/pesanan` | Riwayat pesanan | 200 |
 | 13 | GET `/api/pesanan/{id}` | Rincian pesanan | 200, 404 |
-| 14 | PATCH `/api/pesanan/{id}/status` | Ubah status | 200, 404, 409, 422 |
+| 14 | PATCH `/api/pesanan/{id}/status` | Ubah status | 200, 403, 404, 409, 422 |
 | 15 | GET `/api/metode-pembayaran` | Daftar metode bayar | 200 |
 
-Endpoint #15 adalah **tambahan** di luar 14 endpoint wajib dosen. Wajib dicantumkan di dokumentasi PDF dan koleksi Postman. Seluruh endpoint selain #1–#5 dan #15 bekerja atas nama pelanggan dari token.
+Endpoint #15 adalah **tambahan** di luar 14 endpoint wajib dosen. Wajib dicantumkan di dokumentasi PDF dan koleksi Postman. Endpoint #1–#2 dapat dipakai kedua token; #3–#5 **hanya** token admin; #6–#14 bekerja atas nama pelanggan dari token pembeli.
 
 Kode 401 dapat muncul di semua endpoint bila token salah dan tidak diulang di tabel.
 
@@ -314,6 +340,7 @@ Body JSON:
 | berat_gram | wajib, int ≥ 1 |
 | garansi_bulan | wajib, int ≥ 0 |
 
+- **403** bila bukan token admin (token pembeli / token salah peran). Pesan: "Mutasi produk hanya dapat dilakukan dengan token admin".
 - 201 dengan objek produk. Dalam satu transaksi server membuat sebanyak `stok` baris `unit_produk` bernomor seri otomatis dan mengisi `produk.stok` sama dengan itu.
 - 422 dengan `errors` per kolom. Pesan berbahasa Indonesia, mis. `"nama": ["Nama produk wajib diisi"]`.
 
@@ -321,12 +348,14 @@ Body JSON:
 
 Body sama dengan 4.3 (semua kolom wajib, kecuali `tersedia` dan `deskripsi`).
 
+- **403** bila bukan token admin.
 - `stok` bertindak sebagai **target jumlah unit tersedia**: bila lebih besar dari unit tersedia saat ini, server menambah unit; bila lebih kecil, server menghapus unit `tersedia` (unit `terjual` tidak pernah disentuh). `produk.stok` diubah dalam transaksi yang sama.
 - Perubahan `harga`, `berat_gram`, dan `garansi_bulan` **tidak** memengaruhi pesanan lama (disalin di `detail_pesanan`).
 - 200 dengan objek produk terbaru; 404 bila tidak ada; 422 bila validasi gagal.
 
 ### 4.5 `DELETE /api/produk/{id}`
 
+- **403** bila bukan token admin.
 - 200 dengan `data: null` dan pesan "Produk berhasil dihapus". Server melakukan soft delete dan menghapus baris `keranjang` yang memuat produk itu, dalam satu transaksi.
 - 404 bila tidak ada.
 - 409 bila produk terdapat pada pesanan berstatus selain `selesai` dan `dibatalkan`. Pesan: "Produk tidak dapat dihapus karena masih ada pada pesanan yang berjalan". Flutter menampilkan pesan ini dan tetap di daftar.
@@ -543,11 +572,12 @@ Contoh (RANCANGAN) memakai pesanan yang sama dengan 4.11, dengan perbedaan `mess
 Body: `{ "status": "menunggu_konfirmasi" }`
 
 - `status` wajib dan harus salah satu dari tujuh nilai status; selain itu → **422**.
-- Pesanan tidak ada → **404**.
+- Target selain `menunggu_konfirmasi` atau `dibatalkan` (token pembeli) → **403**, pesan: "Pembeli hanya dapat mengonfirmasi pembayaran atau membatalkan pesanan". Token admin API juga ditolak **403** di endpoint ini (jalurnya bukan `/api/produk`).
+- Pesanan tidak ada atau bukan milik pelanggan token → **404**.
 - Perpindahan tidak termasuk tabel di Bagian 5.4, termasuk dari status ke dirinya sendiri → **409**, pesan: "Pesanan berstatus {sekarang} tidak dapat dipindah ke {tujuan}". Status tidak berubah.
 - Berhasil → **200** dengan rincian pesanan (2.6) berstatus baru. Perpindahan ke `dibatalkan` mengembalikan unit ke `tersedia` (`detail_pesanan_id` = null) dan menambah `produk.stok` dalam transaksi yang sama.
 
-Pemakaian dalam aplikasi: **semua aksi status berada di halaman Rincian pesanan** (tidak ada tujuh halaman lain yang menampung aksi admin). Halaman itu menampilkan satu tombol untuk setiap nilai di `status_berikutnya`: tombol **Bayar** mengirim `menunggu_konfirmasi`, tombol **Konfirmasi pembayaran (admin)** mengirim `dibayar`, **Batalkan** mengirim `dibatalkan`, dan seterusnya. Teks tombol hanyalah label tampilan per nilai status; aturan perpindahan tetap di server. Tidak ada pembedaan peran (belum ada login); yang dijaga server hanya keabsahan perpindahan.
+Pemakaian dalam aplikasi: dari halaman **Rincian pesanan** pembeli hanya memanggil endpoint ini untuk **Saya Sudah Bayar** (`menunggu_konfirmasi`) dan pembatalan (`dibatalkan`). Status lain (`dibayar`, `diproses`, `dikirim`, `selesai`) diubah penjual melalui **Web Admin `/admin`** dengan sesi web dan CSRF — bukan lewat API mobile. Teks tombol hanya label tampilan; aturan perpindahan tetap di server.
 
 ### 4.15 `GET /api/metode-pembayaran`
 
@@ -601,11 +631,12 @@ Perpindahan lain → 409. Daftar ini sama persis dengan `StatusPesanan::bolehPin
 | Rincian produk | #2, #7 |
 | Keranjang | #6, #8, #9 |
 | Checkout | #6 (subtotal), #10 (kurir + ongkir), #15 (metode bayar), #11 |
-| Rincian pesanan | #13, #14 |
+| Rincian pesanan | #13, #14 (hanya `menunggu_konfirmasi`/`dibatalkan`) |
 | Riwayat pesanan | #12 |
-| Kelola produk | #1, #3, #4, #5 |
 
-Semua panggilan melalui satu kelas `LayananApi` dengan `.timeout(const Duration(seconds: 10))` dan pemetaan galat di 1.4.
+Layar **Kelola produk** sudah dihapus dari mobile; endpoint #3–#5 hanya dipakai alat eksternal (mis. Postman) dengan token admin. Web Admin mengelola katalog lewat jalur `web.php` sendiri, bukan lewat API ini.
+
+Semua panggilan melalui satu kelas `LayananApi` dengan `.timeout(const Duration(seconds: 10))` dan pemetaan galat di 1.4. `LayananApi` **tidak lagi menyediakan** method tambah/ubah/hapus produk.
 
 ---
 

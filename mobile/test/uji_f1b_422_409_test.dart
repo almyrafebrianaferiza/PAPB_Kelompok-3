@@ -47,7 +47,7 @@ void main() {
     // 3. Produk stok nol -> 409 dari server, dialog di layar yang sama.
     final produk1 = await api.rincianProduk(1);
     try {
-      await api.ubahProduk(1, dataProduk(produk1, stok: 0));
+      await ubahProdukAdmin(1, dataProduk(produk1, stok: 0));
       await tester.tap(find.widgetWithText(ElevatedButton, 'Buat Pesanan'));
       await tungguMuncul(tester, find.text('Stok Tidak Mencukupi'));
       expect(find.textContaining('tidak mencukupi'), findsWidgets);
@@ -56,7 +56,7 @@ void main() {
       await tungguHilang(tester, find.text('Stok Tidak Mencukupi'));
       catat(tester, '409 stok di layar sama');
     } finally {
-      await api.ubahProduk(1, dataProduk(produk1, stok: 5));
+      await ubahProdukAdmin(1, dataProduk(produk1, stok: 5));
     }
 
     await kosongkanKeranjang(api);

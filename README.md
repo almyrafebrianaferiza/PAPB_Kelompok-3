@@ -82,15 +82,23 @@ Authorization: Bearer zenvora-dev-token-2026
 
 Server memetakan token tersebut ke `pelanggan_id = 1`. Header dibentuk hanya di satu tempat: `mobile/lib/services/layanan_api.dart` pada `_header()`. Token ini token pengembangan untuk tugas, bukan rahasia produksi.
 
+Mutasi produk API (POST/PUT/DELETE `/api/produk`) memakai token admin terpisah, hanya berlaku untuk jalur `/api/produk`:
+
+```http
+Authorization: Bearer zenvora-dev-admin-token-2026
+```
+
+Token pembeli yang mencoba mutasi produk mendapat **403**; token admin di luar jalur produk juga **403**. Nilai diatur lewat `ZENVORA_TOKEN_ADMIN` di `backend/.env`.
+
 ## 7. Daftar endpoint (15)
 
 | Metode | Jalur | Keterangan |
 |---|---|---|
 | GET | `/api/produk` | `?kategori=` `?cari=` `?halaman=` `?per_halaman=`; tetap 200 saat kosong |
 | GET | `/api/produk/{id}` | 200 / 404 |
-| POST | `/api/produk` | 201 / 422 |
-| PUT | `/api/produk/{id}` | 200 / 404 / 422; `stok` = target jumlah unit |
-| DELETE | `/api/produk/{id}` | 200 / 404 / 409 bila dipakai pesanan aktif |
+| POST | `/api/produk` | 201 / 403 tanpa token admin / 422 |
+| PUT | `/api/produk/{id}` | 200 / 403 tanpa token admin / 404 / 422; `stok` = target jumlah unit |
+| DELETE | `/api/produk/{id}` | 200 / 403 tanpa token admin / 404 / 409 bila dipakai pesanan aktif |
 | GET | `/api/keranjang` | item, `total_jumlah`, `subtotal` dari server |
 | POST | `/api/keranjang` | 201 / 200 bila sudah ada / 409 stok kurang / 422 |
 | PUT | `/api/keranjang/{id}` | 200 / 409 / 422 (jumlah <= 0) |
@@ -99,7 +107,7 @@ Server memetakan token tersebut ke `pelanggan_id = 1`. Header dibentuk hanya di 
 | POST | `/api/checkout` | header `X-Kunci-Idempoten` wajib; 201 / 409 / 422 |
 | GET | `/api/pesanan` | riwayat terbaru ke terlama |
 | GET | `/api/pesanan/{id}` | rincian + harga saat beli + nomor seri |
-| PATCH | `/api/pesanan/{id}/status` | 200 / 404 / 409 perpindahan tidak sah / 422 |
+| PATCH | `/api/pesanan/{id}/status` | 200 / 403 (pembeli hanya `menunggu_konfirmasi`/`dibatalkan`) / 404 / 409 / 422 |
 | GET | `/api/metode-pembayaran` | 200 |
 
 Dokumentasi kontrak lengkap: [`api-contract (1).md`](docs/Perancangan/api-contract%20%281%29.md). Koleksi Postman: `docs/postman/zenvora.postman_collection.json`.

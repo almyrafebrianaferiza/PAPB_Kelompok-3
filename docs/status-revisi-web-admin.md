@@ -33,7 +33,7 @@ bukti tertulis, lampirkan ke dokumen ini agar tidak menimbulkan bias.
   perilaku** yang tertulis di PDF tugas, PRD, dan API contract. Perubahan itu
   disetujui sebagai revisi, sehingga dokumen lama wajib diselaraskan.
 - Kondisi verifikasi terakhir (2026-11-13):
-  - `php artisan test`: **29 tes PASS**, 106 assertion.
+  - `php artisan test`: **34 tes PASS**, 121 assertion.
   - `flutter analyze`: **No issues found**.
   - E4, E5, E7, F1b: **PASS** di Chrome (2026-11-13); E1/F1a PASS (2026-11-12).
   - Audit viewport 360x640: tidak ada overflow.
@@ -42,9 +42,9 @@ bukti tertulis, lampirkan ke dokumen ini agar tidak menimbulkan bias.
   1. `produk_varian` adalah tabel domain ke-9, bukan bagian dari 8 tabel inti.
   2. Varian sudah tampil dan punya harga/stok sendiri, tetapi keranjang/checkout
      masih memakai produk induk dan **belum mengirim `varian_id`**.
-  3. API sudah membatasi transisi status pembeli ke `menunggu_konfirmasi`
-     atau `dibatalkan`, tetapi token pembeli **masih dapat** memanggil mutasi
-     produk (`POST/PUT/DELETE /api/produk`). Pemisahan peran belum menyeluruh.
+  3. Peran API memakai **dua token statis**: pembeli (semua rute kecuali
+     mutasi produk) dan admin (khusus `/api/produk`). Bukan sistem login/role
+     dinamis; nilai default ada di `config/zenvora.php`.
 
 ---
 
@@ -101,7 +101,8 @@ Konsekuensi yang diterima:
 - Jangan menyebut status berubah real-time; aplikasi memuat ulang saat dibuka
   atau di-refresh.
 - Jangan menyebut pembeli bisa melacak posisi kurir; yang ada hanya nomor resi.
-- Jangan menyebut API sudah role-aware sepenuhnya; baru status pesanan yang dibatasi.
+- Jangan menyebut API memakai login/role dinamis; yang ada dua token statis
+  (pembeli & admin) dengan pembagian cakupan jalur.
 - Jangan menyebut pembayaran otomatis/gateway; pembeli hanya mengonfirmasi manual.
 
 ---
@@ -168,6 +169,7 @@ hitungan domain.
 | C11 | `655cf85` | Sinkronisasi registran plugin `geolocator` | Build Flutter | `android/`, `pubspec.yaml` |
 | C12 | `2c98d91` | Tahap 5 ditandai selesai | Dokumentasi status | `docs/admin/05-rencana-eksekusi.md`, `docs/log-ai.md` |
 | C13 | `(lokal)` | Gambar produk, resi mobile, konfirmasi bayar pembeli, ongkir lokal, pembatasan status API | Menutup gap fitur/keamanan | `ProdukController`, `Produk`, migrasi `gambar_path`, `KurirController`, `PesananController`, `ServisPesanan`, mobile model/screen, `ApiPesananTest` |
+| C14 | `(lokal)` | Otorisasi mutasi produk API: token admin terpisah + penyesuaian tes/kontrak | Menutup gap G2 | `config/zenvora.php`, `AutentikasiTokenStatis`, `Api/ProdukController`, `ApiProdukAuthTest`, helper tes mobile, `api-contract`, Postman |
 
 Catatan: C4 sengaja dicatat karena sempat ada, lalu dibatalkan oleh C10. Jangan
 menganggap dashboard admin mobile masih ada.
@@ -181,9 +183,9 @@ menganggap dashboard admin mobile masih ada.
 | Fase 1: GPS + alamat otomatis | Selesai | Geolocator + Nominatim; isi alamat checkout | E4 PASS; analyze bersih |
 | Fase 2: RajaOngkir | Selesai | Tarif dinamis per kota; dropdown kota | E4 PASS; 15 rute tetap |
 | Fase 3: Varian produk | Selesai di UI/API, belum transaksional | Varian tampil dan punya harga/stok; keranjang belum memilih varian | E2 PASS; lihat G1 |
-| Fase 4: Web admin | Selesai Tahap 1-4 | Dashboard, pesanan, resi, katalog, varian, unit serial | 23 tes admin PASS saat itu; total suite kini 29 PASS |
+| Fase 4: Web admin | Selesai Tahap 1-4 | Dashboard, pesanan, resi, katalog, varian, unit serial | 23 tes admin PASS saat itu; total suite kini 34 PASS |
 | Fase 5: Mobile read-only | Selesai | Admin mobile dan tombol status dihapus | E1/E5/E7/F1a PASS; 360x640 aman |
-| Perbaikan lanjutan 2026-11-13 | Selesai | Gambar produk, resi, konfirmasi bayar, ongkir lokal, batas status API | 29 tes backend PASS; E4/E5/E7/F1b PASS; analyze bersih |
+| Perbaikan lanjutan 2026-11-13 | Selesai | Gambar produk, resi, konfirmasi bayar, ongkir lokal, batas status API, otorisasi produk API | 34 tes backend PASS; E2/E4/E5/E7/F1b PASS; analyze bersih |
 
 ---
 
@@ -281,26 +283,25 @@ Konsekuensi:
 ### 8.3 Otorisasi API
 
 Semua rute API berada di bawah middleware `MiddlewareDemo` +
-`AutentikasiTokenStatis`, tanpa pembedaan peran.
+`AutentikasiTokenStatis`. Sejak C14 middleware membedakan dua token statis:
 
-Sudah diperbaiki:
+- **Token pembeli** (`ZENVORA_TOKEN_PEMBELI`): seluruh rute, **kecuali**
+  `POST/PUT/DELETE /api/produk` → 403.
+- **Token admin** (`ZENVORA_TOKEN_ADMIN`): **hanya** jalur `/api/produk`;
+  dipakai untuk mutasi produk. Di luar jalur produk → 403.
+- `PATCH /api/pesanan/{id}/status`: memeriksa kepemilikan pesanan (404 bila
+  bukan milik pelanggan token) dan hanya mengizinkan target
+  `menunggu_konfirmasi` atau `dibatalkan`; target lain → 403.
+- `ProdukController@store/update/destroy` mempunyai guard lapis kedua
+  (`tolakBukanAdmin`) selain middleware.
 
-- `PATCH /api/pesanan/{id}/status` memeriksa kepemilikan pesanan (404 jika bukan
-  milik pelanggan token) dan hanya mengizinkan target `menunggu_konfirmasi`
-  atau `dibatalkan`. Target `dibayar` dan seterusnya ditolak 403.
+Bukti: `ApiProdukAuthTest` (5 tes) + `ApiPesananTest` (3 tes) PASS; fixture
+stok tes mobile (E2/E4/E5/F1b) memakai helper `ubahProdukAdmin` dengan token
+admin; koleksi Postman memakai variabel `token_admin` untuk request #3–#5 dan
+contoh 422.
 
-**GAP yang tersisa:** token pembeli masih dapat memanggil
-`POST/PUT/DELETE /api/produk`. UI mobile tidak menyediakan tombolnya, tetapi API
-belum menolak. Ini masih **perbedaan antara UI dan kontrak keamanan**.
-
-Jika otorisasi produk akan diperketat:
-
-- Tidak perlu menambah endpoint.
-- Perlu addendum `api-contract` dan PRD.
-- Perlu memperbarui Postman, tes, dan dokumentasi peran.
-- Tes mobile E4/F1b saat ini memakai token pembeli untuk menyiapkan stok lewat
-  API produk; tes itu harus dipindah ke token admin/fixture sebelum aturan
-  diaktifkan.
+Masih perlu: addendum peran pada PRD (kontrak `api-contract` sudah diselaraskan
+pada perubahan ini).
 
 ### 8.4 Resi
 
@@ -412,7 +413,9 @@ Catatan menjalankan tes integrasi:
 - `AdminProdukTest`: 12 tes (termasuk unggah gambar).
 - `ApiPesananTest`: 3 tes (konfirmasi bayar, larangan `dibayar`, larangan
   mengubah pesanan pelanggan lain).
-- Total suite: 29 tes, 106 assertion, PASS pada 2026-11-13.
+- `ApiProdukAuthTest`: 5 tes (baca boleh, mutasi ditolak untuk pembeli,
+  admin bisa ubah, admin di luar jalur produk ditolak, token salah 401).
+- Total suite: 34 tes, 121 assertion, PASS pada 2026-11-13.
 
 ---
 
@@ -433,7 +436,7 @@ Catatan menjalankan tes integrasi:
 | Resi terlihat pembeli | Dokumen admin 02 | Patuh | API + mobile menampilkan `nomor_resi` |
 | Gambar produk | Revisi katalog | Patuh | Unggah gambar di web admin; API mengirim `gambar_url` |
 | Real-time | Dokumen admin 01/02/05 | Tidak benar | Hanya refresh/reopen; klaim dokumen sudah dikoreksi |
-| Otorisasi API berbasis peran | PRD/keamanan | Sebagian | Status pesanan dibatasi; mutasi produk masih terbuka |
+| Otorisasi API berbasis peran | PRD/keamanan | Patuh | Dua token statis: pembeli dibatasi; mutasi produk hanya token admin |
 
 ---
 
@@ -448,12 +451,11 @@ Catatan menjalankan tes integrasi:
    - Ubah klaim 8 tabel menjadi "8 tabel inti + 1 tabel varian" atau setarakan
      dengan keputusan revisi.
    - Perbarui urutan migrasi.
-2. `docs/Perancangan/api-contract (1).md`
-   - Tambah `varian`, `gambar_path`, dan `gambar_url` pada objek Produk.
-   - Perjelas bahwa pembeli hanya boleh mengonfirmasi bayar/membatalkan;
-     status lain ditolak API.
-   - Catat bahwa mutasi produk API masih terbuka.
-   - Tambahkan `nomor_resi` pada rincian pesanan beserta contoh respons.
+2. `docs/Perancangan/api-contract (1).md` — **SELESAI (C14, 2026-11-13)**
+   - `varian`, `gambar_path`, dan `gambar_url` sudah ada pada objek Produk.
+   - Pembeli dibatasi ke `menunggu_konfirmasi`/`dibatalkan`; status lain 403.
+   - Mutasi produk #3–#5 kini membutuhkan token admin (403 untuk token pembeli).
+   - `nomor_resi` sudah dicatat pada rincian pesanan.
 3. `docs/Perancangan/prd (1).md`
    - Ganti "admin mobile tanpa login" dengan "web admin sesi + login".
    - Tegaskan mobile hanya untuk pembeli.
@@ -461,8 +463,9 @@ Catatan menjalankan tes integrasi:
    - FASE 4 yang menyebut dashboard admin mobile harus diganti menjadi web
      admin.
 5. `docs/admin/01-arsitektur-admin.md`
-   - Label `Api\PesananController`/`Api\ProdukController` sebagai "Mobile Read"
-     belum sepenuhnya benar; status pesanan sudah dibatasi, mutasi produk belum.
+   - Label `Api\ProdukController` bisa ditandai butuh token admin; sudah
+     diberlakukan (C14). `Api\PesananController` memakai token pembeli dengan
+     batas target status.
    - Hapus klaim real-time (sudah dikoreksi).
    - Snippet rute lama tidak memuat login/logout dan nama metode yang berbeda
      dari kode; selaraskan.
@@ -502,7 +505,7 @@ Catatan menjalankan tes integrasi:
 | ID | Gap/risiko | Dampak | Tindakan |
 |---|---|---|---|
 | G1 | Varian belum transaksional | Harga tampil bisa beda dari keranjang | Putuskan `varian_id` di skema/kontrak |
-| G2 | API baru sebagian role-aware | Status pesanan aman; mutasi produk masih terbuka | Addendum + hardening + tes |
+| G2 | ~~API baru sebagian role-aware~~ | Selesai: token admin khusus `/api/produk`, tes + kontrak diselaraskan | - |
 | G3 | ~~Resi tidak diekspos API~~ | Selesai: API + mobile menampilkan resi | Perbarui kontrak/skema |
 | G4 | Dokumen stale | Evaluator membaca klaim yang salah | Kerjakan P0/P1 |
 | G5 | Bukti bayar belum ada | Alur pembayaran belum lengkap | Putuskan web-only/API; jangan tambah endpoint tanpa revisi |
@@ -540,7 +543,7 @@ vendor\bin\pint --test
 
 Hasil terakhir:
 
-- `php artisan test`: 29 PASS, 106 assertion, sekitar 5 detik.
+- `php artisan test`: 34 PASS, 121 assertion, sekitar 6 detik.
 - Rute API: 15.
 - Rute admin: 16.
 - `pint --test`: hijau (seluruh berkas; G7 selesai).
@@ -613,13 +616,13 @@ Prasyarat tes integrasi:
 - [x] Catat register perubahan besar.
 - [x] Catat status verifikasi dan gap.
 - [ ] Selaraskan `database-schema.md`.
-- [ ] Selaraskan `api-contract (1).md`.
+- [x] Selaraskan `api-contract (1).md`.
 - [ ] Selaraskan `prd (1).md` dan `plan.md`.
 - [ ] Selaraskan `docs/admin/01`, `02`, `05`.
 - [ ] Perbarui `testing.md`, `testing (1).md`, `todo.md`.
 - [ ] Lengkapi README (NIM, video, peran).
 - [ ] Putuskan desain varian transaksional.
-- [ ] Putuskan hardening otorisasi API.
+- [x] Putuskan hardening otorisasi API (C14).
 - [ ] Putuskan alur bukti pembayaran.
 - [ ] Perbaiki format Pint di commit terpisah.
 - [ ] Opsional: tambah CI test/analyze.
@@ -691,12 +694,13 @@ dda44fd feat(mobile): dashboard admin terpadu kpi omzet pemrosesan pesanan dan p
 |---|---|---|
 | 1.0 | 2026-11-12 | Dibuat; mencatat Opsi A, register perubahan, gap, bukti verifikasi, dan rencana revisi dokumen |
 | 1.1 | 2026-11-13 | Pembaruan C13: gambar produk, resi mobile, konfirmasi bayar, ongkir lokal, batas status API, hasil 29 tes, dan sisa gap |
+| 1.2 | 2026-11-13 | Pembaruan C14: otorisasi mutasi produk API (token admin), kontrak/Postman/README, hasil 34 tes |
 
 ---
 
 ## 19. Pembaruan 2026-11-13 (C13)
 
-Ringkasan perubahan lokal, belum di-commit:
+Ringkasan perubahan; sudah di-commit (cbbd326, diperbarui setelah `optimize:clear`):
 
 | Area | Perubahan | Berkas utama | Bukti |
 |---|---|---|---|
@@ -727,11 +731,51 @@ File baru:
 
 Sisa pekerjaan setelah C13:
 
-1. Perketat `POST/PUT/DELETE /api/produk`; pindahkan persiapan stok E4/F1b ke
-   token admin/fixture sebelum aturan diaktifkan.
+1. ~~Perketat `POST/PUT/DELETE /api/produk`~~ - selesai pada C14 (Bagian 20).
 2. Selesaikan varian transaksional atau sembunyikan pemilih varian dari
    keranjang/checkout.
-3. Selaraskan `api-contract`, `database-schema.md`, PRD, dan `testing.md` dengan
-   field `gambar_path`/`gambar_url`, `nomor_resi`, serta perilaku pembayaran.
+3. Selaraskan `database-schema.md`, PRD, dan `testing.md` dengan
+   field `gambar_path`/`gambar_url`, `nomor_resi`, serta perilaku pembayaran
+   (`api-contract` sudah diselaraskan).
 4. Putuskan apakah bukti transfer diunggah; saat ini hanya tombol konfirmasi.
 5. Pertimbangkan tes integrasi upload gambar nyata (saat ini `Storage::fake`).
+
+---
+
+## 20. Pembaruan 2026-11-13 (C14): otorisasi API produk
+
+Masalah: token pembeli masih dapat memanggil `POST/PUT/DELETE /api/produk`
+(Gap G2) - antarmuka mobile sudah tidak menampilkan tombolnya, tetapi API belum
+menolak.
+
+Perubahan:
+
+| Area | Perubahan | Berkas |
+|---|---|---|
+| Token admin | `zenvora.token_admin` (`ZENVORA_TOKEN_ADMIN`, default `zenvora-dev-admin-token-2026`) | `config/zenvora.php`, `.env.example` |
+| Middleware | `AutentikasiTokenStatis` mengenali dua token: admin hanya untuk jalur `/api/produk`, selain itu 403; pembeli ditolak pada mutasi produk | `app/Http/Middleware/AutentikasiTokenStatis.php` |
+| Controller | Guard lapis kedua `tolakBukanAdmin()` pada `store`/`update`/`destroy` | `app/Http/Controllers/Api/ProdukController.php` |
+| Tes API | `ApiProdukAuthTest` (5 tes: baca boleh, mutasi ditolak 403, admin bisa ubah, admin di luar jalur 403, token salah 401) | `tests/Feature/ApiProdukAuthTest.php` |
+| Mobile | `LayananApi` tidak lagi menyediakan `tambahProduk`/`ubahProduk`/`hapusProduk`; helper tes `ubahProdukAdmin` (di `uji_e_util.dart`) memakai token admin untuk menyiapkan stok | `mobile/lib/services/layanan_api.dart`, `mobile/test/uji_e_util.dart` |
+| UI | Baris tombol aksi admin di `rincian_pesanan_page.dart` (stale setelah layar kelola dihapus) | `mobile/lib/screens/rincian_pesanan_page.dart` |
+| Kontrak | Token admin, kode 403, `gambar_path`/`gambar_url`/`varian`, `nomor_resi`, batas status, pemetaan halaman diperbarui | `docs/Perancangan/api-contract (1).md` |
+| Postman | Variabel `token_admin`; request #3-#5 memakai token admin; contoh 422 disesuaikan | `docs/postman/zenvora.postman_collection.json` |
+| README | Token admin dan tabel kode status (403) dicatat | `README.md` |
+
+Verifikasi (2026-11-13, lokal):
+
+```text
+php artisan test --compact                        34 PASS, 121 assertion
+flutter analyze                                   No issues found
+vendor\bin\pint --test                            hijau
+php artisan route:list --path=api                 15 rute
+curl PUT /api/produk/1 (token pembeli)            403
+curl GET /api/pesanan (token admin)               403
+flutter test E2/E4/E5/E7/F1b (Chrome)             PASS
+postman collection JSON valid                     OK
+```
+
+Keputusan lanjutan (belum dikerjakan):
+
+- Addendum peran pada PRD dan `docs/admin/01` (label rute API).
+- Varian transaksional tetap terpisah (G1).
