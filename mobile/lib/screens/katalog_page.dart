@@ -55,32 +55,27 @@ class _KatalogPageState extends State<KatalogPage> {
   final List<Map<String, dynamic>> _daftarBrand = [
     {
       'nama': 'Samsung',
-      'gambar': 'assets/images/samsung.jpg',
-      'warna': const Color(0xFF1B3A57),
+      'gambar': 'assets/images/samsung.png',
       'posisi': const Alignment(-0.65, 0),
     },
     {
       'nama': 'Apple',
-      'gambar': 'assets/images/apple.jpg',
-      'warna': const Color(0xFF56505D),
+      'gambar': 'assets/images/apple.png',
       'posisi': const Alignment(0.55, 0),
     },
     {
       'nama': 'ASUS',
-      'gambar': 'assets/images/asus.jpg',
-      'warna': const Color(0xFF42413D),
+      'gambar': 'assets/images/asus.png',
       'posisi': const Alignment(0.15, 0),
     },
     {
       'nama': 'Xiaomi',
-      'gambar': 'assets/images/xiaomi.jpg',
-      'warna': const Color(0xFF9A4A14),
+      'gambar': 'assets/images/xiaomi.png',
       'posisi': const Alignment(0.8, 0),
     },
     {
       'nama': 'Lenovo',
-      'gambar': 'assets/images/lenovo.jpg',
-      'warna': const Color(0xFF5C2630),
+      'gambar': 'assets/images/lenovo.png',
       'posisi': const Alignment(-0.15, 0),
     },
   ];
@@ -459,14 +454,16 @@ class _KatalogPageState extends State<KatalogPage> {
   }
 
   Widget _bangunBrandPilihan() {
+    const ukuranKartu = 140.0;
+
     Widget buatKartuBrand(int index) {
       final brand = _daftarBrand[index];
       return InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: () => _cariBrand(brand['nama'] as String),
         child: SizedBox(
-          width: 148,
-          height: 112,
+          width: ukuranKartu,
+          height: ukuranKartu,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16),
             child: Stack(
@@ -478,19 +475,6 @@ class _KatalogPageState extends State<KatalogPage> {
                   alignment: brand['posisi'] as Alignment,
                   errorBuilder: (context, error, stackTrace) =>
                       const ColoredBox(color: ZWarna.permukaanTinggi),
-                ),
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        (brand['warna'] as Color).withValues(alpha: 0.16),
-                        (brand['warna'] as Color).withValues(alpha: 0.92),
-                      ],
-                      stops: const [0.05, 1],
-                    ),
-                  ),
                 ),
                 Align(
                   alignment: Alignment.bottomLeft,
@@ -545,10 +529,9 @@ class _KatalogPageState extends State<KatalogPage> {
           const SizedBox(height: 12),
           LayoutBuilder(
             builder: (context, constraints) {
-              const lebarKartu = 148.0;
               const jarak = 12.0;
               final lebarSemuaKartu =
-                  _daftarBrand.length * lebarKartu +
+                  _daftarBrand.length * ukuranKartu +
                   (_daftarBrand.length - 1) * jarak;
 
               if (lebarSemuaKartu <= constraints.maxWidth) {
@@ -564,7 +547,7 @@ class _KatalogPageState extends State<KatalogPage> {
               }
 
               return SizedBox(
-                height: 112,
+                height: ukuranKartu,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: _daftarBrand.length,
@@ -690,12 +673,18 @@ class _KatalogPageState extends State<KatalogPage> {
     );
   }
 
-  Widget _judulBagian(String judul, String subjudul) {
+  Widget _judulBagian(
+    String judul,
+    String subjudul, {
+    bool rataTengah = false,
+  }) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment:
+          rataTengah ? CrossAxisAlignment.center : CrossAxisAlignment.start,
       children: [
         Text(
           judul,
+          textAlign: rataTengah ? TextAlign.center : TextAlign.start,
           style: const TextStyle(
             color: ZWarna.putih,
             fontSize: 17,
@@ -705,6 +694,7 @@ class _KatalogPageState extends State<KatalogPage> {
         const SizedBox(height: 3),
         Text(
           subjudul,
+          textAlign: rataTengah ? TextAlign.center : TextAlign.start,
           style: const TextStyle(
             color: ZWarna.teksSekunder,
             fontSize: 11,
@@ -740,6 +730,7 @@ class _KatalogPageState extends State<KatalogPage> {
                 child: _judulBagian(
                   'Produk Pilihan',
                   'Pilihan perangkat untuk kebutuhan digitalmu',
+                  rataTengah: true,
                 ),
               ),
             ),
