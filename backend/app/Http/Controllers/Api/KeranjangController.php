@@ -44,6 +44,7 @@ class KeranjangController extends Controller
                 'subtotal_item' => $subtotalItem,
                 'stok' => $prod?->stok ?? 0,
                 'tersedia' => $prod ? $prod->tersedia && ! $prod->trashed() : false,
+                'gambar_url' => $prod?->gambar_url,
             ];
         });
 
@@ -101,6 +102,7 @@ class KeranjangController extends Controller
             'subtotal_item' => $produk->harga * $itemKeranjang->jumlah,
             'stok' => $produk->stok,
             'tersedia' => $produk->tersedia,
+            'gambar_url' => $produk->gambar_url,
         ];
 
         return Respons::sukses($data, 'Produk ditambahkan ke keranjang', $kodeStatus);
@@ -144,6 +146,7 @@ class KeranjangController extends Controller
             'subtotal_item' => $produk->harga * $itemKeranjang->jumlah,
             'stok' => $produk->stok,
             'tersedia' => $produk->tersedia,
+            'gambar_url' => $produk->gambar_url,
         ];
 
         return Respons::sukses($data, 'Item keranjang diperbarui', 200);

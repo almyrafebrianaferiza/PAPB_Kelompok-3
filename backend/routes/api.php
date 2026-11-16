@@ -9,12 +9,20 @@ use App\Http\Controllers\Api\ProdukController;
 use App\Http\Middleware\AutentikasiTokenStatis;
 use App\Http\Middleware\MiddlewareDemo;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 
 /*
 |--------------------------------------------------------------------------
 | REST API Routes Toko Online Zenvorā (15 Endpoint Resmi)
 |--------------------------------------------------------------------------
 */
+
+Route::get('/storage/{path}', function (string $path) {
+    abort_unless(preg_match('/\Aproducts\/[A-Za-z0-9._-]+\z/', $path) === 1, 404);
+    abort_unless(Storage::disk('public')->exists($path), 404);
+
+    return Storage::disk('public')->response($path);
+})->where('path', '.*');
 
 Route::middleware([MiddlewareDemo::class, AutentikasiTokenStatis::class])->group(function () {
     // 1-5: Operasi CRUD Produk

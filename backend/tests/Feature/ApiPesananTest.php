@@ -26,6 +26,17 @@ class ApiPesananTest extends TestCase
         );
     }
 
+    public function test_rincian_pesanan_mengirimkan_url_gambar_produk(): void
+    {
+        $this->sebagaiPembeli()
+            ->getJson('/api/pesanan/1')
+            ->assertOk()
+            ->assertJsonPath(
+                'data.item.0.gambar_url',
+                rtrim((string) config('app.url'), '/').'/api/storage/products/xiaomi.png'
+            );
+    }
+
     public function test_pembeli_dapat_mengonfirmasi_pembayaran(): void
     {
         $this->sebagaiPembeli()

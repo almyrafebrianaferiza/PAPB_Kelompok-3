@@ -24,7 +24,7 @@ class Produk extends Model
             ? rtrim((string) config('app.url'), '/')
             : request()->getSchemeAndHttpHost();
 
-        return $basis.'/storage/'.$this->gambar_path;
+        return $basis.'/api/storage/'.$this->gambar_path;
     }
 
     protected $fillable = [

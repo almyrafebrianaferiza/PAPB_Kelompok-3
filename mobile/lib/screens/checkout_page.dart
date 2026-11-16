@@ -511,6 +511,51 @@ class _CheckoutPageState extends State<CheckoutPage> {
               judul: '4. Ringkasan Transaksi',
               anak: Column(
                 children: [
+                  if (_keranjang != null)
+                    for (final item in _keranjang!.item)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: Row(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(6),
+                              child: SizedBox(
+                                width: 44,
+                                height: 44,
+                                child: item.gambarUrl != null &&
+                                        item.gambarUrl!.isNotEmpty
+                                    ? Image.network(
+                                        item.gambarUrl!,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (_, __, ___) =>
+                                            const ColoredBox(
+                                          color: ZWarna.permukaanTinggi,
+                                          child: Icon(Icons.devices_other,
+                                              color: ZWarna.teksSamar),
+                                        ),
+                                      )
+                                    : const ColoredBox(
+                                        color: ZWarna.permukaanTinggi,
+                                        child: Icon(Icons.devices_other,
+                                            color: ZWarna.teksSamar),
+                                      ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                '${item.nama} • ${item.jumlah} item',
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: ZWarna.teksSekunder,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                   _barisRincian(
                     'Total Produk (${_keranjang?.totalJumlah ?? 0} item)',
                     _formatRupiah(_keranjang?.subtotal ?? 0),

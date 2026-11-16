@@ -2,6 +2,7 @@ class DetailItemPesanan {
   final int id;
   final int produkId;
   final String namaProduk;
+  final String? gambarUrl;
   final int hargaSatuan;
   final int jumlah;
   final int subtotalItem;
@@ -13,6 +14,7 @@ class DetailItemPesanan {
     required this.id,
     required this.produkId,
     required this.namaProduk,
+    this.gambarUrl,
     required this.hargaSatuan,
     required this.jumlah,
     required this.subtotalItem,
@@ -27,6 +29,7 @@ class DetailItemPesanan {
       id: json['id'] as int,
       produkId: json['produk_id'] as int,
       namaProduk: json['nama_produk'] as String,
+      gambarUrl: json['gambar_url'] as String?,
       hargaSatuan: json['harga_satuan'] as int,
       jumlah: json['jumlah'] as int,
       subtotalItem: json['subtotal_item'] as int,

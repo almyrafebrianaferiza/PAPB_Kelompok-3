@@ -573,13 +573,13 @@ class _KatalogPageState extends State<KatalogPage> {
       (
         ikon: Icons.local_shipping_outlined,
         judul: 'Pengiriman Cepat',
-        keterangan: 'Dikirim menggunakan berbagai jasa ekspedisi terpercaya',
+        keterangan: 'Dikirim dengan jasa ekspedisi terpercaya',
       ),
       (
         ikon: Icons.security_outlined,
         judul: 'Pembayaran Aman',
         keterangan:
-            'Kemudahan transaksi yang praktis, cepat, & terenkripsi SSL',
+            'Transaksi yang praktis & cepat',
       ),
     ];
 

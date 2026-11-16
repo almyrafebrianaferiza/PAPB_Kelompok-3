@@ -41,6 +41,8 @@ class ServisPesanan
 
     public function formatRincian(Pesanan $pesanan): array
     {
+        $pesanan->loadMissing('detail.produk');
+
         $statusEnum = StatusPesanan::from($pesanan->status);
         $statusBerikutnya = array_map(fn ($s) => $s->value, $statusEnum->berikutnya());
 
@@ -49,6 +51,7 @@ class ServisPesanan
                 'id' => $d->id,
                 'produk_id' => $d->produk_id,
                 'nama_produk' => $d->nama_produk,
+                'gambar_url' => $d->produk?->gambar_url,
                 'harga_satuan' => $d->harga_satuan,
                 'jumlah' => $d->jumlah,
                 'subtotal_item' => $d->subtotal_item,

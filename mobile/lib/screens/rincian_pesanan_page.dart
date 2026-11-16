@@ -316,21 +316,54 @@ class _RincianPesananPageState extends State<RincianPesananPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Expanded(
-                                child: Text(
-                                  item.namaProduk,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 13),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(6),
+                                child: SizedBox(
+                                  width: 48,
+                                  height: 48,
+                                  child: item.gambarUrl != null &&
+                                          item.gambarUrl!.isNotEmpty
+                                      ? Image.network(
+                                          item.gambarUrl!,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (_, __, ___) =>
+                                              const ColoredBox(
+                                            color: ZWarna.permukaan,
+                                            child: Icon(Icons.devices_other,
+                                                color: ZWarna.teksSamar),
+                                          ),
+                                        )
+                                      : const ColoredBox(
+                                          color: ZWarna.permukaan,
+                                          child: Icon(Icons.devices_other,
+                                              color: ZWarna.teksSamar),
+                                        ),
                                 ),
                               ),
-                              Text(
-                                _formatRupiah(item.subtotalItem),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: ZWarna.oranye,
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        item.namaProduk,
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 13),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      _formatRupiah(item.subtotalItem),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: ZWarna.oranye,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],

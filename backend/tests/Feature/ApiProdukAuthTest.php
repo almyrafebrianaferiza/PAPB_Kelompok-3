@@ -55,6 +55,46 @@ class ApiProdukAuthTest extends TestCase
             ->assertJsonPath('status', 'sukses');
     }
 
+    public function test_produk_mengirimkan_url_gambar(): void
+    {
+        $this->sebagaiPembeli()
+            ->getJson('/api/produk/1')
+            ->assertOk()
+            ->assertJsonPath('data.gambar_path', 'products/samsung.png')
+            ->assertJsonPath(
+                'data.gambar_url',
+                rtrim((string) config('app.url'), '/').'/api/storage/products/samsung.png'
+            );
+    }
+
+    public function test_semua_produk_memiliki_url_gambar(): void
+    {
+        $response = $this->sebagaiPembeli()
+            ->getJson('/api/produk?per_halaman=50')
+            ->assertOk();
+
+        $produk = $response->json('data');
+        $this->assertCount(15, $produk);
+
+        foreach ($produk as $item) {
+            $this->assertNotEmpty($item['gambar_path']);
+            $this->assertNotEmpty($item['gambar_url']);
+        }
+    }
+
+    public function test_gambar_produk_mendukung_cors_web(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+        \Illuminate\Support\Facades\Storage::disk('public')
+            ->put('products/samsung.png', 'gambar-uji');
+
+        $this->withHeader('Origin', 'http://localhost:3000')
+            ->get('/api/storage/products/samsung.png')
+            ->assertOk()
+            ->assertHeader('Access-Control-Allow-Origin', '*')
+            ->assertContent('gambar-uji');
+    }
+
     public function test_token_pembeli_ditolak_pada_seluruh_mutasi_produk(): void
     {
         $produk = Produk::findOrFail(1);

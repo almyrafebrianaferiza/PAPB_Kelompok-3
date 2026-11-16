@@ -9,6 +9,7 @@ class ItemKeranjang {
   final int subtotalItem;
   final int stok;
   final bool tersedia;
+  final String? gambarUrl;
 
   ItemKeranjang({
     required this.id,
@@ -21,6 +22,7 @@ class ItemKeranjang {
     required this.subtotalItem,
     required this.stok,
     required this.tersedia,
+    this.gambarUrl,
   });
 
   factory ItemKeranjang.fromJson(Map<String, dynamic> json) {
@@ -35,6 +37,7 @@ class ItemKeranjang {
       subtotalItem: json['subtotal_item'] as int,
       stok: json['stok'] as int? ?? 0,
       tersedia: json['tersedia'] as bool? ?? true,
+      gambarUrl: json['gambar_url'] as String?,
     );
   }
 }

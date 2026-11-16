@@ -179,7 +179,23 @@ class _KeranjangPageState extends State<KeranjangPage> {
                       color: ZWarna.permukaanTinggi,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.devices_other, color: ZWarna.teksSamar),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child:
+                          item.gambarUrl != null && item.gambarUrl!.isNotEmpty
+                              ? Image.network(
+                                  item.gambarUrl!,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => const Center(
+                                    child: Icon(Icons.devices_other,
+                                        color: ZWarna.teksSamar),
+                                  ),
+                                )
+                              : const Center(
+                                  child: Icon(Icons.devices_other,
+                                      color: ZWarna.teksSamar),
+                                ),
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -254,7 +270,9 @@ class _KeranjangPageState extends State<KeranjangPage> {
                             ),
                             IconButton(
                               icon: const Icon(Icons.delete_outline, size: 20, color: ZWarna.galat),
-                              onPressed: _sedangMengubah ? null : () => _hapusItem(item.id),
+                              onPressed: _sedangMengubah
+                                  ? null
+                                  : () => _hapusItem(item.id),
                             ),
                           ],
                         ),

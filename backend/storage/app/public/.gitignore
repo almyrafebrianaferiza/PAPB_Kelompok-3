@@ -1,2 +1,9 @@
 *
 !.gitignore
+!products/
+products/*
+!products/samsung.png
+!products/xiaomi.png
+!products/apple.png
+!products/asus.png
+!products/lenovo.png
