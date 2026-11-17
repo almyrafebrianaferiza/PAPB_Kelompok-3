@@ -96,6 +96,34 @@ class AdminProdukTest extends TestCase
         Storage::disk('public')->assertExists($produk->gambar_path);
     }
 
+    public function test_gambar_produk_yang_diganti_dapat_diakses_pelanggan(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('produk/gambar-lama.jpg', 'gambar lama');
+        $produk = Produk::findOrFail(1);
+
+        $this->sebagaiAdmin()
+            ->put(route('admin.produk.update', $produk), $this->dataProduk([
+                'nama' => $produk->nama,
+                'merek' => $produk->merek,
+                'harga' => $produk->harga,
+                'kategori' => $produk->kategori,
+                'stok' => $produk->stok,
+                'berat_gram' => $produk->berat_gram,
+                'garansi_bulan' => $produk->garansi_bulan,
+                'gambar' => UploadedFile::fake()->image('gambar-baru.jpg', 800, 600),
+            ]))
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $produk->refresh();
+
+        $this->assertStringStartsWith('products/', $produk->gambar_path);
+        Storage::disk('public')->assertExists($produk->gambar_path);
+        $this->get('/api/storage/'.$produk->gambar_path)->assertOk();
+        $this->get('/api/storage/produk/gambar-lama.jpg')->assertOk();
+    }
+
     public function test_produk_baru_membuat_unit_serial_sesuai_stok(): void
     {
         $this->sebagaiAdmin()

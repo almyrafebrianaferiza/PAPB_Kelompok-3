@@ -73,7 +73,7 @@ class ProdukController extends Controller
     {
         $data = $this->validasi($request);
         $data['gambar_path'] = $request->hasFile('gambar')
-            ? $request->file('gambar')->store('produk', 'public')
+            ? $request->file('gambar')->store('products', 'public')
             : null;
 
         $produk = DB::transaction(function () use ($data): Produk {
@@ -134,7 +134,7 @@ class ProdukController extends Controller
         $data['gambar_path'] = $gambarLama;
 
         if ($request->hasFile('gambar')) {
-            $data['gambar_path'] = $request->file('gambar')->store('produk', 'public');
+            $data['gambar_path'] = $request->file('gambar')->store('products', 'public');
         }
 
         DB::transaction(function () use ($data, $produk): void {

@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Storage;
 */
 
 Route::get('/storage/{path}', function (string $path) {
-    abort_unless(preg_match('/\Aproducts\/[A-Za-z0-9._-]+\z/', $path) === 1, 404);
+    abort_unless(preg_match('/\A(?:products|produk)\/[A-Za-z0-9._-]+\z/', $path) === 1, 404);
     abort_unless(Storage::disk('public')->exists($path), 404);
 
     return Storage::disk('public')->response($path);
